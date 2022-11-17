@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="NBLOGIC" Register="21" Lut="48">
+    <SubModule name="CLKCPU"/>
+    <SubModule name="CLK20" Register="33" Alu="31" Lut="12"/>
+    <SubModule name="CLK13" Register="33" Alu="31" Lut="12"/>
+    <SubModule name="NBMMU" Lut="67">
+        <SubModule name="Bankreg0" Register="8"/>
+        <SubModule name="Bankreg1" Register="8"/>
+        <SubModule name="Bankreg2" Register="8"/>
+        <SubModule name="Bankreg3" Register="8"/>
+        <SubModule name="Bankreg4" Register="8"/>
+        <SubModule name="Bankreg5" Register="8"/>
+        <SubModule name="Bankreg6" Register="8"/>
+        <SubModule name="Bankreg7" Register="8"/>
+    </SubModule>
+</Module>

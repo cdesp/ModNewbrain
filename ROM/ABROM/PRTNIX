@@ -1,0 +1,100 @@
+ 
+;Offsets from IX
+ 
+P1	EQU 0		;first parameter
+P2	EQU 6		;second parameter
+P3	EQU 12		;third parameter
+CP	EQU 18		;pen colour
+CT	EQU 20		;temporary store for colour
+MODEP	EQU 22		;mode parameter
+CBACK	EQU 24		;colour of background (1 byte)
+SCWBYT	EQU 25		;screen width in bytes
+SCWTH	EQU 26		;screen width
+SCHT1	EQU 28		;screen height requested
+SCHT2	EQU 29		;screen height needed
+XR	EQU 30		;XRange = f.p. equivalent SCWTH
+YR	EQU 36		;YRange = f.p. equivalent of SCHT
+SCSTART	EQU 42		;start of TV RAM
+SCTOP	EQU 44		;last address of TV RAM
+OSTRM	EQU 46		;Linked driver stream no
+MYSTRM	EQU 47		;Actual stream no
+		;Transient flags:
+JFLAGS	EQU 48		;Show when certain loc'ns valid
+FFLAG	EQU 0		;flag bit for start
+INVFLG	EQU 1		;flag bit for CL inverted
+PFLAG	EQU 2		;flag for X-,Y- diff positive
+CFLAG	EQU 3		;flag bit for CL valid
+DLXBIT	EQU 4		;flag bit for X-step = 1
+DLYBYT	EQU 5		;flag bit for Y-step = 1
+FIFULL	EQU 5		;flag for FILL ran out of memory
+NARROW	EQU 7		;flag width of screen (OPEN only)
+OFFSCR	EQU 7		;flag point off screen (DOLINE)
+CMD	EQU 49		;current command
+CMSTATE	EQU 50		;type of next byte expected from o.s.
+POFFSET	EQU 51		;offset from IX into P1,P2,P3
+SPARE	EQU 53		;three bytes spare
+DLXL	EQU 56
+XL	EQU 58
+XBIT	EQU 60
+XBYT	EQU 61
+DLYL	EQU 62
+YL	EQU 64
+YBYT	EQU 66
+YINC	EQU 68
+SPARE2	EQU 70		;one spare byte
+		;Semi-permanent flags:
+UFLAGS	EQU 71		;user flags
+AXETOG	EQU 0		;flag AXES: no numbers if set
+DEGTOG	EQU 7		;flag bit for user wants degrees
+XP	EQU 72		;X coordinate of pen
+YP	EQU 78		;Y coordinate of pen 
+THP	EQU 84		;orientation of pen
+XT	EQU 90		;temporary store for x
+YT	EQU 96		;temporary store for y
+THT	EQU 102		;temporary store for theta
+XSF	EQU 108		;x scale factor
+YSF	EQU 114		;y scale factor
+XOD	EQU 120		;x origin displacement
+YOD	EQU 126		;y origin displacement
+		;The following offsets are used by ARC
+		;and other routines which call MOVETO.
+THA	EQU 132		;angle increment
+PHI2	EQU 138		;half angle given in P2
+R	EQU 144		;radius of arc
+DA	EQU 150		;chord length(ARC),temp variable(AXES)
+DX1	EQU 156		;temp size variable (AXES)
+DY1	EQU 162		;temp size variable (AXES)
+DX2	EQU 168		;temp size variable (AXES)
+DY2	EQU 174		;temp size variable (AXES)
+	   ;variables for MOVE,MOVETO,DOLINE
+	   ;Move them down (with care) to P1,P2,P3 area
+XA	EQU 180		;DOLINE start point: X-coord
+YA	EQU 186		;DOLINE start point: Y-coord
+XB	EQU 192		;DOLINE end point: X-coord
+YB	EQU 198		;DOLINE end point: Y-coord
+CL	EQU 204		;Calculate location
+FL	EQU 210		;Stores the value 2**16
+CENX	EQU 215
+CENY	EQU 221
+		;the following offset locations used by
+		;the TEXT routine redefine the P1 and P2 
+		;areas
+TXTA	EQU 0		;dot-offset from L.H.S. of first
+			;text character
+TXTB	EQU 2		;dot-offset from top
+TXTCT	EQU 4		;number of characters drawn
+TXTOPR	EQU 5		;drawing mode for characters -
+			;encoded operator from PC,MODEP
+TXTBYTE	EQU 6		;Initial byte for char in TV RAM
+TXTBIT	EQU 8		;Bits to use in first byte
+TXTFILL	EQU 9		;1 + bits to use in next byte
+;		;the following offset locations used by
+		;the FILL routine redefine P1 and P2
+CFILL	EQU 0
+FIFST	EQU 1
+FIFTOP	EQU 3
+FIFNXT	EQU 5
+ 
+TOPOWN	EQU 227		;top of own memory
+
+	

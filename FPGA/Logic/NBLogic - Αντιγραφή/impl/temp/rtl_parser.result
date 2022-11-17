@@ -1,0 +1,110 @@
+[
+ {
+  "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+  "InstLine" : 7,
+  "InstName" : "NBLOGIC",
+  "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+  "ModuleLine" : 7,
+  "ModuleName" : "NBLOGIC",
+  "SubInsts" : [
+   {
+    "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+    "InstLine" : 143,
+    "InstName" : "CLKCPU",
+    "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/OSC/cpu_osc.vhd",
+    "ModuleLine" : 12,
+    "ModuleName" : "CPU_OSC"
+   },
+   {
+    "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+    "InstLine" : 148,
+    "InstName" : "CLK20",
+    "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
+    "ModuleLine" : 5,
+    "ModuleName" : "Clock_Divider"
+   },
+   {
+    "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+    "InstLine" : 156,
+    "InstName" : "CLK13",
+    "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
+    "ModuleLine" : 5,
+    "ModuleName" : "Clock_Divider"
+   },
+   {
+    "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+    "InstLine" : 164,
+    "InstName" : "NBMMU",
+    "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+    "ModuleLine" : 32,
+    "ModuleName" : "MMU2",
+    "SubInsts" : [
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 88,
+      "InstName" : "Bankreg0",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 96,
+      "InstName" : "Bankreg1",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 104,
+      "InstName" : "Bankreg2",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 112,
+      "InstName" : "Bankreg3",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 120,
+      "InstName" : "Bankreg4",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 128,
+      "InstName" : "Bankreg5",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 136,
+      "InstName" : "Bankreg6",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     },
+     {
+      "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "InstLine" : 144,
+      "InstName" : "Bankreg7",
+      "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
+      "ModuleLine" : 7,
+      "ModuleName" : "regn"
+     }
+    ]
+   }
+  ]
+ }
+]

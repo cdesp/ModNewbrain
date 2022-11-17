@@ -1,0 +1,12 @@
+-d G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\gwsynthesis\NBLogic.vg
+-p GW1NR-9C-QFN88P-6
+-pn GW1NR-LV9QN88PC6/I5
+-cst G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\Logic.cst
+-cfg G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\pnr\device.cfg
+-bit
+-tr
+-ph
+-warning_all
+-timing
+-cst_error
+-no_cst_warning

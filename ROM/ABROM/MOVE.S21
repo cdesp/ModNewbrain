@@ -1,0 +1,600 @@
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+	NAME MOVE
+;
+;This module of the graphics driver contains the MOVE,
+;MOVETO and DOLINE routines themselves.
+;
+	INCLUDE PRTNIX
+ 
+	;Maths Pack externals
+		
+ZABS	EQU 09E7H
+ZACOS	EQU 14E7H	;arc cosine
+ZATAN	EQU 0AE7H	;arc tangent
+ZCOMP	EQU 26E7H	;compare f.p. numbers
+ZCOS	EQU 0BE7H	;cosine
+ZFIX	EQU 27E7H	;convert to 16 bit +ve integer
+ZFLT	EQU 28E7H	;converts from 16 bit integer 
+ZFPHLF	EQU 3EE7H	;constant half
+ZFPONE	EQU 03E7H	;constant one
+ZFPZER	EQU 05E7H	;constant zero
+ZINT	EQU 0DE7H	;integer part
+ZNEG	EQU 07E7H	;negate
+ZPI	EQU 01E7H	;constant pi
+ZFPID2	EQU 3FE7H	;constant pi/2
+ZRAISE	EQU 1AE7H	;raise to power
+ZROUND	EQU 29E7H	;conv. to 16 bit int. & round
+ZSIN	EQU 10E7H	;sine
+ZSQRT	EQU 11E7H	;square root
+ZSTF	EQU 2DE7H	;store FPACC
+;
+		;globals defined in other PLOT modules
+	GLOBAL SETHL
+	GLOBAL LDDE
+	GLOBAL SBMOV
+	GLOBAL SETDE
+	GLOBAL SWAP12
+	GLOBAL COMPFP
+	GLOBAL COMPZ
+	GLOBAL FPADD
+	GLOBAL FPADDTO
+	GLOBAL FPDIV
+	GLOBAL FPFLT
+	GLOBAL FPLD
+	GLOBAL FPMUL
+	GLOBAL FPROUND
+	GLOBAL FPST
+	GLOBAL FPSUB
+	GLOBAL FPSUBFROM
+	GLOBAL FPSTOZ
+	GLOBAL BCNEG
+	GLOBAL BICHLF
+	GLOBAL BICIMAL
+	GLOBAL CCALC1
+	GLOBAL CCALC2
+	GLOBAL GETADDRESS
+	GLOBAL GETSCALE
+	GLOBAL MEMTST
+	GLOBAL MAHLCDE
+		;globals defined in this module
+	GLOBAL ABMASK
+	GLOBAL BMASK
+	GLOBAL DOLINE
+	GLOBAL JPBACK
+	GLOBAL MOVE
+	GLOBAL MOVETO
+	GLOBAL MT4
+	GLOBAL PR2
+	GLOBAL PUTRST
+;
+;		;Position for RST8 code
+PRST8	EQU 8
+ 
+ABMASK:		;Converts bit number 0-7 in A into bit
+		;mask. B,C smashed.
+	LD C,A
+BMASK:		;Converts bit number 0-7 in C into
+		;bit mask in A. B smashed.
+	PUSH HL
+	LD B,0
+	LD HL,MSKTAB
+	ADD HL,BC
+	LD A,(HL)
+	POP HL
+	RET
+ 
+MSKTAB	EQU $
+	DEFB 1,2,4,8,16,32,64,128
+ 
+MOVE:		;like MOVETO, but needs to find
+		;out the new XP,YP rather than THP
+		;P3 preserved
+	CALL SBMOV
+	DEFB CL,P1	; d --> CL
+	CALL FPLD
+	DEFB THP
+	DEFW ZSIN
+	CALL FPMUL
+	DEFB CL
+	CALL FPADD
+	DEFB YP
+	CALL FPST
+	DEFB P2		;P2 = YP + d * sin(THP)
+	CALL FPLD
+	DEFB THP
+	DEFW ZCOS
+	CALL FPMUL
+	DEFB CL
+	CALL FPADD
+	DEFB XP
+	CALL FPST
+	DEFB P1		;P1 = XP + d * cos(THP)
+	JR MT4		;jump into MOVETO
+ 
+MOVETO:		;first calculate new THP
+		;Note P# is preserved
+	CALL FPLD
+	DEFB P1
+	CALL FPSUB
+	DEFB XP
+	CALL FPST
+	DEFB CL
+	CALL COMPZ
+	DEFB CL
+	JR Z MT3	;so don't divide by zero
+	PUSH AF		;CY set means Xdiff -ve so add PI
+	CALL FPLD
+	DEFB P2
+	CALL FPSUB
+	DEFB YP		;FACC=Ydiff, needed either way
+	CALL FPDIV
+	DEFB CL
+	DEFW ZATAN
+	JR MT32
+ 
+MT3	CALL COMPFP	;Ydiff positive?
+	DEFB YP,P2
+	PUSH AF		;with CY as "add PI" flag
+	DEFW ZFPID2	;so FACC = PI/2
+MT32	POP AF
+	JR NC MT33
+	CALL FPST
+	DEFB THP
+	DEFW ZPI
+	CALL FPADD
+	DEFB THP
+MT33	CALL FPST
+	DEFB THP	;new pen angle
+MT4:		;now move scaled XP,YP to XA,YA,
+		;P1,P2 to XP,YP, and scaled
+		;P1,P2 to XB,YB
+	CALL GETSCALE
+		;If the colour is 0 then no more to do
+	CALL LDDE
+	DEFB CP
+	LD A,D
+	OR E
+	RET Z		; with CY clear
+		;Otherwise, join the points
+DOLINE:
+		;Joins two points with a line.
+		;This routine is entered with
+		;the points in (XA,YA) and (XB,YB)
+		;The points are assumed already
+		;adjusted to origin and scale.
+		;(XR,YR) stores the screen width
+		;and height in floating point.
+		;CL is a temporary location used
+		;for the gradient of the line; bits
+		;CFLAG and INVFLG of JFLAGS reflect
+		;the current state of CL. On return
+		;XA,YA,XB,YB are destroyed.
+		;XA,YA are assumed to occupy a contiguous
+		;12 bytes of store.
+		;XB,YB,CL are assumed to occupy a
+		;contiguous 18 bytes of store.
+		;P3 is preserved
+	LD (IX+JFLAGS),0;CL not yet valid,
+			;CL cerainly not inverted,
+			;Xstep not known to be 1,
+			;Ystep not known to be 1,
+			;point may be on screen
+	CALL COMPFP
+	DEFB YB,YA
+	JR NC DL1	;if Ya >= Yb
+	CALL SWAP12	;else swap A and B
+	DEFB XA,XB
+DL1	CALL COMPFP
+	DEFB YB,YR	;set CY iff YB > YR
+	JR C DLRET	;if line entirely above screen
+	CALL COMPZ
+	DEFB YA		;set CY iff YA < 0
+	JR C DLRET
+	CALL COMPFP
+	DEFB YA,YR
+	JR NC DL3	;if no part of line above YR
+	CALL CCALC1	;calculate CL
+	CALL FPLD
+	DEFB YR
+	CALL FPSUB
+	DEFB YA
+	CALL FPMUL
+	DEFB CL
+	CALL FPADD
+	DEFB XA
+	CALL FPST
+	DEFB XA		; XA adjusted
+	CALL SBMOV
+	DEFB YA,YR	; YA adjusted
+DL3	CALL COMPZ
+	DEFB YB
+	JR NC DL5	;if YB >= 0
+	BIT CFLAG,(IX+JFLAGS)
+	CALL Z CCALC1	;find CL if not already done
+	CALL FPLD
+	DEFB YB
+	DEFW ZNEG
+	CALL FPMUL
+	DEFB CL
+	CALL FPADD
+	DEFB XB
+	CALL FPST
+	DEFB XB		;to adjust XB
+	CALL FPSTOZ
+	DEFB YB		;to adjust YB
+;
+; Now on to "Stage 5"
+;
+DL5	CALL COMPFP
+	DEFB XB,XA
+	JR NC DL6	;if XB <= XA
+	CALL SWAP12
+	DEFB XA,XB
+DL6	CALL COMPFP
+	DEFB XB,XR
+	JR C DLRET	;if XB > XR
+	CALL COMPZ
+	DEFB XA
+	JR NC DL7	; exit if XA < 0
+DLRET
+	XOR A
+	SET OFFSCR,(IX+JFLAGS)
+	RET
+ 
+DL7	CALL COMPFP
+	DEFB XA,XR
+	JR NC DL8	;if XA not > XR
+	CALL CCALC2
+     ;+
+ 
+ 
+ 
+	CALL FPLD
+	DEFB XR
+	CALL FPSUB
+	DEFB XA
+	CALL FPMUL
+	DEFB CL
+	CALL FPADD
+	DEFB YA
+	CALL FPST
+	DEFB YA		;update YA
+	CALL SBMOV
+	DEFB XA,XR	;update XA
+DL8	CALL COMPZ
+	DEFB XB
+	JR NC DL9	;if XB >= 0
+	BIT INVFLG,(IX+JFLAGS)	;recalculate CL if
+	CALL Z CCALC2		;not yet done
+	CALL FPLD
+	DEFB XB
+	DEFW ZNEG
+	CALL FPMUL
+	DEFB CL
+	CALL FPADD
+	DEFB YB
+	CALL FPST
+	DEFB YB		;Update YB
+	CALL FPSTOZ
+	DEFB XB		;Update XB
+DL9	CALL FPROUND
+	DEFB XA
+	CALL FPROUND
+	DEFB YA
+	CALL FPROUND
+	DEFB XB
+	CALL FPROUND
+	DEFB YB
+		;Insert colouring code into RST 8 area
+	CALL PUTRST
+		; Next, set up data structure
+		; for line. Form is as follows.
+		;  item        bytes
+		;   DLXL	2
+		;     XL	2
+		;   XBIT	1
+		;   XBYT	1
+		;   DLYL	2
+		;     YL	2
+		;   YBYT	2
+		;   YINC	2
+		;These values are set up, then DE
+		;is set to the number of steps and
+		;a plot-and-advance cycle is executed
+		;until DE = 0
+	CALL FPSUBFROM
+	DEFB XA,XB		;XA used as temporary location
+			;for X-difference
+			;Note XB = start point for XBYT,
+			;XBIT,XL in the data structure
+	CALL FPSUBFROM
+	DEFB YA,YB	;YA used to store Y-difference
+		;number of steps should be length
+		;of the line, but at least 1. Use
+		;int(largest difference)+2
+	DEFW ZABS
+	CALL SETHL
+	DEFB CL
+	PUSH HL
+	DEFW ZSTF
+	CALL SETHL
+	DEFB XA
+	POP DE
+		;now HL ==> XA = Xdifference,
+		;and DE ==> CL = ABS(Ydifference)
+	PUSH DE
+	PUSH HL
+	DEFW ZCOMP	;CY set iff (DE) < (HL)
+	POP HL
+	POP DE
+	JR C DL11
+	EX DE,HL
+DL11	DEFW ZROUND
+	INC DE
+	PUSH DE		;number of steps n = d + 1
+	DEC DE
+	DEFW ZFLT	;so FACC = n - 1
+	CALL FPST	;so CL = n - 1
+	DEFB CL
+		;Now find step lengths in both
+		;directions
+	CALL FPLD
+	DEFB XA
+	CALL FPDIV
+	DEFB CL
+	CALL FPST
+	DEFB XA
+	CALL FPLD
+	DEFB YA
+	CALL FPDIV
+	DEFB CL
+	CALL FPST
+	DEFB YA
+	CALL SETHL
+	DEFB DLXL
+	POP DE		;re-order stack
+	PUSH HL		;onto stack for use in loop
+	PUSH DE		;with loop counter on top
+	PUSH HL
+	CALL BICIMAL
+	DEFB XA
+	POP HL
+	LD (HL),C
+	INC HL
+	LD (HL),B
+	INC HL
+	PUSH HL
+	DEC E
+	JR NZ DL12
+	SET DLXBIT,(IX+JFLAGS)
+DL12	CALL BICHLF
+	DEFB XB
+	POP HL
+	LD (HL),C
+	INC HL
+	LD (HL),B
+	INC HL
+	LD A,E		;now want XBIT = byte with
+			;just the (X mod 8) bit set
+	AND 07H
+	LD C,A
+	CALL BMASK
+	LD (HL),A
+	INC HL
+	PUSH AF
+	LD A,E
+	RR D
+	RRA
+	RR D
+	RRA
+	RR D
+	RRA
+	LD (HL),A
+	INC HL
+	PUSH AF		;xbyte value
+	PUSH HL
+	CALL BICIMAL
+	DEFB YA
+	POP HL
+	PUSH AF		;NZ iff negative
+	LD (HL),C
+	INC HL
+	LD (HL),B
+	INC HL
+	PUSH HL
+	DEC E
+	JR NZ DL13
+	SET DLYBYT,(IX+JFLAGS)
+DL13	CALL BICHLF
+	DEFB YB
+	POP HL
+	LD (HL),C
+	INC HL
+	LD (HL),B
+	INC HL
+	PUSH HL
+	CALL FPLD
+	DEFB YB
+	DEFW ZFIX	;so DE = "y"
+	LD C,(IX+SCWBYT);so C = range in bytes
+	PUSH BC
+	INC DE
+	XOR A
+	LD L,(IX+SCHT1)
+	LD H,A
+	SBC HL,DE	;so HL = height-(y+1)
+	EX DE,HL
+	CALL GETADDRESS ;so HL = start + width * (height - (y+1))
+	POP BC		;range in C
+	EX DE,HL
+	POP HL
+	LD (HL),E
+	INC HL
+	LD (HL),D
+	INC HL
+	LD B,0
+	POP AF
+	CALL Z BCNEG	;for yinc
+	LD (HL),C
+	INC HL
+	LD (HL),B
+		;DE = ybyte value
+	POP AF
+	LD L,A
+	LD H,0
+	LD B,1		;flag initially set on
+POINTLP			;now plot n points
+	ADD HL,DE	;so HL ==> byte in display area
+	POP AF		;A = xbit
+	DEC B		;test B to see if this pt is to
+	INC B		;be plotted
+	LD C,(HL)	;for reinstate
+	JR Z NOPOINT
+	RST 8		;plot point according to colour
+	LD (HL),A
+NOPOINT	POP DE		;loop counter
+	DEC DE
+	LD A,D
+	OR E
+	JR Z FINISHED	;if all points plotted
+	POP HL		;get dlxl pointer
+	PUSH HL		;and replace it
+	PUSH DE		;store loop counter back on top
+	LD B,0		;flag -  will be set if point
+			;is updated
+	LD E,(HL)
+	INC HL
+	LD D,(HL)	;so DE = dlxl
+	INC HL
+	BIT DLXBIT,(IX+JFLAGS)
+	JR Z XLESSONE
+	INC HL
+	INC HL
+	JR SHIFTX
+ 
+XLESSONE
+	PUSH HL		; HL ==> xl
+	LD A,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,A		;HL = xl
+	ADD HL,DE
+	EX DE,HL	;DE = new xl
+	POP HL
+	LD (HL),E
+	INC HL
+	LD (HL),D	;xl updated
+	INC HL		;HL ==> xbit
+	JR NC NOSHIFT	;if xbit stays the same
+SHIFTX	INC B		;flag new point
+	RLC (HL)	;precisely the right shift to use
+NOSHIFT	LD A,(HL)
+	PUSH AF		;save xbit on stack
+	INC HL		;HL ==> xbyte
+	JR NC NOINC	;if xbyte stays the same
+	INC (HL)
+NOINC	LD C,(HL)	;so C = xbyte
+	INC HL		;HL ==> dlyl
+	LD E,(HL)
+	INC HL
+	LD D,(HL)	;so DE = dlyl
+	INC HL
+	BIT DLYBYT,(IX+JFLAGS)
+	JR Z YLESSONE
+	INC HL		;so HL ==> ybyte-1
+	SCF		;to prompt for increase
+	JR YBYTE
+ 
+YLESSONE
+	PUSH HL
+	LD A,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,A		;so HL = yl
+	ADD HL,DE
+	EX DE,HL	;DE = new yl
+	POP HL
+	LD (HL),E
+	INC HL
+	LD (HL),D	;yl updated
+YBYTE	INC HL		;HL ==> ybyte
+	LD E,(HL)
+	INC HL
+	LD D,(HL)	;DE = ybyte
+	JR NC NOYBI	;if ybyte stays the same
+	INC B		;flag new point
+	PUSH HL
+	INC HL		;HL ==> yinc
+	LD A,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,A		;HL = yinc
+	ADD HL,DE
+	EX DE,HL	;DE = new ybyte
+	POP HL
+	LD (HL),D
+	DEC HL
+	LD (HL),E	;ybyte updated
+NOYBI	LD H,0
+	LD L,C		;so HL = xbyte
+	JR POINTLP
+ 
+FINISHED
+	POP DE		;preserve HL = RAM address
+JPBACK		;come here to restore JP at PRST8
+	LD A,0C3H
+	LD (PRST8),A
+	RET
+ 
+PUTRST:		;put appropriate colouring code into
+		;RST 8 area
+		;On exit, HL = ROM byte selected,
+		;DE = RAM location of RET instr.
+	LD A,(IX+CP)
+	LD HL,PLOTB1
+	BIT 0,(IX+CBACK)
+	JR NZ PR3
+PR2:		;Enter at PR2 with A = required
+		;colour 1 (ON) or 2 (OFF)
+	LD HL,PLOTB0
+PR3	AND 03H		;select colours as 0-3 only
+	LD D,0
+	LD E,A
+	ADD HL,DE
+	LD DE,PRST8
+	LD A,(HL)
+	LDI
+	CP 2FH		;CPL instruction
+	JR NZ PR4
+	LD A,0A6H	;AND (HL) instruction
+	LD (DE),A
+	INC DE
+PR4	LD A,0C9H	;RET instruction
+	LD (DE),A
+	RET
+ 
+PLOTB0:		;background=0 table - four 1-byte
+		;entries for the four colours
+ 
+	LD A,(HL)	; background 0, colour 0
+ 
+	OR (HL)		; background 0, colour 1
+ 
+	CPL		; background 0, colour 2
+ 
+	XOR (HL)	; background 0, colour 3
+ 
+PLOTB1:		;background=1 table - four 1-byte
+		;entries for the four colours
+ 
+	LD A,(HL)	; background 1, colour 0
+ 
+	CPL		; background 1, colour 1
+ 
+	OR (HL)		; background 1, colour 2
+ 
+	XOR (HL)	; background 1, colour 3
+ 
+	END
+ 
+                                                                                    

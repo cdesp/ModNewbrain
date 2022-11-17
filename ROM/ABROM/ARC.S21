@@ -1,0 +1,486 @@
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+	NAME ARC
+ 
+; This module of the graphics driver contains
+; the ARC and CIRCLE routines.
+ 
+	GLOBAL GETADDRESS
+	GLOBAL SBMOV
+	GLOBAL SWAP12
+	GLOBAL COMPFP
+	GLOBAL COMPZ
+	GLOBAL FPADD
+	GLOBAL FPADDTO
+	GLOBAL FPDIV
+	GLOBAL FPLD
+	GLOBAL FPMUL
+	GLOBAL FPST
+	GLOBAL FPSUB
+;
+	GLOBAL ABMASK
+	GLOBAL ARCFIX
+	GLOBAL DTORAD
+	GLOBAL F4EXIT
+	GLOBAL MEMTST
+	GLOBAL MOVE
+	GLOBAL PUTRST
+	GLOBAL RESTORE
+	GLOBAL SAVE
+	GLOBAL SCALEX
+	GLOBAL SCALEY
+	GLOBAL SETANGLE
+		;defined in the BASIC ROMS
+		;defined in this module
+	GLOBAL ARC
+	GLOBAL CIRCLE
+ 
+; Graphics error messages
+ 
+NOSPACE	EQU 100		;Insufficient memory
+INVSNO	EQU 90		;Stream no > 255
+INVSYN	EQU 110		;Syntax error in parameter string
+INVFILL	EQU 112		;FILL memory insufficient
+INVSTYP	EQU 113		;Linked stream not TV capable
+INVSDEP	EQU 114		;Requested depth too large
+INVOSTR	EQU 115		;Linked stream has been closed
+INVXY	EQU 116		;Cannot place text off screen
+INVPAR	EQU 117		;Illegal parameter or command
+INVINP	EQU 118		;Only PEN may be used for input
+INVOUT	EQU 119		;Cannot OUTPUT till PEN completed
+ 
+ 
+; Fixed quantities
+ 
+PRST8	EQU 8		;start of RST 8 code
+RESPAR	EQU 140		;hardware dependent resolution 
+			;parameter for e.g. ARC routine
+COUNT1	EQU 0079H
+COUNT2	EQU 0081H
+COUNT3	EQU 0083H
+ 
+	INCLUDE PRTNIX
+ 
+ZBICML	EQU 40E7H	;abs & convert to 16 bit integer
+			;with 16 bit bicimal part
+ZBRKTST	EQU 36E7H	;test for STOP key
+ZCOS	EQU 0BE7H	;cosine
+ZFLT	EQU 28E7H	;converts from 16 bit integer 
+ZNEG	EQU 07E7H	;negate
+ZPI	EQU 01E7H	;constant pi
+ZROUND	EQU 29E7H
+ZSIN	EQU 10E7H	;sine
+RX	EQU PHI2
+RY	EQU R		;.. careful...!
+CTH	EQU DX1
+STH	EQU DY1
+CD	EQU DX2
+SD	EQU DY2
+		;redefinitions of the P1,P2,P3 area
+FIRSTX	EQU 6	;so can use SBMOV
+FIRSTY	EQU 8
+LBYTE	EQU 9
+LMEMORY	EQU 10
+CTEMP	EQU 12
+LHEAD	EQU 70
+ 
+	;Flag usage: FFLAG is set once the first
+	;	point details have been saved.
+	;	     CFLAG is set once the counter
+	;	has reached zero, so the iteration
+	;	will stop after deciding whether or
+	;	not to plot the final point.
+ 
+CIRCLE:
+	CALL SAVE
+	CALL SWAP12
+	DEFB P1,XP
+	CALL FPADDTO
+	DEFB YP,P3
+	DEFW ZPI
+	CALL FPST
+	DEFB THP
+	CALL FPADD
+	DEFB THP
+	CALL FPST
+	DEFB P2
+	CALL FPMUL
+	DEFB P3
+	CALL FPST
+	DEFB P1
+	CALL ARC2
+	PUSH AF
+	CALL RESTORE
+	POP AF
+	RET
+ 
+ARCTAB	EQU $-1		;table placed where no overflow
+			;expected after HL=ARCTAB
+			;		ADD A,L
+			;when A = 0 to 15
+	DEFB 64,255,4,16	;2 not valid
+	DEFB 32,255,8,255	;6,8 not valid
+	DEFB 255,255,255,1	;9,10,11 not valid
+	DEFB 128,255,2		;14,15 not valid
+ 
+ARC:	CALL COMPZ
+	DEFB P2
+	JP Z MOVE
+	CALL DTORAD
+	DEFB P2
+	CALL SBMOV
+	DEFB DA,THP
+	CALL FPADDTO
+	DEFB DA,P2
+ARC2:	CALL SCALEX
+	DEFB XP,XP
+	CALL SCALEY
+	DEFB YP,YP
+	CALL FPLD
+	DEFB P1
+	CALL FPDIV
+	DEFB P2
+	CALL FPST
+	DEFB RY		;radius of arc
+	CALL FPMUL
+	DEFB XSF
+	CALL FPST
+	DEFB RX		;radius in X-units
+	CALL FPLD
+	DEFB RY
+	CALL FPMUL
+	DEFB YSF
+	CALL FPST
+	DEFB RY		;radius in Y-units
+		;now find centre
+	CALL FPLD
+	DEFB THP
+	DEFW ZSIN
+	CALL FPST
+	DEFB STH	;.. and store starting SIN & COS
+	CALL FPMUL
+	DEFB RX
+	DEFW ZNEG
+	CALL FPADD
+	DEFB XP
+			;so as to use FIX later not ROUND
+	CALL FPST
+	DEFB CENX	;X-coord of centre
+	CALL FPLD
+	DEFB THP
+	DEFW ZCOS
+	CALL FPST
+	DEFB CTH
+	CALL FPMUL
+	DEFB RY
+	CALL FPADD
+	DEFB YP
+	DEFW ZNEG
+	CALL FPADD
+	DEFB YR		;Y-value now top-relative
+	CALL FPST
+	DEFB CENY
+		;number of steps is a multiple of 4,
+		;sufficiently large to ensure that each
+	CALL ARCFIX	;load largest of XSF,YSF
+	NOP		;this is a fix - minimise
+			;number of byte-differences.
+	CALL FPMUL
+	DEFB P1
+	DEFW ZBICML
+	INC DE
+	INC DE
+	INC DE
+	INC DE
+	INC DE
+	LD A,2
+	RET C
+	LD A,E
+	AND 0FCH
+	LD E,A
+		;estimated number of steps is least multiple
+		;of four greater than the length in pixels of
+		;an equivalent straight horizontal line. Number
+		;of points to plot is one more than that.
+			;to a multiple of 4
+	PUSH DE
+	DEC DE
+				;smallest circles
+ARC3	DEFW ZFLT
+	CALL FPST
+	DEFB CL		;number of steps
+	CALL FPLD
+	DEFB P2
+	CALL FPDIV
+	DEFB CL
+	CALL FPST
+	DEFB THA
+	DEFW ZCOS
+	CALL FPST
+	DEFB CD
+	CALL FPLD
+	DEFB THA
+	DEFW ZSIN
+	CALL FPST
+	DEFB SD
+	CALL PUTRST
+	EX DE,HL	;so HL points to RAM
+	XOR A
+	LD (IX+JFLAGS),A
+	LD (IX+LHEAD),A	;heading zero so LASTMEM
+			;not plotted on first time through
+	CPL		;so AF = 0FF??H
+	PUSH AF		;large Y-coord value
+	PUSH AF		;large X-coord value
+	LD A,(HL)	;last byte of RST 8 code
+	JP ARC8
+ARCSTP:
+	CALL FPLD
+	DEFB CTH	;used to calculate next YP
+	CALL FPMUL
+	DEFB RY
+	CALL FPADD
+	DEFB CENY
+	CALL FPST
+	DEFB YP		;.. saved for later
+	DEFW ZROUND
+	PUSH DE		;Y-coord
+	CALL FPLD
+	DEFB STH
+	CALL FPMUL
+	DEFB SD
+	CALL FPST
+	DEFB CL
+	CALL FPLD
+	DEFB CTH
+	CALL FPMUL
+	DEFB CD
+	CALL FPSUB
+	DEFB CL
+	CALL FPST
+	DEFB CTEMP		;temp storage for new COSINE value
+;
+	CALL FPLD
+	DEFB STH
+	CALL FPMUL
+	DEFB RX
+	CALL FPADD
+	DEFB CENX
+	CALL FPST
+	DEFB XP		;.. saved for later too
+	DEFW ZROUND
+	PUSH DE
+;
+	CALL FPLD
+	DEFB CTH
+	CALL FPMUL
+	DEFB SD
+	CALL FPST
+	DEFB CL
+	CALL FPLD
+	DEFB STH
+	CALL FPMUL
+	DEFB CD
+	CALL FPADD
+	DEFB CL
+	CALL FPST
+	DEFB STH	;new SINE value in STH and FPACC
+;
+	CALL SBMOV
+	DEFB CTH,CTEMP
+;
+	CALL COMPZ
+	DEFB XP
+	JR C ARC4
+	CALL COMPFP
+	DEFB XP,XR
+	JR C ARC4
+	CALL COMPZ
+	DEFB YP
+ARC4	POP BC		;X-coord
+	POP DE		;Y-coord
+	JR NC ARC4A
+	LD (IX+LHEAD),0FFH
+	JR ARCNXT
+ 
+ARC4A	POP HL		;old X-coord
+	XOR A
+	SBC HL,BC
+	POP HL		;old Y-coord
+	RLA		;so d3 of A will mean X increasing
+	JR Z AF1
+	SCF
+AF1	RLA		;so d2 will mean X changing
+	SBC HL,DE
+	RLA		;so d1 will mean Y increasing
+	JR Z AF2
+	SCF
+AF2	RLA		;so d0 now means Y changing
+	OR A		;zero if position unchanged
+	JR Z ARC7	;no change in position
+	LD HL,ARCTAB	;now construct bit mask style of heading
+	ADD A,L
+	LD L,A		;as this module is absolute, know
+			;the ADD did not cause overflow
+			;for A = 00 to 0F
+	LD H,(HL)	;so bit 0,1, .. ,or 7 is set
+	BIT FFLAG,(IX+JFLAGS)
+	JR NZ ARC4B
+	LD (IX+FIRSTX),C
+	LD (IX+FIRSTX+1),B
+	LD (IX+FIRSTY),E
+	SET FFLAG,(IX+JFLAGS)
+ARC4B	LD L,(IX+LHEAD)	;previous heading
+	PUSH HL
+	LD A,083H	;d8,d0 and d1 remain set,
+			;d6 and d2 flash on and off.
+ARC4E	RLC L		;mere rotation
+	XOR 44H		;flash d6 and d2
+	RL H		;count necessary number of times
+			;to bring set bit of H into CY
+	JR NC ARC4E
+			;;now if H=L at start of loop,
+			;then d0 of L set now.
+			;A contains mask to select d0 or
+			;adjacent bits d8/d1 if current
+			;heading even, d0 or adjacent bits
+			;d2/d1/d7/d6 if odd.
+	AND L		;NZ iff acceptable
+	JR NZ ARC5	;ok - plot prior point
+	POP HL
+	LD H,A		;zero
+	DEC H		;so H = FFH ie all bits on
+			;and Z flag cleared.
+	JR ARC5B
+ 
+ARC5	CALL LASTMEM
+	POP HL
+ARC5B	LD (IX+LHEAD),H
+ARC6
+ARC7	PUSH DE		;current Y-coord
+	PUSH BC		;current X-coord
+	JR Z ARCNXT	;if already plotted
+	LD A,C
+	AND 07H
+	RR B
+	RR C
+	RR B
+	RR C
+	OR A	;now low B must be 0 as max BC was 639
+	RR C
+	LD B,0
+	PUSH BC		;XBYTE = X div 8 on stack
+	CALL ABMASK
+	LD C,(IX+SCWBYT)
+	CALL GETADDRESS	;so HL = lhs byte of row
+	POP DE		;XBYTE value
+	ADD HL,DE	;now HL = memory byte
+	CALL MEMTST
+	JR C ARCNXT
+	RST 8
+ARC8	LD (IX+LBYTE),A
+	LD (IX+LMEMORY),L
+	LD (IX+LMEMORY+1),H
+ARCNXT
+	CALL FPADDTO
+	DEFB THP,THA
+	POP BC		;old X-coord
+	POP DE		;old Y-coord
+	POP HL		;step counter
+	DEFW ZBRKTST
+	JR C ARCBRK
+	DEC HL
+	LD A,H
+	OR L
+	JR Z ARCLAST
+ARCPSH	PUSH HL
+	PUSH DE
+	PUSH BC
+	JP ARCSTP
+ 
+ARCLAST	BIT CFLAG,(IX+JFLAGS)	;completed?
+	JR NZ AROUT	;have considered whether to plot
+			;last point and taken action if
+			;required.
+	SET CFLAG,(IX+JFLAGS)
+	INC L
+	PUSH HL		;counter = 1
+	LD L,(IX+FIRSTY)	;so HL = first Y-coord
+	EX DE,HL
+	PUSH HL		;current Y-coord, to treat as previous
+	CALL ARTEST
+	JR NZ AROUT2
+;
+	LD E,(IX+FIRSTX)
+	LD D,(IX+FIRSTX+1)
+	PUSH BC
+	LD L,C
+	LD H,B		;so HL = current, DE = first X-coord
+	PUSH DE		;first X-coord
+	CALL ARTEST
+	POP BC
+	JR NZ AROUT3
+AL4		;here TOS   = current X-coord,
+		;     TOS-2 = current Y-coord,
+		;     TOS-4 = counter, value is 1
+		;and A = H = 0
+	LD E,(IX+FIRSTY)
+	LD D,A
+	JP ARC4A	;resume loop to determine if
+			;action required for last point
+ 
+AROUT3	POP BC
+AROUT2	POP DE
+AROUT1	POP HL
+		;XP,YP are scaled versions -
+		;must now be put back into
+		;user's chosen coordinates
+AROUT	LD A,(IX+LHEAD)
+	OR A
+	CALL NZ LASTMEM
+	CALL SBMOV
+	DEFB THP,DA
+ARCBRK	PUSH AF
+	CALL F4EXIT
+	CALL FPLD
+	DEFB XP
+	CALL FPDIV
+	DEFB XSF
+	CALL FPSUB
+	DEFB XOD
+	CALL FPST
+	DEFB XP
+;
+	CALL FPLD
+	DEFB YR
+	CALL FPSUB
+	DEFB YP
+	CALL FPDIV
+	DEFB YSF
+	CALL FPSUB
+	DEFB YOD
+	CALL FPST
+	DEFB YP
+	POP AF
+	JP NC SETANGLE
+	RET
+ 
+ARTEST:	SCF
+	SBC HL,DE	;current Y - last Y - 1
+	RET Z
+	INC L
+	JR Z ART2
+	INC L
+	RET NZ
+ART2	LD A,H
+	INC A
+	RET
+ 
+LASTMEM:LD L,(IX+LMEMORY)
+	LD H,(IX+LMEMORY+1)
+	LD A,(IX+LBYTE)
+	LD (HL),A
+	RET
+ 
+	END
+ 
+                                                                      

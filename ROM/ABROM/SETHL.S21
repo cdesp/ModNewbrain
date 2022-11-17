@@ -1,0 +1,362 @@
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+	NAME SETHL
+; This module of the graphics driver contains
+; generally useful routines. It is the only module
+; which invokes all the maths calling codes - other
+; modules if they don't use these routines will DEFW
+; just the maths routines needed therein.
+;
+	GLOBAL ZRDNSP
+	GLOBAL ZRDINT
+	GLOBAL ZRDBYTE
+	GLOBAL ZTTCAP
+		;Globals defined in this module
+	GLOBAL GETP
+	GLOBAL GETPARS
+	GLOBAL GETADDRESS
+	GLOBAL MAHLCDE
+	GLOBAL MHLCDE
+	GLOBAL SETDE
+	GLOBAL SETHL
+	GLOBAL STDE
+	GLOBAL FPFLT
+	GLOBAL FPLD
+	GLOBAL FPNEG
+	GLOBAL FPROUND
+	GLOBAL FPST
+	GLOBAL FPSUB
+	GLOBAL FPSUBFROM
+	GLOBAL FPSTOZ
+	GLOBAL AXSCALE
+	GLOBAL SETANGLE
+	GLOBAL SYN1
+	GLOBAL SYN2
+	GLOBAL SYN3
+	GLOBAL FINDOM
+	GLOBAL BSTART
+	GLOBAL GETSTART
+	GLOBAL MEMTST
+ 
+; Graphics error messages
+ 
+INVSNO	EQU 90		;Stream no > 255
+INVSYN	EQU 110		;Syntax error in parameter string
+INVSTYPE	EQU 113		;Linked stream not TV capable
+INVOSTR	EQU 115		;Linked stream has been closed
+INVXY	EQU 116		;Out-of-bounds error
+ 
+ 
+		;defined in the BASIC ROMS
+	GLOBAL ZFSTRM
+ZBRKTST	EQU 36E7H	;test STOP key
+ 
+	INCLUDE MRTNS
+	INCLUDE PRTNIX
+ 
+SETHL:		;Sets HL to point to offset IX+n
+		;Call by:  CALL SETHL
+		;	   DEFB n
+	CALL GETP
+	RET
+ 
+GETADDRESS:	;multiplies DE by C, adds result to
+		;value of SCSTART giving value returned
+		;in HL
+		;smashes BCDE, CY clear unless overflow
+	LD L,(IX+SCSTART)
+	LD H,(IX+SCSTART+1)
+		;next byte is a trick equivalent
+		;to JR MAHLCDE in effect
+	DEFB 06H	; so LD B,21H
+			;    NOP
+			;    NOP	is executed
+ 
+MHLCDE:		;multiplies DE by C, result in HL
+		;smashes BCDE, CY clear unless overflow
+	LD HL,0
+MAHLCDE:	;multiplies DE by C, adds result
+		;to HL
+		;smashes BCDE, CY clear unless overflow
+	LD B,8
+MCDE1	RR C
+	JR NC MCDE2
+	ADD HL,DE
+	RET C
+MCDE2	RL E		;CY clear at this point
+	RL D
+	DJNZ MCDE1
+	RET
+ 
+;the following routines perform various items of
+;floating point arithmetic on their stated parameters,
+;leaving the results in the destination parameter and
+;in FPACC where applicable
+ 
+FPNEG:	CALL GETPARS
+	PUSH HL
+	EX DE,HL
+	DEFW ZLDF
+FPN2	DEFW ZNEG
+	JR FPR2
+ 
+FPROUND:CALL GETP
+	PUSH HL
+	DEFW ZROUND
+	DEFW ZFLT
+FPR2	POP HL
+	JR FPST2
+ 
+FPFLT:	DEFW ZFLT
+	JR FPST
+ 
+FPSTOZ:	DEFW ZFPZER
+FPST:	CALL GETP
+FPST2	DEFW ZSTF
+	RET
+ 
+FPSUB:	CALL GETP
+	EX DE,HL
+	DEFW ZSUB
+	RET 
+ 
+FPSUBFROM:
+	CALL GETPARS
+	PUSH HL
+	PUSH DE
+	DEFW ZLDF
+	POP DE
+	DEFW ZSUB
+	JR FPR2
+ 
+AXSCALE:	;stores - DE / (IX+n) into (IX+m)
+	DEFW ZFLT
+	CALL GETPARS
+	PUSH HL
+	DEFW ZDIV
+	JR FPN2
+ 
+SETANGLE:	;restores pen angle to a value
+		;in the range -PI to +PI
+	DEFW ZBRKTST
+	RET C
+	DEFW ZPI
+	CALL SETHL
+	DEFB CL
+	PUSH HL
+	DEFW ZSTF	;so CL = PI
+	CALL SETHL
+	DEFB THP
+	POP DE		;DE ==> PI in CL
+	DEFW ZCOMP	;HL ==> THP
+	JR C SETA2	;if (HL) > (DE)
+	DEFW ZPI
+	DEFW ZNEG
+	CALL SETHL
+	DEFB CL
+	PUSH HL
+	DEFW ZSTF	;HL ==> -PI in CL
+	CALL SETDE
+	DEFB THP	;DE ==> THP
+	POP HL
+	DEFW ZCOMP	;flags for (DE) - (HL)
+	RET NC
+SETA2	CALL FPLD
+	DEFB THP
+	CALL FPSUB
+	DEFB CL
+	CALL FPSUB
+	DEFB CL
+	CALL FPST
+	DEFB THP
+	JR SETANGLE	;repeat until in range
+ 
+;Next group of routines are used to parse the 
+;parameter string during OPEN. In each case, on
+;entry HL points to the start of a string and BC
+;contains the count of characters remaining in it.
+SYN1:	LD A,B
+	OR A
+	JR NZ SYNE1
+	LD E,A
+	DEFW ZRDNSP
+	JR Z SYNDEF
+	CP '#'
+	JR NZ SYNDEF
+	INC HL
+	DEC C
+	DEFW ZRDBYTE
+	JR C SYNE2
+	LD E,A
+	RET
+ 
+SYNE2	LD A,INVSNO
+	RET
+ 
+SYN2:	LD E,40
+	CALL SYNCOM
+	JR Z SYNDEF
+	CP 'N'
+	JR Z SYN2N
+	CP 'W'
+	JR Z SYN2W
+SYNDEF	OR A
+	RET
+ 
+SYN2N	LD E,32
+	SET NARROW,(IX+JFLAGS)
+SYN2W	INC HL
+	DEC C
+	RET
+ 
+SYN3:		;extracts height requested. On exit
+		;CY set if error, otherwise D = 0
+		;and E = height.
+	LD DE,150
+	JR Z SYNDEF
+	DEFW ZRDBYTE
+	LD E,A
+	JR C SYNE1
+	DEFW ZRDNSP	;require there be no garbage
+	RET Z		;at the end of p. string
+SYNE1	SCF
+	LD A,INVSYN
+	RET
+ 
+SYNCOM:	DEFW ZRDNSP
+	RET Z
+	CP ','
+	RET NZ
+	INC HL
+	DEC C
+	DEFW ZRDNSP
+	RET
+ 
+ 
+FINDOM:		;Locates own memory for given stream
+		;Entry: stream number in E
+		;Exit: CY clear if stream exists and
+		;      has driver no 0 or 4.
+		;      CY set otherwise
+		;  If CY is clear then
+		;    HL,IY each contain own memory start
+		;    BC contains stream table entry start
+		;    DE preserved
+	DEFW ZFSTRM
+	LD A INVSNO
+	RET C
+	PUSH HL
+	POP BC
+	INC HL		; ==> driver no
+	LD A,(HL)
+	AND .NOT.4	;sets Z iff value 0 or 4
+	LD A,INVSTYPE
+	SCF
+	RET NZ
+	OR A		;and clear CY
+	INC HL		;port
+	INC HL		;page
+	INC HL		;own memory LS byte
+	LD A,(HL)
+	INC HL		;;own memory MS byte
+	LD H,(HL)
+	LD L,A
+	PUSH HL
+	POP IY
+	RET
+ 
+BSTART:		;loads A with number of zeroes to be put
+		;into first line and LEFT there.
+		;Preserves BCDEHL
+	LD A,(IX+SCWBYT)
+	BIT 3,A
+	RET NZ		;if 40
+	BIT 4,A
+	RET NZ		;if 80
+	RRCA
+	RRCA
+	RRCA		;32 becomes 4, 64 becomes 8
+	RET
+ 
+ 
+GETSTART:	;This routine needs to be called every
+		;time through COMMAND
+		;Sets SCSTART,SCTOP to show the first
+		;and last locations of high-res
+		;memory, IY to other driver memory
+		;Sets HL = SCTOP, DE = first address after
+		; BSTART many bytes past end of editor RAM
+		;Smashes ABC
+	LD E (IX+OSTRM)
+	CALL FINDOM
+	RET C
+	PUSH HL
+	PUSH BC
+	LD E (IX+MYSTRM)
+	DEFW ZFSTRM
+	POP DE		; HL = mystream entry
+			; DE = ostream entry
+			; HL should be > DE as later
+	SBC HL,DE
+	POP HL		;o driver memory pointer
+	RET C		;with A=INVOSTRM
+	CALL BSTART	;so A = number of fixed zeroes
+	DEC A
+	ADD A,(HL)	;5 for C,B,E,D,FLAG-STO, less
+			;6 used getting to EL, plus the
+			;fixed zeroes.
+	INC HL		;TV mode
+	INC HL		;two bytes unused
+	INC HL
+	INC HL		;DEP=depth of char lines
+	LD B,(HL)	;must be non-zero
+	INC HL		;LL=display line length
+	INC HL		;EL=line length inc EXCESS
+	LD E,(HL)
+	LD D,0
+GETS1	ADD HL,DE	;Add line length...
+	DJNZ GETS1	;...DEP times
+GETS2	LD E A
+	ADD HL,DE	;D still zero
+	PUSH HL		;return value
+	LD C,(IX+SCWBYT)
+	PUSH BC
+	LD E,(IX+SCHT1)	;requested depth
+	LD A,(IX+SCHT2)	;depth provided
+	PUSH DE		;D still zero
+	SUB E
+	LD E,A
+	CALL MAHLCDE
+	LD (IX+SCSTART),L
+	LD (IX+SCSTART+1),H
+	POP DE
+	POP BC
+	CALL MAHLCDE
+	LD (IX+SCTOP),L
+	LD (IX+SCTOP+1),H
+	POP DE
+	RET
+ 
+MEMTST:		;Enter with HL = memory location
+		;Checks HL is between SCSTART and SCTOP
+		;Preserves all registers
+		;Sets CY iff HL out of bounds
+	PUSH DE
+	PUSH HL
+	EX DE,HL
+	LD L,(IX+SCTOP)
+	LD H,(IX+SCTOP+1)
+	DEC HL
+	OR A
+	SBC HL,DE	;so HL = top - current - 1,
+			;CY set iff too high
+	JR C MEMTS2
+	EX DE,HL
+	LD E,(IX+SCSTART)
+	LD D,(IX+SCSTART+1)
+	SBC HL,DE	;so HL = address - start
+MEMTS2	POP HL
+	POP DE
+	RET		;CY set iff too small
+ 
+	END
+                                                                                                     

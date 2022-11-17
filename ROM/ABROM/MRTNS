@@ -1,0 +1,52 @@
+ 
+	;Maths Pack externals
+		
+ZABS	EQU 09E7H	;absolute value
+ZACOS	EQU 14E7H	;arc cosine
+ZADD	EQU 16E7H	;add
+ZAND	EQU 1BE7H	;Boolean and
+ZASIN	EQU 13E7H	;arc sine
+ZATAN	EQU 0AE7H	;arc tangent
+ZCOMP	EQU 26E7H	;compare
+ZCOS	EQU 0BE7H	;cosine
+ZDIV	EQU 19E7H	;divide
+ZEXP	EQU 0CE7H	;exponential function
+ZFIX	EQU 27E7H	;convert to 16 bit +ve integer
+ZFLT	EQU 28E7H	;converts from 16 bit integer 
+ZFPMON	EQU 0437H	;constant minus one
+ZFPONE	EQU 03E7H	;constant one
+ZFPZER	EQU 05E7H	;constant zero
+ZINITR	EQU 24E7H	;initialise rand. no. generator 
+ZINP	EQU 2AE7H	;convert from ASCII
+ZINT	EQU 0DE7H	;integer part
+ZLDF	EQU 2BE7H	;load floating point acc. 
+ZLOG	EQU 0EE7H	;logarithm
+ZMATHS	EQU 23E7H	;call maths pack routine
+ZMULT	EQU 18E7H	;multiply
+ZNEG	EQU 07E7H	;negate
+ZNOP	EQU 06E7H	;no operation
+ZNOT	EQU 08E7H	;Boolean not
+ZNUMEQ	EQU 1DE7H	;Boolean value of "equal" reln. 
+ZNUMGE	EQU 22E7H	;... "greater than or equal" ...
+ZNUMGT	EQU 1EE7H	;... "greater than" ... 
+ZNUMLE	EQU 21E7H	;... "less than or equal" ... 
+ZNUMLT	EQU 1FE7H	;... "less than" ...
+ZNUMNE	EQU 20E7H	;... "not equal" ...
+ZOR	EQU 1CE7H	;Boolean or
+ZOUT	EQU 2CE7H	;convert to ASCII
+ZPEEK	EQU 15E7H	;value of memory
+ZPI	EQU 01E7H	;constant pi
+ZRAISE	EQU 1AE7H	;raise to power
+ZRANDO	EQU 25E7H	;randomise random no. generator 
+ZRELBO	EQU 2EE7H	;convert relation to Boolean 
+ZRND	EQU 00E7H	;random number
+ZROUND	EQU 29E7H	;conv. to 16 bit int. & round 
+ZSIGN	EQU 0FE7H	;sign
+ZSIN	EQU 10E7H	;sine
+ZSQRT	EQU 11E7H	;square root
+ZSTF	EQU 2DE7H	;store floating point accumulator
+ZSTPOS	EQU 02E7H	;value of print head position
+ZSUB	EQU 17E7H	;subtract
+ZTAN	EQU 12E7H	;tangent
+ 
+

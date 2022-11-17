@@ -1,0 +1,11 @@
+-d G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\impl\gwsynthesis\NBvideo.vg
+-p GW1N-1-QFN48-6
+-pn GW1N-LV1QN48C6/I5
+-cst G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\fpga_project.cst
+-cfg G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\impl\pnr\device.cfg
+-bit
+-tr
+-ph
+-warning_all
+-cst_error
+-no_cst_warning

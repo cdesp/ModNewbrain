@@ -1,0 +1,583 @@
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+	NAME GRAPH
+ 
+	PSECT ABS
+	DS 0A532H-$ 	;ADD ZEROES UNTIL 0A532
+	ORG 0A532H
+; This module of the graphics driver contains
+; the shell of the driver, including OUTPUT,
+; COMMAND, and all the small routines. The larger
+; routines are hived off into separate modules.
+;
+	GLOBAL CLEAR
+	GLOBAL SETHL
+	GLOBAL MAHLCDE
+	GLOBAL MHLCDE
+	GLOBAL STDE
+	GLOBAL SBMOV
+	GLOBAL SWAP12
+	GLOBAL FPADD
+	GLOBAL FPADDTO
+	GLOBAL FPFIX
+	GLOBAL FPLD
+	GLOBAL FPST
+	GLOBAL FPSTOZ
+	GLOBAL FPSUB
+	GLOBAL FPSUBFROM
+	GLOBAL SETANGLE
+	GLOBAL SYN1
+	GLOBAL SYN2
+	GLOBAL SYN3
+	GLOBAL FINDOM
+	GLOBAL BSTART
+	GLOBAL GETSTART
+	GLOBAL FILL
+	GLOBAL MEMBDS
+	GLOBAL RETPAR
+	GLOBAL DRAW
+	GLOBAL DRAWTO
+	GLOBAL DTORAD
+	GLOBAL PLACE
+	GLOBAL POINT
+	GLOBAL TURN
+	GLOBAL GETSCALE
+	GLOBAL MOVE
+	GLOBAL MOVETO
+	GLOBAL ARC
+	GLOBAL CIRCLE
+	GLOBAL ERRRET
+	GLOBAL RANGE
+	GLOBAL TEXT
+	GLOBAL AXES
+	GLOBAL FLAG
+	GLOBAL ZCMSTATE
+ 
+; Graphics error messages
+ 
+NOSPACE	EQU 100		;Insufficient memory
+INVSNO	EQU 90		;Stream no > 255
+INVSYN	EQU 110		;Syntax error in parameter string
+INVFILL	EQU 112		;FILL memory insufficient
+INVSTYP	EQU 113		;Linked stream not TV capable
+INVSDEP	EQU 114		;Requested depth too large
+INVOSTR	EQU 115		;Linked stream has been closed
+INVXY	EQU 116		;Cannot place text off screen
+INVPAR	EQU 117		;Illegal parameter or command
+INVINP	EQU 118		;Only PEN may be used for input
+INVOUT	EQU 119		;Cannot OUTPUT till PEN completed
+ 
+ZFIX	EQU 27E7H	;convert to 16 bit +ve integer
+ZFLT	EQU 28E7H	;converts from 16 bit integer 
+ZFPONE	EQU 03E7H	;constant one
+ZFPZER	EQU 05E7H	;constant zero
+ 
+	INCLUDE PRTNIX
+ 
+; Offsets from IY (for other driver)
+ORIGDEP	EQU 3
+TVMD1	EQU 1		;Hardware instruction byte
+DEP	EQU 4		;depth in rows of characters
+LL	EQU 5		;display line length
+EL	EQU 6		;line length including EXCESS
+;
+; Useful constants
+;
+CHOME	EQU 12		;control code for HOME cursor
+CDATAESC EQU 16		;control code to introduce GRAPHICS
+			;control string
+CESCAPE	EQU 27		;control code for "next byte is
+			;not a control code"
+TVBITN	EQU 04H		;this bit is set in TVMD1 iff
+			;high-res in narrow area required
+;
+	GLOBAL HLCALL
+	GLOBAL GRAPH
+	GLOBAL STR11
+	GLOBAL ZMKBUFF
+	GLOBAL ZFSTRM
+	GLOBAL ZOUTPUT
+ 
+PARTABLE:	;First byte is number of entries
+		;Each entry is one byte, and corresponds
+		;to the number of parameters expected in
+		;the indexing command.  If not 0 or 130,
+		;the value is the offset from IX of the
+		;last byte to be collected.
+	DEFB  23
+	DEFB  11,  5, 11,  5
+	DEFB   5,  0,  5,130	; 130 signals string
+	DEFB   5, 17, 11, 11
+	DEFB   5, 17, 11,  5
+	DEFB   0, 11, 11,  0
+	DEFB   0,  5, 17
+ 
+CMDTAB:		;Table of graphic command
+		;routine entry addresses
+		;Note that this has
+		;EXTERNAL SIGNIFICANCE
+			;parameters
+	DEFW MOVETO	;P1=x, P2=y
+	DEFW TURNTO	;P1=theta
+	DEFW ARC	;P1=d, P2=theta
+	DEFW TURN	;P1=theta
+	DEFW MODE	;P1=mode
+	DEFW FILL	;none
+	DEFW COLOUR	;P1=colour
+	DEFW TEXT	;separate string bytes in C
+	DEFW RETPAR	;P1=selection 1-10
+	DEFW POINT	;P1=x, P2=y, P3=colour
+	DEFW RANGE	;P1=x, P2=y
+	DEFW ORIGIN	;P1=x, P2=y
+	DEFW MOVE	;P1=d
+	DEFW DRAWTO	;P1=x, P2=y, P3=colour
+	DEFW DRAW	;P1=d, P2=colour
+	DEFW BACKGROUND	;P1=colour
+	DEFW WIPE	;none
+	DEFW AXES	;P1=Xspacing,P2=Yspacing
+	DEFW PLACE	;P1=x, P2=y
+	DEFW RADIAN	;none
+	DEFW DEGREE	;none
+	DEFW FLAG	;P1=bit, P2=off(Zero) or on(nonzero)
+	DEFW CIRCLE	;centre(P1,P2), radius P3
+ 
+PARRDY:
+	CALL ZCMSTATE
+COMMAND:
+		;preserves IY
+		;first get TV start & top via stream,
+		;then execute graphics command
+		;enter with command code in CMD,
+		;parameters in P1,P2,P3
+		;on exit appropriate parameters
+		;will be updated and P1,P2,P3 in
+		;general destroyed
+		;CY set if error
+	PUSH IY
+	CALL GETSTART
+	JR C CMDEND
+	LD E,(IX+CMD)
+	XOR A
+	LD D,A
+	LD HL,CMDTAB
+	ADD HL,DE	;table of two-byte entries
+	ADD HL,DE	;so HL->command address
+	LD E,(HL)
+	INC HL
+	LD D,(HL)	;so DE=command address
+	EX DE,HL
+		;CY now clear from ADD above
+	CALL HLCALL	;select routine
+CMDEND	POP IY
+	RET
+ 
+GRAPH	DEFB 4
+	DEFB OPEN-$
+	DEFB OPEN-$
+	DEFB INPUT-$
+	DEFB OUTPUT-$
+	DEFB CLOSE-$
+ 
+OUTPUT:
+		;operating system calls Graphics driver
+		;here. A contains either a command, part
+		;of a parameter, or one byte of a string
+		;Parameters are built up and control
+		;passed to COMMAND when complete, code is
+		;in CMD. If input is a string byte,
+		;it is left in C, and CMSTATE contains
+		;130 if it is the first byte of a string
+		;
+		;CMSTATE values:-
+		;  0 - command or CDATAESC expected
+		;  1 - command expected
+		;  5,11,17  Input parameters up to this
+		;      offset from IX being collected
+		;  129 - string bytes expected
+		;  130 - first string byte expected
+		;  255 - INPUT expected (for PEN)
+ 
+	LD C A		;save byte
+	PUSH HL
+	POP IX		;pointer to own memory
+	LD A (IX+CMSTATE)
+	CP 1		;for CDATAESC just received
+	JR Z OUT2	;command byte expected
+	OR A		;zero if command expected
+	JR NZ PARSTR
+	LD A,C
+	CP CDATAESC
+	JR NZ OUT2
+	LD A,1
+	JP ENDOUT
+OUT2	LD (IX+CMD) C
+	LD B,0
+	LD (IX+POFFSET) B
+	LD HL PARTABLE	;list of parameter lengths
+	LD A,(HL)	;check in allowed range
+	CP C
+	LD A,INVPAR
+	JP C ERRRET
+	INC HL
+	ADD HL BC	;table entry-one byte long
+	LD A (HL)
+	OR A		;zero = no parameters
+	JR Z PARRDY
+	JR ENDOUT
+ 
+PARSTR	BIT 7 A		;set (NZ) if 129,130,255
+	JR NZ STRLAB
+	LD E (IX+POFFSET) ;where to put it
+	LD D 0
+	ADD HL DE	;IX+POFFSET - check !
+	LD (HL) C
+	SUB E		;from CMSTATE value in A
+	JR Z PARRDY
+	INC E		;ready for next byte
+	LD (IX+POFFSET) E
+	RET
+ 
+STRLAB	CP 130		;expecting string length?
+	JR Z STRSZ
+	CP 255		;CMSTATE is set to 255 by
+			;PEN routine if op system should
+			;be collecting reply byte(s)
+	LD A INVOUT
+	JP Z ERRRET
+	PUSH IY
+	PUSH BC
+	CALL GETSTART
+	POP BC
+	CALL TEXT
+	POP IY
+	RET C
+	DEC (IX+POFFSET)	;string size
+	JR Z CLEAR
+	RET		;with CY clear else RET C above
+ 
+INPUT:		;see RETPAR
+	PUSH HL
+	POP IX
+	LD A (IX+CMSTATE)
+	SUB 255		;so Z iff A was 255
+	LD D,A
+INPERR	LD A INVINP
+	JR NZ STRJMP
+	LD A P2
+	ADD A,5
+	LD E (IX+POFFSET)
+			;DE = offset from IX into P2
+	ADD HL,DE	;(HL) to be returned next
+	CP E		;is it the sixth byte?
+	JR Z CLEAR
+	JR C INPERR
+			;if not last, set up next
+	INC E
+	LD (IX+POFFSET),E
+	JR IPRET
+ 
+STRSZ	LD A,(IX+POFFSET)
+	OR A		;zero iff expecting low byte
+	JP Z STRSZ1
+	LD A,C
+	OR A
+	LD A,INVPAR
+STRJMP	JP NZ ERRRET
+	LD (IX+CMSTATE),131 ;signal size received
+	RET
+ 
+STRSZ1	LD (IX+POFFSET),C
+	LD A,C
+	OR A
+	RET NZ		;so null string goes to CLEAR
+ 
+ 
+CLEAR	XOR A		;to unblock OUTPUT
+ENDOUT	LD (IX+CMSTATE),A
+IPRET	LD A (HL)
+	RET
+ 
+CLOSE:	PUSH IY
+	PUSH HL
+	POP IX
+	CALL GETSTART	;stage 1: blank other driver RAM
+	JR C CLOSE3
+	PUSH DE		;BSTART bytes past start point
+	CALL MEMBDS	;HL = top of area
+	POP DE
+	CALL BSTART
+	LD B,A
+	DEC B
+CLOSE2	DEC DE
+	DJNZ CLOSE2	;so back to firt high-res zero
+ 
+	PUSH HL
+	SBC HL,DE	;so HL = required size less 1
+	LD C,L
+	LD B,H
+	POP HL
+	LD A,32
+	LD (HL),A
+	LD E,L
+	LD D,H
+	DEC DE
+	LDDR
+		;Stage 2: reset other driver depth
+	LD A,(IY+ORIGDEP)
+	LD (IY+DEP),A
+CLOSE3		;Stage 3: clear default graphics stream
+		;if it is this stream
+	POP IY
+	LD A,(IX+MYSTRM)
+	LD HL,STR11
+	XOR (HL)	;so CY clear and Z set iff (HL)
+			;is same stream
+	RET NZ
+	LD (HL),A
+	RET
+ 
+OPENE4		;error point for OPEN when four items
+		;on stack (including IY saved from entry)
+	POP DE
+OPENE3	POP DE
+OPENE2	POP DE
+	POP IY
+	RET
+ 
+OPEN:
+	PUSH IY
+	PUSH DE		;save own stream no
+	PUSH HL
+	PUSH BC
+	LD BC,TOPOWN+1	;now ask for memory
+	DEFW ZMKBUFF
+	LD A NOSPACE
+	JR C OPENE4
+	PUSH HL
+	POP IX		;own memory
+	XOR A
+	LD (HL),A
+	LD E,L
+	LD D,H
+	INC DE
+	DEC BC
+	LDIR
+	POP BC
+	POP HL
+	CALL SYN1
+	JR C OPENE2
+	PUSH DE		;E = other stream no
+	LD (IX+OSTRM),E
+	CALL SYN2
+	PUSH DE		;E = width (first est 32/40)
+	CALL SYN3	;so E = depth, D = 0
+	JR C OPENE4
+	LD A,E		;check E not 0 or 1
+	AND 0FEH
+	SCF
+	JR Z OPEN2
+	LD A,230
+	BIT NARROW,(IX+JFLAGS)
+	JR NZ OPEN1
+	DEC A
+OPEN1	CP E
+OPEN2	LD A INVSDEP
+	JR C OPENE4
+	LD (IX+SCHT1),E
+	DEC DE
+	DEFW ZFLT
+	CALL FPST
+	DEFB YR		;Yrange = height in bits less 1
+	POP HL
+	EX (SP),HL
+	LD E,L
+	CALL FINDOM
+OPJRE3	JR C OPENE3
+	POP BC		;width
+	LD A,(IY+LL)	;char screen line 40 or 80
+	CP 80
+	JR C OPEN3	;dont double if char line < 80
+	RL C		;CY clear
+OPEN3	LD (IX+SCWBYT),C
+	PUSH BC
+	XOR A
+	LD B,A
+	RL C		;max 160, CY clear
+	RL C		;max 320, could set CY
+	RL B		;clears CY
+	RL C
+	RL B		;now BC multiplied by 8
+	LD (IX+SCWTH),C
+	LD (IX+SCWTH+1),B
+	DEC BC
+	LD E,C
+	LD D,B
+	DEFW ZFLT
+	CALL FPST
+	DEFB XR		;so Xrange = width in bits less 1
+	CALL BSTART
+	LD E,(IX+SCHT1)
+	LD HL,25.SHL.8+10
+	CP 39
+	LD A,-1
+	JR NC OPEN4
+	XOR A
+OPEN4	ADD A,L
+	DEC H
+	CP E
+	JR C OPEN4
+ 
+	LD (IX+SCHT2),A
+	LD E,A
+	LD D,0		;so DE = depth actually needed
+	POP BC		;so BC = SCWBYT
+	PUSH HL		;with H = new DEP
+	LD A,(IY+DEP)
+	SUB H
+	PUSH AF
+	CALL BSTART	;minimum number of fixed zeroes
+	LD L,A
+	LD H,D
+	CALL MAHLCDE	;so HL = bytes neccesary
+	POP AF
+	PUSH HL
+	LD C,A
+	LD E,(IY+EL)
+	LD D,0
+	CALL MHLCDE	;so HL = bytes freeable,
+			;EL * (old DEP - new DEP)
+	POP DE
+	SBC HL,DE
+	LD A,INVSDEP
+	JR C OPJRE3
+			;next home cursor of other driver
+	LD E,(IX+OSTRM)
+	LD A,CHOME
+	DEFW ZOUTPUT
+			;set up TV mode control
+	CALL BSTART	;so A = 4 or 8 if narrow, 40 or
+	CP 39		;80 if wide.
+	LD A,(IY+TVMD1)
+	JR C OPEN5
+	AND .NOT.TVBITN		;to force wide
+	JR OPEN6
+ 
+OPEN5	OR TVBITN		;to force narrow
+OPEN6	LD (IY+TVMD1),A
+			;next insert revised depth
+	POP AF		;so A = new DEP
+	LD (IY+DEP),A
+	CALL FPSTOZ
+	DEFB XP
+	CALL FPSTOZ
+	DEFB YP
+	CALL FPSTOZ
+	DEFB THP
+	CALL FPSTOZ
+	DEFB XOD
+	CALL FPSTOZ
+	DEFB YOD
+	DEFW ZFPONE	;this is not redundant
+	CALL FPST
+	DEFB P1
+	CALL FPST
+	DEFB P2		;all set for RANGE to make
+			;XSF and YSF right for scale
+			;of (0-1,0-1)
+			;;with pt (1,1) just off screen
+	CALL RANGE
+	SET 0,(IX+CP)	;pen colour LS bit so CP = 1
+	POP DE		;stream in E
+	LD (IX+MYSTRM),E
+	LD HL,STR11	;see if this stream is first
+	LD A,(HL)
+	OR A
+	JR NZ OPEN7	;another stream is the default
+	LD (HL),E
+OPEN7		;now find where to put the zeroes
+	CALL GETSTART
+	CALL BSTART
+	EX DE,HL
+	LD C,A
+	XOR A
+	LD B,A
+	SBC HL,BC
+	EX DE,HL	;now DE = first, HL = last address
+	DEC HL
+	POP IY
+	JR WIPE2
+			;jump on into WIPE
+ 
+WIPE:		; smear entire TV area with
+		; lowest bit of background colour
+	BIT 0,(IX+CBACK)
+	LD A 255
+	JR NZ WSMEAR
+	XOR A
+WSMEAR:			; all bits now match lowest
+			; bit of CBACK
+	LD L (IX+SCTOP)
+	LD H (IX+SCTOP+1)
+	DEC HL		; HL now = last usable address
+	LD E (IX+SCSTART)
+	LD D (IX+SCSTART+1)
+WIPE2:			;enter here with A = byte, DE=first,
+			;and HL = last address
+	OR A
+	SBC HL,DE	;check HL here
+	LD C L
+	LD B H		; BC now = number of chars less 1
+	LD (DE) A
+	LD L E
+	LD H D		; HL & DE now = first byte
+	INC DE
+	LDIR		; smear the lot !
+			; also ensures OPEN returns 
+			; with BC = 0
+	RET
+ 
+MODE:	CALL FPFIX
+	DEFB MODEP,P1
+	RET
+ 
+COLOUR:	CALL FPFIX
+	DEFB CP,P1
+	RET
+ 
+ORIGIN:	CALL SWAP12
+	DEFB XOD,P1
+	CALL FPADDTO
+	DEFB XP,P1
+	CALL FPSUBFROM
+	DEFB XP,XOD
+	CALL FPADDTO
+	DEFB YP,P2
+	CALL FPSUBFROM
+	DEFB YP,YOD
+	RET
+ 
+BACKGROUND:
+	CALL SETHL
+	DEFB P1
+	DEFW ZFIX
+	LD (IX+CBACK),E
+	RET
+TURNTO:	CALL DTORAD
+	DEFB P1
+	CALL SBMOV
+	DEFB THP,P1
+	JR TURNOUT
+ 
+TURN:	CALL DTORAD
+	DEFB P1
+	CALL FPADDTO
+	DEFB THP,P1
+TURNOUT	JP SETANGLE
+ 
+DEGREE:	SET DEGTOG,(IX+UFLAGS)
+	RET
+ 
+RADIAN:	RES DEGTOG,(IX+UFLAGS)
+	RET
+ 
+	END
+

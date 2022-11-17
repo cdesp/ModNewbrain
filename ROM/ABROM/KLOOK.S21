@@ -1,0 +1,173 @@
+	TITLE (C) 1982 GRUNDY BUSINESS SYSTEMS
+	NAME KLOOK
+ 
+	PSECT ABS
+	DS 0B744H-$ 	;ADD ZEROES UNTIL 0B744H
+	ORG 0B744H
+ 
+* This module contains the code needed to drive the
+* keyboard, for keyboard or editor drivers. The KLOOK
+* routine translates a matrix code, corresponding to
+* the keystroke with any of SH,GR, or CTRL if pressed,
+* to a charater using tables contained in the companion
+* module KTABLE.
+* To re-implement KLOOK for another keyboard style, eg
+* a French AZERTY keyboard, it will normally be enough
+* to exchange the KTABLE module.
+;
+			;Modes
+KKTTC	EQU 0
+KPTG	EQU 1
+KG1	EQU 2
+KG2	EQU 3
+			;Character codes
+	GLOBAL KLOOK
+	GLOBAL KTTCAPS
+		;KTABLE globals
+	GLOBAL KTABLE
+	GLOBAL KTAB1
+	GLOBAL KTAB2
+	GLOBAL KTAB3
+	GLOBAL KTAB4
+	GLOBAL KTAB4#	;KTAB4 - 8EH
+	GLOBAL KTAB5
+	GLOBAL KTAB6
+		;other globals
+	GLOBAL ADHLA
+	GLOBAL KBMODE
+		;rewritten KLOOK routine - allows
+		;for pre-fixing of accents.
+		;Enter with matrix code in A,
+		;(IX+2) is used as store for accent.
+		;Exit with character code in A
+		;If CTRL/numeric pressed, signal by
+		;setting CY and Z, exit with HL = KBMODE
+ 
+KLOOK:
+	LD B,A
+	AND 3FH
+	CP B
+	JR Z KLK2
+	ADD A,40H
+KLK2	LD HL,KTAB6
+	LD C,(HL)	;number of entries plus 1
+KLK2A	DEC C		;so C = n + 1 - k
+	JR Z KLK2B	;table may have no entries
+	INC HL
+	CP (HL)		;is matrix code an accent?
+	JR NZ KLK2A	;if not, look again
+	LD (IX+2),C	; n + 1 - k
+	XOR A
+	RET
+ 
+KLK2B	PUSH BC		;with B = orig. entry code
+	LD B,A
+	LD A,(IX+2)
+	LD (IX+2),0	;cancel stored accent, used or not
+	OR A
+	JR Z KLK3B	;normal lookup then
+	LD HL,KTAB6
+	ADD A,A		;so A = 2n + 2 - 2k
+	ADD A,(HL)	;so A = 3n + 3 - 2k
+	DEC A
+	CALL ADHLA	;so HL points to high byte of address
+	LD A,(HL)
+	DEC HL
+	LD L,(HL)
+	LD H,A		;so HL points to selected table KACCk
+	POP AF		;here A = original, B = fixed matrix code
+	LD C,(HL)	;number of entries in KACCk plus 1
+KLK3	DEC C
+	JR Z KLK3A	;not in this table
+	INC HL
+	CP (HL)		;test code agains table
+	INC HL
+	JR NZ KLK3
+	LD A,(HL)
+	RET		;with CY clear
+ 
+KLK3A	PUSH AF		;since A = orig matrix code
+KLK3B	LD A,B
+	POP BC
+	LD HL,KTABLE
+	CALL ADHLA
+	LD A (HL)
+	LD HL KBMODE
+	CP 40H
+	JR C KLK4	;if not group A
+	CP 60H
+	CCF		;clear CY if group A
+KLK4	BIT 7 B		
+	JR NZ KLKCG	;control or graphics
+	BIT 6 B
+	JR NZ KLKS	;shift
+	BIT KKTTC (HL)
+	CALL NZ KTTCAPS	;if ttcaps mode
+	OR A
+	RET
+ 
+KLKS	JR C KLKS1	;not group A
+	BIT KPTG (HL)
+	RET Z		;if not graphics shift
+	ADD A 0A0H	;to graphics
+	RET
+ 
+KLKCG	BIT 6 B
+	JR NZ KLKG	;graphics
+	JR C KLKC1	;not group A
+	SUB 40H		;CY is clear
+	RET
+ 
+KLKG	JR C KLKG1	;if not group A
+	ADD A 40H
+	BIT KG1 (HL)
+	RET Z		;if ord. graphics
+	ADD A 20H	;convert to sec. graphics
+	BIT KG2 (HL)
+	RET Z		;if sec. graphics
+	ADD A 20H	;convert to ter. graphics
+	RET
+ 
+KLKS1	RES 7 A
+	LD HL KTAB1
+	JR KLK7		;look up again
+ 
+KLKC1	BIT 7 A
+	JR NZ KLK6
+	LD HL KTAB2
+	JR KLK7		;ditto
+ 
+KLK6	CP A
+	SCF
+	RET
+ 
+KLKG1	BIT 7 A
+	LD HL,KTAB4#		;accumulator has 8EH 
+				;to 9EH at this point
+	JR NZ KLK7
+	LD HL KTAB3
+KLK7	CALL ADHLA
+	LD A (HL)
+	OR A
+	RET
+KTTCAPS:		;uses KTAB5 q.v.
+	CP 61H
+	JR C KTTC2
+	CP 7BH
+	JR NC KTTC2
+	SUB 20H
+	RET
+ 
+KTTC2	LD HL,KTAB5
+	LD B,(HL)
+KTTC3	DEC B
+	RET Z
+	INC HL
+	CP (HL)
+	JR NZ KTTC3
+	LD A,2FH
+	ADD A,B
+	RET
+ 
+	END
+                   

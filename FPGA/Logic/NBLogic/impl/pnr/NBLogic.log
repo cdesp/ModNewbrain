@@ -1,0 +1,29 @@
+Reading netlist file: "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\gwsynthesis\NBLogic.vg"
+Parsing netlist file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\gwsynthesis\NBLogic.vg" completed
+Processing netlist completed
+Reading constraint file: "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\Logic.cst"
+Physical Constraint parsed completed
+Running placement......
+[10%] Placement Phase 0 completed
+[20%] Placement Phase 1 completed
+[30%] Placement Phase 2 completed
+[50%] Placement Phase 3 completed
+Running routing......
+[60%] Routing Phase 0 completed
+[70%] Routing Phase 1 completed
+[80%] Routing Phase 2 completed
+[90%] Routing Phase 3 completed
+Running timing analysis......
+[95%] Timing analysis completed
+Placement and routing completed
+Bitstream generation in progress......
+Bitstream generation completed
+Running power analysis......
+[100%] Power analysis completed
+Generate file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\pnr\NBLogic.power.html" completed
+Generate file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\pnr\NBLogic.pin.html" completed
+Generate file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\pnr\NBLogic.rpt.html" completed
+Generate file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\pnr\NBLogic.rpt.txt" completed
+Generate file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\pnr\NBLogic.tr.html" completed
+Sun Nov 06 13:58:03 2022
+

@@ -1,0 +1,22 @@
+{
+ "Files" : [
+  {
+   "Library" : "work",
+   "Path" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src/gowin_sp/gowin_spRAM.vhd",
+   "Type" : "vhdl"
+  },
+  {
+   "Library" : "work",
+   "Path" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src/vga.vhd",
+   "Type" : "vhdl"
+  }
+ ],
+ "IncludePath" : [
+  "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src"
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/impl/temp/rtl_parser.result",
+ "Top" : "",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}

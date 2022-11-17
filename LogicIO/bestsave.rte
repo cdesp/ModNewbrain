@@ -1,0 +1,1256 @@
+ (routes 
+  (resolution mm 100000)
+  (parser
+  )
+  (parser
+  )
+  (structure_out
+   (layer TOP (type signal)
+   )
+   (layer I1 (type signal)
+   )
+   (layer I2 (type signal)
+   )
+   (layer I3 (type signal)
+   )
+   (layer I4 (type signal)
+   )
+   (layer I5 (type signal)
+   )
+   (layer I6 (type signal)
+   )
+   (layer I7 (type signal)
+   )
+   (layer I8 (type signal)
+   )
+   (layer I9 (type signal)
+   )
+   (layer I10 (type signal)
+   )
+   (layer I11 (type signal)
+   )
+   (layer I12 (type signal)
+   )
+   (layer I13 (type signal)
+   )
+   (layer I14 (type signal)
+   )
+   (layer BOT (type signal)
+   )
+  )
+  (library_out
+  (padstack $VIA#0_SIGNAL
+   (shape (circ TOP 127000 0 0))
+   (shape (circ I1 127000 0 0))
+   (shape (circ I2 127000 0 0))
+   (shape (circ I3 127000 0 0))
+   (shape (circ I4 127000 0 0))
+   (shape (circ I5 127000 0 0))
+   (shape (circ I6 127000 0 0))
+   (shape (circ I7 127000 0 0))
+   (shape (circ I8 127000 0 0))
+   (shape (circ I9 127000 0 0))
+   (shape (circ I10 127000 0 0))
+   (shape (circ I11 127000 0 0))
+   (shape (circ I12 127000 0 0))
+   (shape (circ I13 127000 0 0))
+   (shape (circ I14 127000 0 0))
+   (shape (circ BOT 127000 0 0))
+  )
+  (padstack $VIA#0_POWER
+   (shape (circ TOP 127000 0 0))
+   (shape (circ I1 127000 0 0))
+   (shape (circ I2 127000 0 0))
+   (shape (circ I3 127000 0 0))
+   (shape (circ I4 127000 0 0))
+   (shape (circ I5 127000 0 0))
+   (shape (circ I6 127000 0 0))
+   (shape (circ I7 127000 0 0))
+   (shape (circ I8 127000 0 0))
+   (shape (circ I9 127000 0 0))
+   (shape (circ I10 127000 0 0))
+   (shape (circ I11 127000 0 0))
+   (shape (circ I12 127000 0 0))
+   (shape (circ I13 127000 0 0))
+   (shape (circ I14 127000 0 0))
+   (shape (circ BOT 127000 0 0))
+  )
+  )
+  (network_out
+   (Net #00139 
+   (rule
+   )
+   (wire (path BOT 38100  -2382000 -2034000 -2382000 -2040000 -2448000 -2040000
+     -2448000 -2034000)
+    (connect (terminal smd UDATA_INOUT-10) (terminal smd UDATA_INOUT-11))
+    (type protect)
+   )
+   )
+   (Net #00182 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 2960000 2095500 2960000 2095500 2962000
+     3350000 2962000)
+    (connect (terminal pin F2-37) (terminal pin J5-7))
+   )
+   )
+   (Net #00183 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 3216000 3350000 3210000 1811250 3210000)
+    (connect (terminal pin J5-6) (terminal pin F2-38))
+   )
+   )
+   (Net #00184 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 3470000 3350000 3460000 1811250 3460000)
+    (connect (terminal pin J5-5) (terminal pin F2-39))
+   )
+   )
+   (Net #00185 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 3724000 3350000 3720000 1811250 3720000)
+    (connect (terminal pin J5-4) (terminal pin F2-40))
+   )
+   )
+   (Net #00186 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 3978000 3350000 3970000 1811250 3970000)
+    (connect (terminal pin J5-3) (terminal pin F2-41))
+   )
+   )
+   (Net #00187 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 4232000 3350000 4220000 1811250 4220000)
+    (connect (terminal pin J5-2) (terminal pin F2-42))
+   )
+   )
+   (Net #00188 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 4486000 3350000 4480000 1811250 4480000)
+    (connect (terminal pin J5-1) (terminal pin F2-43))
+   )
+   )
+   (Net #00189 
+   (rule
+   )
+   (wire (path BOT 38100  3350000 4740000 3350000 4739999 2879546 4739999
+     2879546 4740000 1811250 4740000)
+    (connect (terminal pin J5-0) (terminal pin F2-44))
+   )
+   )
+   (Net $CE0 
+   (rule
+   )
+   (wire (path BOT 38100  1394000 5864000 1394000 6159500 3746500 6159500
+     3746500 1996000 3060000 1996000)
+    (connect (terminal pin J2-0) (terminal smd USIGOUT-6))
+   )
+   )
+   (Net $CE1 
+   (rule
+   )
+   (wire (path BOT 38100  1648000 5864000 1648000 6096000 3683000 6096000
+     3683000 2060000 3060000 2060000)
+    (connect (terminal pin J2-1) (terminal smd USIGOUT-5))
+   )
+   )
+   (Net $CE3 
+   (rule
+   )
+   )
+   (Net $INT 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -999380 -3746500 -999380 -3746500 -5778500
+     2603500 -5778500 2603500 285000 1587500 285000 1587500 540000
+     2708101 540000 2708101 658468 3365500 658468 3365500 1866000
+     3060000 1866000)
+    (connect (terminal pin J1-21) (terminal smd USIGOUT-8))
+   )
+   )
+   (Net $IOREQ 
+   (rule
+   )
+   )
+   (Net $IORQ 
+   (rule
+   )
+   )
+   (Net $M1 
+   (rule
+   )
+   )
+   (Net $MREQ 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -1253380 -3302000 -1253380 -3302000 254000
+     -2159000 254000 -2159000 2476500 -2603500 2476500 -2603500 3978000
+     -2304000 3978000)
+    (connect (terminal pin J1-22) (terminal smd "USIGNALS_IN >"-5))
+   )
+   )
+   (Net $RD 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -1757380 -3683000 -1757380 -3683000 -1380380
+     -3302000 -1380380 -3302000 -1333500 -2730500 -1333500 -2730500 190500
+     -2095500 190500 -2095500 2771401 -2159000 2771401 -2159000 3848000
+     -2304000 3848000)
+    (connect (terminal pin J1-24) (terminal smd "USIGNALS_IN >"-3))
+   )
+   )
+   (Net $RESET 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -491380 -3683000 -491380 -3683000 2441620
+     -3302000 2441620 -3302000 2603500 -3175000 2603500 -3175000 4041999
+     -2304000 4041999)
+    (connect (terminal pin J1-19) (terminal smd "USIGNALS_IN >"-6))
+   )
+   )
+   (Net $VCE0 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 4990000 1587500 4990000 1587500 2835000
+     2540000 2835000 2540000 2794000 2667000 2794000 2667000 1996000
+     2472000 1996000)
+    (connect (terminal pin F2-26) (terminal smd USIGOUT-17))
+   )
+   (wire (path BOT 38100  1811250 1940000 1968500 1940000 1968500 1996000
+     2472000 1996000)
+    (connect (terminal pin F2-33) (terminal smd USIGOUT-17))
+   )
+   )
+   (Net $VCE1 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 1690000 2032000 1690000 2032000 1930000
+     2472000 1930000)
+    (connect (terminal pin F2-32) (terminal smd USIGOUT-16))
+   )
+   )
+   (Net $VCE2 
+   (rule
+   )
+   (wire (path BOT 38100  1902000 5864000 1902000 5588000 1143000 5588000
+     1143000 6286500 3937000 6286500 3937000 410000 1811250 410000)
+    (connect (terminal pin J2-2) (terminal pin F2-18))
+   )
+   )
+   (Net $VDVSER 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 -90000 1374940 -90000 1374940 -1714500
+     -1905000 -1714500 -1905000 -1884380 -3683000 -1884380 -3683000 -4427960
+     -2857500 -4427960 -2857500 -4808000 -2690000 -4808000)
+    (connect (terminal pin F2-6) (terminal pin J3-3))
+   )
+   )
+   (Net $VINTOUT 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 1180000 2159000 1180000 2159000 1800000
+     2472000 1800000)
+    (connect (terminal pin F2-30) (terminal smd USIGOUT-14))
+   )
+   )
+   (Net $VIOREQ 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 3210000 -830000 3210000 -1468000 3848000
+     -1716000 3848000)
+    (connect (terminal pin F2-3) (terminal smd "USIGNALS_IN >"-20))
+    (type protect)
+   )
+   )
+   (Net $VMREQ 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 3970000 -970000 3970000 -1042000 4042000
+     -1716000 4042000)
+    (connect (terminal pin F2-0) (terminal smd "USIGNALS_IN >"-17))
+    (type protect)
+   )
+   )
+   (Net $VRD 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 3460000 -860000 3460000 -1312000 3912000
+     -1716000 3912000)
+    (connect (terminal pin F2-2) (terminal smd "USIGNALS_IN >"-19))
+    (type protect)
+   )
+   )
+   (Net $VRESET 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 4220000 -449293 4234428 -463721 4220000
+     -1010000 4220000 -1122000 4108000 -1716000 4108000)
+    (connect (terminal pin F2-14) (terminal smd "USIGNALS_IN >"-16))
+    (type protect)
+   )
+   )
+   (Net $VWRIN 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 3720000 -472668 3717332 -894571 3717332
+     -1155239 3978000 -1716000 3978000)
+    (connect (terminal pin F2-1) (terminal smd "USIGNALS_IN >"-18))
+    (type protect)
+   )
+   )
+   (Net $VWROUT 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 930000 2222500 930000 2222500 1736000
+     2472000 1736000)
+    (connect (terminal pin F2-29) (terminal smd USIGOUT-13))
+   )
+   )
+   (Net $WR 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -1507380 -2667000 -1507380 -2667000 127000
+     -2032000 127000 -2032000 2857500 -2095500 2857500 -2095500 5524500
+     -1611960 5524500 -1611960 5969000 450564 5969000 450564 5217730
+     3556000 5217730 3556000 2657377 2730500 2657377 2730500 1587500
+     3238500 1587500 3238500 1800000 3060000 1800000)
+    (connect (terminal pin J1-23) (terminal smd USIGOUT-9))
+   )
+   )
+   (Net $WRIN 
+   (rule
+   )
+   (wire (path BOT 38100  -2140000 5790000 -2140000 5651500 -2153225 5651500
+     -2153225 4127500 -2159000 4127500 -2159000 3912000 -2304000 3912000)
+    (connect (terminal pin JPCPUWR-0) (terminal smd "USIGNALS_IN >"-4))
+   )
+   (wire (path BOT 38100  -2140000 5790000 -2140000 5800000 -1886000 5800000
+     -1886000 5790000)
+    (connect (terminal pin JPCPUWR-0) (terminal pin JPCPUWR-1))
+    (type protect)
+   )
+   )
+   (Net A0 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 530620 -2667000 530620 -2667000 1242000
+     -2304000 1242000)
+    (connect (terminal pin J1-15) (terminal smd "UVADDRLOW_IN >"-2))
+   )
+   )
+   (Net A1 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 784620 -3503241 783621 -3272612 783621
+     -2748233 1308000 -2304000 1308000)
+    (connect (terminal pin J1-14) (terminal smd "UVADDRLOW_IN >"-3))
+    (type protect)
+   )
+   )
+   (Net A10 
+   (rule
+   )
+   )
+   (Net A11 
+   (rule
+   )
+   )
+   (Net A12 
+   (rule
+   )
+   )
+   (Net A13 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 3834620 -3238500 3834620 -3238500 4107999
+     -2304000 4107999)
+    (connect (terminal pin J1-2) (terminal smd "USIGNALS_IN >"-7))
+   )
+   )
+   (Net A14 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 4088620 -3302000 4088620 -3302000 4171999
+     -2304000 4171999)
+    (connect (terminal pin J1-1) (terminal smd "USIGNALS_IN >"-8))
+   )
+   )
+   (Net A15 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 4342620 -3302000 4342620 -3302000 4237999
+     -2304000 4237999)
+    (connect (terminal pin J1-0) (terminal smd "USIGNALS_IN >"-9))
+   )
+   )
+   (Net A2 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 1038620 -3502860 1040000 -3190000 1040000
+     -2858000 1372000 -2304000 1372000)
+    (connect (terminal pin J1-13) (terminal smd "UVADDRLOW_IN >"-4))
+    (type protect)
+   )
+   )
+   (Net A3 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 1292620 -3501375 1295485 -3139817 1295485
+     -2997302 1438000 -2304000 1438000)
+    (connect (terminal pin J1-12) (terminal smd "UVADDRLOW_IN >"-5))
+    (type protect)
+   )
+   )
+   (Net A4 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 1552620 -2998569 1552620 -2949076 1503127
+     -2947949 1502000 -2304000 1502000)
+    (connect (terminal pin J1-11) (terminal smd "UVADDRLOW_IN >"-6))
+    (type protect)
+   )
+   )
+   (Net A5 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 1806620 -3066620 1806620 -2850000 1590000
+     -2828000 1568000 -2304000 1568000)
+    (connect (terminal pin J1-10) (terminal smd "UVADDRLOW_IN >"-7))
+    (type protect)
+   )
+   )
+   (Net A6 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 2060620 -3120620 2060620 -2692000 1632000
+     -2304000 1632000)
+    (connect (terminal pin J1-9) (terminal smd "UVADDRLOW_IN >"-8))
+    (type protect)
+   )
+   )
+   (Net A7 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 2314620 -3154620 2314620 -2538000 1698000
+     -2304000 1698000)
+    (connect (terminal pin J1-8) (terminal smd "UVADDRLOW_IN >"-9))
+    (type protect)
+   )
+   )
+   (Net A8 
+   (rule
+   )
+   )
+   (Net A9 
+   (rule
+   )
+   )
+   (Net CLOCK 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -745380 -3746500 -745380 -3746500 6159500
+     875986 6159500 875986 5524500 3460000 5524500 3460000 5830000)
+    (connect (terminal pin J1-20) (terminal pin J4-1))
+   )
+   )
+   (Net CPU_CLK 
+   (rule
+   )
+   (wire (path BOT 38100  3206000 5830000 2921000 5830000 2921000 6032500
+     1778000 6032500 1778000 5651500 1270000 5651500 1270000 6223000
+     3810000 6223000 3810000 1930000 3060000 1930000)
+    (connect (terminal pin J4-0) (terminal smd USIGOUT-7))
+   )
+   )
+   (Net D0 
+   (rule
+   )
+   (wire (path BOT 38100  -3504240 -2265380 -3504240 -2270000 -3070000 -2270000)
+    (connect (terminal pin J1-26) (terminal pin J_DATA-0))
+   )
+   (wire (path BOT 38100  -3070000 -2270000 -2423351 -2270000 -2422310 -2271041
+     -2311236 -2159967 -2311236 -2108000 -2318000 -2034000)
+    (connect (terminal pin J_DATA-0) (terminal smd UDATA_INOUT-9))
+    (type protect)
+   )
+   )
+   (Net D1 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -2524000 -3070000 -2519380 -3504240 -2519380)
+    (connect (terminal pin J_DATA-1) (terminal pin J1-27))
+   )
+   (wire (path BOT 38100  -3070000 -2524000 -2524000 -2524000 -2252000 -2252000
+     -2252000 -2034000)
+    (connect (terminal pin J_DATA-1) (terminal smd UDATA_INOUT-8))
+    (type protect)
+   )
+   )
+   (Net D2 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -2778000 -3070000 -2773380 -3504240 -2773380)
+    (connect (terminal pin J_DATA-2) (terminal pin J1-28))
+   )
+   (wire (path BOT 38100  -3070000 -2778000 -2552847 -2778000 -2188318 -2413471
+     -2188318 -2034318 -2188000 -2034000)
+    (connect (terminal pin J_DATA-2) (terminal smd UDATA_INOUT-7))
+    (type protect)
+   )
+   )
+   (Net D3 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -3032000 -3070000 -3027380 -3504240 -3027380)
+    (connect (terminal pin J_DATA-3) (terminal pin J1-29))
+   )
+   (wire (path BOT 38100  -3070000 -3032000 -2610312 -3032000 -2121696 -2543384
+     -2121696 -2034304 -2122000 -2034000)
+    (connect (terminal pin J_DATA-3) (terminal smd UDATA_INOUT-6))
+    (type protect)
+   )
+   )
+   (Net D4 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -3286000 -3070000 -3287380 -3504240 -3287380)
+    (connect (terminal pin J_DATA-4) (terminal pin J1-30))
+   )
+   (wire (path BOT 38100  -3070000 -3286000 -2711300 -3286000 -2057941 -2632641
+     -2057941 -2034059 -2058000 -2034000)
+    (connect (terminal pin J_DATA-4) (terminal smd UDATA_INOUT-5))
+    (type protect)
+   )
+   )
+   (Net D5 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -3540000 -3070000 -3541380 -3504240 -3541380)
+    (connect (terminal pin J_DATA-5) (terminal pin J1-31))
+   )
+   (wire (path BOT 38100  -3070000 -3540000 -2837790 -3540000 -1991636 -2693846
+     -1991636 -2034364 -1992000 -2034000)
+    (connect (terminal pin J_DATA-5) (terminal smd UDATA_INOUT-4))
+    (type protect)
+   )
+   )
+   (Net D6 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -3794000 -3302000 -3794000 -3302000 -3795380
+     -3504240 -3795380)
+    (connect (terminal pin J_DATA-6) (terminal pin J1-32))
+   )
+   (wire (path BOT 38100  -3070000 -3794000 -2927487 -3794000 -1927794 -2794307
+     -1927794 -2034206 -1928000 -2034000)
+    (connect (terminal pin J_DATA-6) (terminal smd UDATA_INOUT-3))
+    (type protect)
+   )
+   )
+   (Net D7 
+   (rule
+   )
+   (wire (path BOT 38100  -3070000 -4048000 -3238500 -4048000 -3238500 -4049380
+     -3504240 -4049380)
+    (connect (terminal pin J_DATA-7) (terminal pin J1-33))
+   )
+   (wire (path BOT 38100  -3070000 -4048000 -3004992 -4048000 -1862568 -2905576
+     -1862568 -2034568 -1862000 -2034000)
+    (connect (terminal pin J_DATA-7) (terminal smd UDATA_INOUT-2))
+    (type protect)
+   )
+   )
+   (Net DIROUT 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 -350000 1968500 -350000 1968500 -1905000
+     -1798000 -1905000 -1798000 -2034000)
+    (connect (terminal pin F2-7) (terminal smd UDATA_INOUT-1))
+   )
+   )
+   (Net DVI2C 
+   (rule
+   )
+   )
+   (Net DVKB 
+   (rule
+   )
+   )
+   (Net EA13 
+   (rule
+   )
+   )
+   (Net EA14 
+   (rule
+   )
+   )
+   (Net EA15 
+   (rule
+   )
+   (wire (path BOT 38100  -3091820 5107080 -2756960 5107080 -2756960 6032500
+     629902 6032500 629902 5397500 3619500 5397500 3619500 2256000
+     3060000 2256000)
+    (connect (terminal pin EX2-3) (terminal smd USIGOUT-2))
+   )
+   (wire (path BOT 38100  -3091820 5107080 -3302000 5107080 -3302000 5109620
+     -3500760 5109620)
+    (connect (terminal pin EX2-3) (terminal pin EX1-3))
+   )
+   )
+   (Net EXT1 
+   (rule
+   )
+   (wire (path BOT 38100  -3500760 5871620 -3500760 5870000 -3091820 5870000
+     -3091820 5869080)
+    (connect (terminal pin EX1-0) (terminal pin EX2-0))
+    (type protect)
+   )
+   )
+   (Net EXT2 
+   (rule
+   )
+   (wire (path BOT 38100  -3091820 5615080 -3302000 5615080 -3302000 5617620
+     -3500760 5617620)
+    (connect (terminal pin EX2-1) (terminal pin EX1-1))
+   )
+   )
+   (Net EXT3 
+   (rule
+   )
+   (wire (path BOT 38100  -3091820 5361080 -3302000 5361080 -3302000 5363620
+     -3500760 5363620)
+    (connect (terminal pin EX2-2) (terminal pin EX1-2))
+   )
+   )
+   (Net EXT5 
+   (rule
+   )
+   (wire (path BOT 38100  -3500760 4855620 -3094360 4855620 -3091820 4853080)
+    (connect (terminal pin EX1-4) (terminal pin EX2-4))
+    (type protect)
+   )
+   )
+   (Net EXT6 
+   (rule
+   )
+   (wire (path BOT 38100  -3091820 4599080 -3302000 4599080 -3302000 4601620
+     -3500760 4601620)
+    (connect (terminal pin EX2-5) (terminal pin EX1-5))
+   )
+   )
+   (Net GND 
+   (rule
+   )
+   (wire (path BOT 38100  -317500 -1333500 -317500 1055000 -1524000 1055000)
+    (connect (terminal via) (terminal wire))
+   )
+   (wire (path TOP 38100  -1075660 -2546000 -317500 -2546000 -317500 -1333500)
+    (connect (terminal pin C4-1) (terminal via))
+   )
+   (wire (path TOP 38100  1968500 -635000 1968500 426318 2603500 426318
+     2603500 1270000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path TOP 38100  1968500 -635000 1968500 -600000 1811250 -600000)
+    (connect (terminal wire) (terminal pin F2-45))
+   )
+   (wire (path TOP 38100  -2286000 762000 -2095500 762000 -2095500 620000
+     -1852000 620000)
+    (connect (terminal wire) (terminal pin C2-1))
+   )
+   (wire (path TOP 38100  -317500 -1333500 -317500 -1079500 1460500 -1079500)
+    (connect (terminal via) (terminal wire))
+   )
+   (wire (path TOP 38100  -2286000 2667000 -1830000 2667000 -1830000 3290000)
+    (connect (terminal wire) (terminal pin C5-1))
+   )
+   (wire (path BOT 38100  -317500 -1333500 -1862001 -1333500 -1862001 -1446000)
+    (connect (terminal via) (terminal smd UDATA_INOUT-21))
+   )
+   (wire (path TOP 38100  1968500 -1333500 1968500 -635000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path TOP 38100  1968500 -1333500 1460500 -1333500 1460500 -1079500)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -1830000 3290000 -1830000 3782001 -1716000 3782001)
+    (connect (terminal pin C5-1) (terminal smd "USIGNALS_IN >"-21))
+   )
+   (wire (path BOT 38100  2603500 1460500 2603500 1670000 2472000 1670000)
+    (connect (terminal via) (terminal smd USIGOUT-12))
+   )
+   (wire (path TOP 38100  2603500 1460500 2603500 1905000 2857500 1905000)
+    (connect (terminal via) (terminal via))
+   )
+   (wire (path TOP 38100  2984500 2286000 2984500 1905000 2857500 1905000)
+    (connect (terminal wire) (terminal via))
+   )
+   (wire (path TOP 38100  3302000 2413000 3302000 2286000 2984500 2286000)
+    (connect (terminal via) (terminal wire))
+   )
+   (wire (path BOT 38100  3060000 2320000 3302000 2320000 3302000 2413000)
+    (connect (terminal smd USIGOUT-1) (terminal via))
+   )
+   (wire (path BOT 38100  -1524000 1055000 -1524000 1242001 -1716000 1242001)
+    (connect (terminal wire) (terminal smd "UVADDRLOW_IN >"-21))
+   )
+   (wire (path TOP 38100  -1968500 4318000 -1830000 4318000 -1830000 3290000)
+    (connect (terminal via) (terminal pin C5-1))
+   )
+   (wire (path BOT 38100  -2476500 4381500 -2476500 4508500)
+    (connect (terminal via) (terminal wire))
+   )
+   (wire (path BOT 38100  -1852000 620000 -1832950 620000 -1832950 825500
+     -1778000 825500)
+    (connect (terminal pin C2-1) (terminal wire))
+   )
+   (wire (path BOT 38100  -2286000 1968500 -2304000 1968500 -2304000 1827999)
+    (connect (terminal via) (terminal smd "UVADDRLOW_IN >"-11))
+   )
+   (wire (path TOP 38100  -2286000 1968500 -2286000 2667000)
+    (connect (terminal via) (terminal wire))
+   )
+   (wire (path BOT 38100  -1651000 4508500 -1716001 4508500 -1716001 4368000)
+    (connect (terminal via) (terminal smd "USIGNALS_IN >"-12))
+   )
+   (wire (path TOP 38100  -1968500 4318000 -1968500 4508500 -1651000 4508500)
+    (connect (terminal via) (terminal via))
+   )
+   (wire (path TOP 38100  -2476500 4381500 -2476500 4318000 -1968500 4318000)
+    (connect (terminal via) (terminal via))
+   )
+   (wire (path BOT 38100  -2476500 4381500 -2476500 4367999 -2304000 4367999)
+    (connect (terminal via) (terminal smd "USIGNALS_IN >"-11))
+   )
+   (wire (path BOT 38100  -1716001 1828000 -1841500 1828000 -1841500 1242001
+     -1716000 1242001)
+    (connect (terminal smd "UVADDRLOW_IN >"-12) (terminal smd "UVADDRLOW_IN >"-21))
+   )
+   (wire (path TOP 38100  2222500 2286000 2984500 2286000)
+    (connect (terminal via) (terminal wire))
+   )
+   (wire (path BOT 38100  2472000 2256000 2222500 2256000 2222500 2286000)
+    (connect (terminal smd USIGOUT-21) (terminal via))
+   )
+   (wire (path BOT 38100  -1968500 4318000 -1968500 5429310 -1370000 5429310
+     -1370000 5780000)
+    (connect (terminal via) (terminal pin J_VCC3.3-1))
+   )
+   (wire (path BOT 38100  -2448000 -1446000 -2448000 -1587500 -1862001 -1587500
+     -1862001 -1446000)
+    (connect (terminal smd UDATA_INOUT-12) (terminal smd UDATA_INOUT-21))
+   )
+   (wire (path TOP 38100  -2286000 762000 -2286000 1968500)
+    (connect (terminal wire) (terminal via))
+   )
+   (wire (path TOP 38100  -2286000 762000 -3130664 762000 -3130664 276620
+     -3504240 276620)
+    (connect (terminal wire) (terminal pin J1-16))
+   )
+   (wire (path BOT 38100  2857500 1905000 2857500 1736000 3060000 1736000)
+    (connect (terminal via) (terminal smd USIGOUT-10))
+   )
+   (wire (path BOT 38100  -2310000 4378500 -2310000 4508500 -2476500 4508500)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -2304000 1827999 -2476500 1827999 -2476500 1761999
+     -2304000 1761999)
+    (connect (terminal smd "UVADDRLOW_IN >"-11) (terminal smd "UVADDRLOW_IN >"-10))
+   )
+   (wire (path BOT 38100  3060000 1736000 3175000 1736000 3175000 1670000
+     3060000 1670000)
+    (connect (terminal smd USIGOUT-10) (terminal smd USIGOUT-11))
+   )
+   (wire (path BOT 38100  -2304000 4367999 -2210951 4367999 -2210951 4301999
+     -2304000 4301999)
+    (connect (terminal smd "USIGNALS_IN >"-11) (terminal smd "USIGNALS_IN >"-10))
+   )
+   (wire (path TOP 38100  2603500 1270000 2603500 1460500)
+    (connect (terminal wire) (terminal via))
+   )
+   (wire (path BOT 38100  -1778000 825500 -1524000 825500 -1524000 1055000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path TOP 38100  2350000 -1114000 2350000 -1333500 1968500 -1333500)
+    (connect (terminal pin C1-1) (terminal wire))
+   )
+   (wire (path BOT 38100  -2304000 4368000 -2308523 4375915)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -2308523 4375915 -2310000 4378500)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 50800  -2308523 4375915 -2310000 4376576)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -2310000 4378500 -2310000 4376576)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -2310000 4302000 -2304000 4302000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -2310000 4368000 -2310000 4302000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -2310000 4376576 -2310000 4368000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (via $VIA#0_POWER 2603500 1460500)
+   (via $VIA#0_POWER 3302000 2413000)
+   (via $VIA#0_POWER -2286000 1968500)
+   (via $VIA#0_POWER -1651000 4508500)
+   (via $VIA#0_POWER -2476500 4381500)
+   (via $VIA#0_POWER 2222500 2286000)
+   (via $VIA#0_POWER 2857500 1905000)
+   (via $VIA#0_POWER -317500 -1333500)
+   (via $VIA#0_POWER -1968500 4318000)
+   )
+   (Net SP0 
+   (rule
+   )
+   (wire (path BOT 38100  -3074041 -4298540 -3238500 -4298540 -3238500 -4303380
+     -3504240 -4303380)
+    (connect (terminal pin SP2-0) (terminal pin J1-34))
+   )
+   )
+   (Net SP1 
+   (rule
+   )
+   (wire (path BOT 38100  -3074041 -4552540 -3238500 -4552540 -3238500 -4557380
+     -3504240 -4557380)
+    (connect (terminal pin SP2-1) (terminal pin J1-35))
+   )
+   )
+   (Net SP2 
+   (rule
+   )
+   (wire (path BOT 38100  -3074041 -4806540 -3074041 -4805380 -3504240 -4805380)
+    (connect (terminal pin SP2-2) (terminal pin J1-36))
+   )
+   )
+   (Net SP3 
+   (rule
+   )
+   (wire (path BOT 38100  -3074041 -5060540 -3074041 -5059380 -3504240 -5059380)
+    (connect (terminal pin SP2-3) (terminal pin J1-37))
+   )
+   )
+   (Net SP4 
+   (rule
+   )
+   (wire (path BOT 38100  -3074041 -5314540 -3074041 -5313380 -3504240 -5313380)
+    (connect (terminal pin SP2-4) (terminal pin J1-38))
+   )
+   )
+   (Net SP5 
+   (rule
+   )
+   (wire (path BOT 38100  -3074041 -5568540 -3074041 -5567380 -3504240 -5567380)
+    (connect (terminal pin SP2-5) (terminal pin J1-39))
+   )
+   )
+   (Net VA0 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1308000 -928000 1308000 -800000 1180000
+     -470000 1180000)
+    (connect (terminal smd "UVADDRLOW_IN >"-20) (terminal pin F2-17))
+    (type protect)
+   )
+   )
+   (Net VA1 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1372000 -928000 1372000 -870000 1430000
+     -470000 1430000)
+    (connect (terminal smd "UVADDRLOW_IN >"-19) (terminal pin F2-16))
+    (type protect)
+   )
+   )
+   (Net VA13 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 4480000 -471007 4481007 -988992 4481007
+     -1297999 4172000 -1716000 4172000)
+    (connect (terminal pin F2-11) (terminal smd "USIGNALS_IN >"-15))
+    (type protect)
+   )
+   )
+   (Net VA14 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 4740000 -980000 4740000 -1482000 4238000
+     -1716000 4238000)
+    (connect (terminal pin F2-12) (terminal smd "USIGNALS_IN >"-14))
+    (type protect)
+   )
+   )
+   (Net VA15 
+   (rule
+   )
+   (wire (path BOT 38100  -470000 4990000 -762000 4990000 -762000 5207000
+     -1841500 5207000 -1841500 4302000 -1716001 4302000)
+    (connect (terminal pin F2-13) (terminal smd "USIGNALS_IN >"-13))
+   )
+   (wire (path BOT 38100  -825500 4990000 -889000 4990000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -889000 4990000 -943665 4990000 -1631665 4302000
+     -1716000 4302000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -470000 4990000 -825500 4990000)
+    (connect (terminal pin F2-13) (terminal wire))
+    (type protect)
+   )
+   )
+   (Net VA2 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1438000 -1022000 1438000 -770000 1690000
+     -470000 1690000)
+    (connect (terminal smd "UVADDRLOW_IN >"-18) (terminal pin F2-10))
+    (type protect)
+   )
+   )
+   (Net VA3 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1502000 -1138000 1502000 -700000 1940000
+     -470000 1940000)
+    (connect (terminal smd "UVADDRLOW_IN >"-17) (terminal pin F2-15))
+    (type protect)
+   )
+   )
+   (Net VA4 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1568000 -1242000 1568000 -720000 2090000
+     -720000 2187057 -717315 2189742 -707057 2200000 -470000 2200000)
+    (connect (terminal smd "UVADDRLOW_IN >"-16) (terminal pin F2-9))
+    (type protect)
+   )
+   )
+   (Net VA5 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1632000 -1368000 1632000 -840000 2160000
+     -840000 2346457 -833429 2353028 -736457 2450000 -470000 2450000)
+    (connect (terminal smd "UVADDRLOW_IN >"-15) (terminal pin F2-8))
+    (type protect)
+   )
+   )
+   (Net VA6 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1698000 -1482000 1698000 -974943 2205057
+     -974943 2552600 -833429 2694114 -485886 2694114 -470000 2710000)
+    (connect (terminal smd "UVADDRLOW_IN >"-14) (terminal pin F2-5))
+    (type protect)
+   )
+   )
+   (Net VA7 
+   (rule
+   )
+   (wire (path BOT 38100  -1716000 1762000 -1620400 1762000 -1150000 2232400
+     -1150000 2650000 -840000 2960000 -470000 2960000)
+    (connect (terminal smd "UVADDRLOW_IN >"-13) (terminal pin F2-4))
+    (type protect)
+   )
+   )
+   (Net VCC/VDD 
+   (rule
+   )
+   (wire (path TOP 38100  -1016000 571500 -1016000 635000 -1440581 635000
+     -1440581 381000 -2360000 381000 -2360000 620000)
+    (connect (terminal wire) (terminal pin C2-0))
+   )
+   (wire (path TOP 38100  1811250 670000 1524000 670000 1524000 540000
+     -762000 540000 -762000 571500 -1016000 571500)
+    (connect (terminal pin F2-46) (terminal wire))
+   )
+   (wire (path TOP 38100  -1075660 -2038000 -1075660 -1778000 -825500 -1778000
+     -825500 0 -1016000 0)
+    (connect (terminal pin C4-0) (terminal wire))
+   )
+   (wire (path BOT 38100  2857500 2095500 2857500 2386000 3060000 2386000)
+    (connect (terminal via) (terminal smd USIGOUT-0))
+   )
+   (wire (path TOP 38100  1811250 670000 2359577 670000 2359577 2095500
+     2857500 2095500)
+    (connect (terminal pin F2-46) (terminal via))
+   )
+   (wire (path BOT 38100  -2476500 3429000 -2476500 3652000 -2303999 3652000)
+    (connect (terminal via) (terminal smd "USIGNALS_IN >"-0))
+   )
+   (wire (path TOP 38100  -2476500 1079500 -2476500 3429000)
+    (connect (terminal via) (terminal via))
+   )
+   (wire (path BOT 38100  -2360000 620000 -2540000 620000 -2540000 1079500
+     -2476500 1079500)
+    (connect (terminal pin C2-0) (terminal via))
+   )
+   (wire (path TOP 38100  -1016000 0 -1016000 571500)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -2303999 1112000 -2413000 1112000 -2413000 1178000
+     -2303999 1178000)
+    (connect (terminal smd "UVADDRLOW_IN >"-0) (terminal smd "UVADDRLOW_IN >"-1))
+   )
+   (wire (path BOT 38100  -2303999 1112000 -2303999 903791 -2360000 903791
+     -2360000 620000)
+    (connect (terminal smd "UVADDRLOW_IN >"-0) (terminal pin C2-0))
+   )
+   (wire (path BOT 38100  -2303999 3652000 -2303999 3718000)
+    (connect (terminal smd "USIGNALS_IN >"-0) (terminal smd "USIGNALS_IN >"-1))
+   )
+   (wire (path BOT 38100  -1732000 -2034000 -1561000 -2034000)
+    (connect (terminal smd UDATA_INOUT-0) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 50800  -3504240 22620 -3504240 20000 -3504240 15233)
+    (connect (terminal pin J1-17) (terminal wire))
+    (type protect)
+    (attr fanout)
+   )
+   (wire (path BOT 50800  -986760 -2034000 -1075660 -2038000)
+    (connect (terminal wire) (terminal pin C4-0))
+    (type protect)
+   )
+   (wire (path BOT 50800  -1561000 -2034000 -1524000 -2034000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 50800  -1524000 -2034000 -986760 -2034000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (via $VIA#0_POWER 2857500 2095500)
+   (via $VIA#0_POWER -2476500 3429000)
+   (via $VIA#0_POWER -2476500 1079500)
+   )
+   (Net VCC3.3 
+   (rule
+   )
+   (wire (path BOT 38100  -190500 190500 -190500 -1587500 -1732000 -1587500
+     -1732000 -1446000)
+    (connect (terminal wire) (terminal smd UDATA_INOUT-23))
+   )
+   (wire (path BOT 38100  -190500 3048000 -190500 5780000 -1116000 5780000)
+    (connect (terminal wire) (terminal pin J_VCC3.3-0))
+   )
+   (wire (path BOT 38100  -190500 3048000 -190500 3085000 -317500 3085000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -190500 190500 1088288 190500 1088288 35000
+     1968500 35000 1968500 -127000 2032000 -127000 2032000 -254000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -1841500 1079500 -1841500 1143000 -1905000 1143000
+     -1905000 2975006 -1576000 2975006 -1576000 3290000)
+    (connect (terminal wire) (terminal pin C5-0))
+   )
+   (wire (path BOT 38100  -317500 3085000 -1143000 3085000 -1143000 3290000
+     -1576000 3290000)
+    (connect (terminal wire) (terminal pin C5-0))
+   )
+   (wire (path BOT 38100  -190500 2540000 -190500 2476500)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  2350000 -860000 2350000 -254000 2032000 -254000)
+    (connect (terminal pin C1-0) (terminal wire))
+   )
+   (wire (path BOT 38100  2032000 -254000 1968500 -254000 1968500 -220000
+     1651000 -220000 1651000 -850000 1811250 -850000)
+    (connect (terminal wire) (terminal pin F2-47))
+   )
+   (wire (path BOT 38100  -1587500 1143000 -1587500 952500 -1841500 952500
+     -1841500 1016000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -1587500 1143000 -1587500 1178001 -1716000 1178001)
+    (connect (terminal wire) (terminal smd "UVADDRLOW_IN >"-22))
+   )
+   (wire (path BOT 38100  2472000 2386000 2472000 2320000)
+    (connect (terminal smd USIGOUT-23) (terminal smd USIGOUT-22))
+   )
+   (wire (path BOT 38100  -1576000 3290000 -1576000 3556000 -1587500 3556000
+     -1587500 3652001)
+    (connect (terminal pin C5-0) (terminal wire))
+   )
+   (wire (path BOT 38100  -1587500 3652001 -1716000 3652001)
+    (connect (terminal wire) (terminal smd "USIGNALS_IN >"-23))
+   )
+   (wire (path BOT 38100  -190500 2540000 -190500 3048000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -190500 2540000 -190500 2580000 1968500 2580000
+     1968500 2540000 2349500 2540000 2349500 2386000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -190500 2476500 -190500 190500)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  2472000 2386000 2349500 2386000)
+    (connect (terminal smd USIGOUT-23) (terminal wire))
+   )
+   (wire (path BOT 38100  -1716000 1112001 -1587500 1112001 -1587500 1143000)
+    (connect (terminal smd "UVADDRLOW_IN >"-23) (terminal wire))
+   )
+   (wire (path BOT 38100  -1716000 3718001 -1587500 3718001 -1587500 3652001)
+    (connect (terminal smd "USIGNALS_IN >"-22) (terminal wire))
+   )
+   (wire (path BOT 38100  -1716000 1112000 -1715999 1112000 -1715999 1016000
+     -1841500 1016000)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -1841500 1016000 -1841500 1079500)
+    (connect (terminal wire) (terminal wire))
+   )
+   (wire (path BOT 38100  -1716000 1178000 -1720000 1178000 -1720000 1112000
+     -1716000 1112000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -1732000 -1450000 -1732000 -1446000)
+    (connect (terminal wire) (terminal smd UDATA_INOUT-23))
+    (type protect)
+   )
+   (wire (path BOT 38100  -1798000 -1450000 -1732000 -1450000)
+    (connect (terminal wire) (terminal wire))
+    (type protect)
+   )
+   (wire (path BOT 38100  -1798000 -1446000 -1798000 -1450000)
+    (connect (terminal smd UDATA_INOUT-22) (terminal wire))
+    (type protect)
+   )
+   )
+   (Net VCPU_CLK 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 1430000 2095500 1430000 2095500 1866000
+     2472000 1866000)
+    (connect (terminal pin F2-31) (terminal smd USIGOUT-15))
+   )
+   )
+   (Net VD0 
+   (rule
+   )
+   (wire (path BOT 38100  -2382000 -1446000 -2381614 -1445614 -2381614 -384894
+     -1066720 930000 -470000 930000)
+    (connect (terminal smd UDATA_INOUT-13) (terminal pin F2-20))
+    (type protect)
+   )
+   )
+   (Net VD1 
+   (rule
+   )
+   (wire (path BOT 38100  -2318000 -1446000 -2318126 -1445874 -2318126 -518126
+     -1130000 670000 -470000 670000)
+    (connect (terminal smd UDATA_INOUT-14) (terminal pin F2-21))
+    (type protect)
+   )
+   )
+   (Net VD2 
+   (rule
+   )
+   (wire (path BOT 38100  -2252000 -1446000 -2253841 -1444159 -2253841 -633523
+     -1210318 410000 -469375 410000)
+    (connect (terminal smd UDATA_INOUT-15) (terminal pin F2-22))
+    (type protect)
+   )
+   )
+   (Net VD3 
+   (rule
+   )
+   (wire (path BOT 38100  -2188000 -1446000 -2190000 -1444000 -2190000 -730000
+     -1320000 140000 -470000 140000)
+    (connect (terminal smd UDATA_INOUT-16) (terminal pin F2-23))
+    (type protect)
+   )
+   )
+   (Net VD4 
+   (rule
+   )
+   (wire (path BOT 38100  -2122000 -1446000 -2122138 -1445862 -2122138 -827316
+     -1414822 -120000 -470000 -120000)
+    (connect (terminal smd UDATA_INOUT-17) (terminal pin F2-24))
+    (type protect)
+   )
+   )
+   (Net VD5 
+   (rule
+   )
+   (wire (path BOT 38100  -2058000 -1446000 -2058434 -1445566 -2058434 -976339
+     -1452095 -370000 -470000 -370000)
+    (connect (terminal smd UDATA_INOUT-18) (terminal pin F2-25))
+    (type protect)
+   )
+   )
+   (Net VD6 
+   (rule
+   )
+   (wire (path BOT 38100  -1992000 -1446000 -1993165 -1444835 -1993165 -1056775
+     -1566390 -630000 -469375 -630000)
+    (connect (terminal smd UDATA_INOUT-19) (terminal pin F2-27))
+    (type protect)
+   )
+   )
+   (Net VD7 
+   (rule
+   )
+   (wire (path BOT 38100  -1928000 -1446000 -1928000 -1213295 -1636213 -921508
+     -1614705 -900000 -469375 -900000)
+    (connect (terminal smd UDATA_INOUT-20) (terminal pin F2-28))
+    (type protect)
+   )
+   )
+   (Net VDVSTOR 
+   (rule
+   )
+   (wire (path BOT 38100  -2690000 -5062000 2476500 -5062000 2476500 160000
+     1811250 160000)
+    (connect (terminal pin J3-2) (terminal pin F2-19))
+   )
+   )
+   (Net VEA13 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 2200000 1811250 2060000 2472000 2060000)
+    (connect (terminal pin F2-34) (terminal smd USIGOUT-18))
+   )
+   )
+   (Net VEA14 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 2450000 1968500 2450000 1968500 2126000
+     2472000 2126000)
+    (connect (terminal pin F2-35) (terminal smd USIGOUT-19))
+   )
+   )
+   (Net VEA15 
+   (rule
+   )
+   (wire (path BOT 38100  1811250 2710000 2603500 2710000 2603500 2190000
+     2472000 2190000)
+    (connect (terminal pin F2-36) (terminal smd USIGOUT-20))
+   )
+   )
+  )
+ )

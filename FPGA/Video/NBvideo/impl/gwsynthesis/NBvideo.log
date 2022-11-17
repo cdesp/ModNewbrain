@@ -1,0 +1,35 @@
+GowinSynthesis start
+Running parser ...
+Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd'
+Analyzing entity 'gowin_spram'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":12)
+Analyzing architecture 'behavioral'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":25)
+Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd'
+Analyzing entity 'vga_controller'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":35)
+Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":65)
+Processing 'vga_controller(behavior)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":35)
+WARN  (EX4206) : Using initial value for 'ad_i' since it is never assigned("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":105)
+WARN  (EX4206) : Using initial value for 'din_i' since it is never assigned("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":106)
+Processing 'Gowin_SPRAM(Behavioral)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":12)
+NOTE  (EX0101) : Current top module is "vga_controller"
+WARN  (EX0211) : The output port "scrend" of module "vga_controller" has no driver("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":55)
+[5%] Running netlist conversion ...
+WARN  (CV0003) : Output "scrend" has undriven bits, assigning undriven bits to Z, simulation mismatch possible("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":55)
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+[30%] Inferring Phase 0 completed
+[40%] Inferring Phase 1 completed
+[50%] Inferring Phase 2 completed
+[55%] Inferring Phase 3 completed
+Running technical mapping ...
+[60%] Tech-Mapping Phase 0 completed
+[65%] Tech-Mapping Phase 1 completed
+[75%] Tech-Mapping Phase 2 completed
+[80%] Tech-Mapping Phase 3 completed
+[90%] Tech-Mapping Phase 4 completed
+WARN  (NL0002) : The module "Gowin_SPRAM" instantiated to "SPRMEM" is swept in optimizing("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":158)
+[95%] Generate netlist file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\impl\gwsynthesis\NBvideo.vg" completed
+[100%] Generate report file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\impl\gwsynthesis\NBvideo_syn.rpt.html" completed
+GowinSynthesis finish

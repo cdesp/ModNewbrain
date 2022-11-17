@@ -1,0 +1,341 @@
+	NAME CARTON
+	TITLE ODDS AND ENDS USING KBIO SPACE
+ 
+	PSECT ABS
+	DS 0F2A8H-$	;ADD ZEROES UNTIL 0F2A8H
+	ORG 0F2A8H
+ 
+	GLOBAL LORDEP
+	GLOBAL BLKIN
+	GLOBAL BLKOUT
+	GLOBAL GETP
+	GLOBAL GETPARS
+	GLOBAL LDDE
+	GLOBAL STDE
+	GLOBAL SBMOV
+	GLOBAL TBMOV
+	GLOBAL SWAP6
+	GLOBAL SWAP12
+	GLOBAL COMPFP
+	GLOBAL COMPZ
+	GLOBAL FPINC
+	GLOBAL FPADD
+	GLOBAL FPADDTO
+	GLOBAL FPDIV
+	GLOBAL FPFIX
+	GLOBAL FPLD
+	GLOBAL FPMUL
+ 
+	GLOBAL CALLIX
+	GLOBAL FDE
+	GLOBAL FDEV
+	GLOBAL FSTRM
+	GLOBAL ZADD
+	GLOBAL ZCOMP
+	GLOBAL ZDIV
+	GLOBAL ZFIX
+	GLOBAL ZFPONE
+	GLOBAL ZFIX
+	GLOBAL ZFPZERO
+	GLOBAL ZLDF
+	GLOBAL ZMULT
+	GLOBAL ZSTF
+ 
+* Error numbers and other parameters
+ 
+NOSTRM	EQU 105
+ 
+* LOCATION FOR XIO CODE (TVSYN)
+ 
+LORDEP:	INC HL
+	LD (HL),A	;zero
+	INC HL
+	LD (HL) D	;ORIGDEP
+	INC HL
+	RET
+ 
+BLKIN:		;BLOCK INPUT
+		;Entry: HL points to string,
+		;       BC = length
+		;Exit: 1) CY clear, BC = 0,
+		;         HL = HL+BC, results at old HL
+		;      2) CY set, A = error no,
+		;         HL,BC,(HL)... altered
+		;Preserves DE,IX
+	LD A,2		;input
+	JR BLKIO
+ 
+BLKOUT:		;BLOCK OUTPUT
+		;Entry: HL points to string,
+		;       BC = length
+		;Exit: 1) CY clear, BC = 0,
+		;         HL = HL+BC
+		;      2) CY set, A = error no,
+		;         HL,BC altered
+		;Preserves DE,IX
+	LD A,3		;output
+BLKIO	PUSH IX
+	PUSH DE
+	PUSH HL
+	PUSH BC
+	LD C,A
+	EX AF,AF'
+	CALL FSTRM
+	LD A,NOSTRM
+	JR C BLER4
+	INC HL
+	LD B,(HL)	;driver no
+	INC HL
+	LD D,(HL)	;port number
+	INC HL
+	INC HL
+	LD A,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,A		;own RAM address to HL
+	PUSH HL		;thence to stack
+	CALL FDE
+	EX (SP),HL	;so HL = own RAM again
+	POP IX		;so IX = driver routine address
+	JR C BLER4
+	EX AF,AF'	;so A = input/output flag
+	POP BC		;byte counter
+	EX DE,HL	;DE = RAM, H = port
+	EX (SP),HL	;TOS = port & strm, HL=byte pointer
+	CP 3
+	JR Z BOUT
+ 
+BILOOP:
+	LD A,B
+	OR C
+	JR Z BLEND
+	EX (SP),HL	;TOS=byte pointer,H=port
+	PUSH BC		;byte counter
+	PUSH IX		;entry address
+	PUSH DE		;RAM pointer
+	EX DE,HL	;so HL = RAM, D = port
+	PUSH DE
+	CALL CALLIX
+	POP HL
+	POP DE
+	POP IX
+	POP BC
+	EX (SP),HL
+	JR C BLEND
+	LD (HL),A
+	INC HL
+	DEC BC
+	JR BILOOP
+ 
+BOLOOP:
+	POP HL
+	POP DE
+	POP IX
+	POP BC
+	EX (SP),HL
+	JR C BLEND
+BOUT	LD A,C
+	OR B
+	JR Z BLEND
+	LD A,(HL)	;byte to output
+	INC HL
+	DEC BC
+	EX (SP),HL	;TOS=byte pointer,H=port
+	PUSH BC		;byte counter
+	PUSH IX		;entry address
+	PUSH DE		;RAM pointer
+	EX DE,HL	;so HL = RAM, D = port
+	PUSH DE
+	CALL CALLIX
+	JR BOLOOP
+ 
+			;BLERx labels for set-up errors
+BLER4	POP BC
+BLEND	POP DE
+	POP DE
+	POP IX
+	RET
+ 
+GETP:		;This routine recovers the parameter
+		;to an in-line coded subroutine call.
+		;It may only be called as the first
+		;line of a subroutine which was itself
+		;called by the sequence
+		;	CALL SRTN
+		;	DEFB n
+		;where n codes for the (only) parameter.
+		;On return from GETP, HL --> (IX+n) and
+		;the stack has been adjusted for the
+		;correct return address
+	POP HL		;get immediate return addr
+	EX (SP),HL	;stack that and get s'rtn ret addr
+	LD E,(HL)	;so E = n
+	INC HL
+	EX (SP),HL	;put back correct ret addr
+	PUSH IX
+	EX (SP),HL	;put current ret addr, HL=IX
+	LD D,0
+	ADD HL,DE	;so HL = IX+n
+	RET
+ 
+	NOP	;match addresses in well-tested
+	NOP	;ROMs as closely as possible
+ 
+GETPARS:	;This routine recovers parameters
+		;to an in-line coded subroutine call.
+		;It may only be called as the first
+		;line of a subroutine which was itself
+		;called by the sequence
+		;	CALL SRTN
+		;	DEFB m,n
+		;where m and n code for the parameters.
+		;On return from GETPARS HL = IX + m,
+		;DE = IX + n and the stack has been
+		;adjusted for the correct return
+		;addresses.
+		; BC = m, CY clear if IX+m does not
+		;         produce overflow
+	POP HL		;This routines ret addr
+	EX (SP),HL	;orig ret addr
+	LD C,(HL)	; C = m
+	INC HL
+	LD E,(HL)	; E = n
+	INC HL
+	EX (SP),HL	;stack has orig ret addr
+	PUSH IX		;TOS=IX,HL=this ret addr
+	EX (SP),HL	;So this rtn ret addr on stack
+	LD D 0		;so DE = n
+	LD B D		; so BC = m
+	EX DE,HL	; HL = n, DE = IX
+	ADD HL,DE	; HL = IX + n
+	EX DE,HL	; HL = IX, DE = IX + n
+	ADD HL,BC	; HL = IX + m
+	RET
+ 
+LDDE:		;Load DE from (IX+n)
+		;call by: CALL LDDE
+		;         DEFB n
+	CALL GETP
+	LD E,(HL)
+	INC HL
+	LD D,(HL)
+	RET
+ 
+STDE:		;Stores DE at (IX+n)
+		;Call by: CALL STDE
+		;         DEFB n
+	LD B,D
+	LD C,E
+	CALL GETP
+	LD (HL),C
+	INC HL
+	LD (HL),B
+	RET
+ 
+SBMOV:		;Six-byte move from (IX+n)
+		;to (IX+m)
+		;Call by: CALL SBMOV
+		;         DEFB m,n
+	CALL GETPARS	;so HL=IX+m, DE=IX+n
+	LD C,6
+	JR TBM1
+ 
+TBMOV:		;As SBMOV but for two
+		;bytes instead of six
+	CALL GETPARS
+	LD C 2
+TBM1	EX DE,HL
+	LDIR
+	RET
+ 
+FSWAP12:
+SWAP12:		;Swap 12-byte areas pointed
+		;at by IX+n, IX+m
+	CALL GETPARS	;so HL=IX+m, DE=IX+n
+	LD BC,12.SHL.8+100	;a trick
+SWAPLP	LD A (DE)
+	LDI		;copy from (HL) to (DE)
+	DEC HL
+	LD (HL),A	;copy from (DE) to (HL)
+	INC HL
+	DJNZ SWAPLP
+	RET
+ 
+COMPFP:		;Compare six-byte floating
+		;point numbers at (IX+n),(IX+m)
+		;Call by: CALL COMPFP
+		;         DEFB m,n
+		;Returns CY set iff (IX+m)>(IX+n)
+		;        Z  set iff equal
+	CALL GETPARS	;so HL=IX+m, DE=IX+n
+	DEFW ZCOMP	;set flags for (DE)-(HL)
+	RET
+ 
+COMPZ:		;Compare six byte f.p. number
+		;at (IX+n) with 0
+		;Call by: CALL COMPZ
+		;         DEFB n
+		;Sets CY iff number < 0,
+		;     Z  iff number = 0
+	CALL GETP	;so HL =IX+n
+	PUSH HL
+	DEFW ZFPZERO	;so HL --> 0
+	POP DE		;So DE --> number
+	DEFW ZCOMP
+	RET
+ 
+FPINC:		;this loads FPACC with one more than
+		;the number in the IX+n location.
+		;Call by  CALL FPINC
+		;	  DEFB n
+		;as usual
+	DEFW ZFPONE
+FPADD:	CALL GETP
+	EX DE,HL
+	DEFW ZADD
+	RET
+ 
+FPADDTO:	;this routine adds (IX+n) to (IX+m)
+		;and stores the result at (IX+m).
+		;Called by: CALL FPADDTO
+		;	    DEFB m,n
+	CALL GETPARS	;so HL points to first,
+			;DE points to second param
+	PUSH HL
+	PUSH DE
+	DEFW ZLDF	;from (IX+m) into FACC
+	POP DE
+	DEFW ZADD	;add contents of (IX+n)
+	POP HL
+	DEFW ZSTF	;store in (IX+m)
+	RET
+ 
+FPDIV:	CALL GETP
+	EX DE,HL
+	DEFW ZDIV
+	RET
+ 
+FPFIX:		;Fixes (IX+n) into (IX+m) and DE.
+		;Called by CALL FPFIX
+		;	   DEFB m,n
+	CALL GETPARS
+	PUSH HL
+	EX DE,HL
+	DEFW ZFIX
+	POP HL
+	LD (HL),E
+	INC HL
+	LD (HL),D
+	RET
+ 
+FPLD:	CALL GETP
+	DEFW ZLDF
+	RET
+ 
+FPMUL:	CALL GETP
+	EX DE,HL
+	DEFW ZMULT
+	RET
+ 
+	END
+                                           

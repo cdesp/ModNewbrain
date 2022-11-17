@@ -1,0 +1,12 @@
+[General]
+ipc_version=4
+file=CPU_osc
+module=CPUOSC
+target_device=gw1nr9-012
+type=clock_osc
+version=3.0
+
+[Config]
+FREQ=96
+LANG=1
+REGULATOR_ENABLE=false

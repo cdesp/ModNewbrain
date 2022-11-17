@@ -1,0 +1,30 @@
+NewBrain gebruikersgroep
+Postbus 4494
+1009 AL  Amsterdam.
+
+softwarebibliotheek, deel 218
+
+De source codes voor de ROM van een operating system met nieuwe keyboard
+driver en het grafische pakket uit de expansion interface.
+Dit is NIET operating system 2.0
+
+NUMMER  SIZE  NAAM           INHOUD
+
+              -CATALOG.218   inhoud van deel 218
+218.1   1K    EFLINK.SUB     EF ROM E000h - FFFFh
+218.2   7K    NEWOS.CRS
+218.3   15K   OS.S2
+218.4   3K    BASLNK.S21
+218.5   1K    GRLINK.S2
+218.6   6K    NEWIO.S2
+218.7   9K    XIO.S2
+218.8   13K   XEDIT.S
+218.9   6K    TPIO.S
+218.10  11K   IOS.S2
+218.11  2K    MAT3A.S2
+218.12  7K    CARTON.S2
+218.13  1K    CLK.S2
+218.14  9K    ZOSTAB.S
+218.15  30K   MAT3.S2
+218.16  1K    EFROM.SUB
+

@@ -1,0 +1,562 @@
+	NAME PBASIC
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+ 
+	PSECT ABS
+	DS 0A2D4H-$ 	;ADD ZEROES UNTIL 0A2D4
+	ORG 0A2D4H
+ 
+ 	
+ 
+* This module contains the extensions to the BASIC
+* language that interface the high-resolution graphics
+* package to the BASIC.
+ 
+* Internal globals -
+ 
+	GLOBAL PSTATEL
+	GLOBAL PNUMFN
+	GLOBAL PXCL3
+ 
+	GLOBAL SETDE	;put here so as to leave addresses
+			;of almost every byte the same as
+			;in well-tested ROMs
+ 
+* External globals in old roms -
+ 
+	GLOBAL ASFNM
+	GLOBAL CSTOP1
+	GLOBAL ENTER
+	GLOBAL GFORP
+	GLOBAL GUSTP
+	GLOBAL LDUSTP
+	GLOBAL LCDVOA
+	GLOBAL LCDV1
+	GLOBAL LXP21
+	GLOBAL ZCHKOPN
+	GLOBAL ZCHKHSH
+	GLOBAL NUMFN
+	GLOBAL NMF2
+	GLOBAL PASFNM
+	GLOBAL STATEL
+	GLOBAL ZCM2HL
+	GLOBAL WCM2HL
+	GLOBAL WNUMEXP
+	GLOBAL WCHKOPN
+	GLOBAL WCHKCOM
+	GLOBAL WCHKCLS
+	GLOBAL ZCHKCOM
+	GLOBAL ZCMONE
+	GLOBAL ZNUMEXP
+	GLOBAL WSTREXP
+	GLOBAL ZUNST2
+	GLOBAL ZUNSTSS
+	GLOBAL UNST
+	GLOBAL UNST6
+	GLOBAL WCPSH
+	GLOBAL XASC98
+	GLOBAL XRUN1D
+	GLOBAL XTABLE
+	GLOBAL XTABL2
+	GLOBAL WEXPN
+	GLOBAL WFORMAT
+	GLOBAL ZFLT
+	GLOBAL ZPUSHFP
+	GLOBAL ZRDLN2
+	GLOBAL ZRDNCH
+	GLOBAL ZRDSCH
+	GLOBAL ZRSINST
+	GLOBAL ZSVINST
+	GLOBAL ZTTCAPS
+ 
+* Other external globals -
+ 
+	GLOBAL GETP
+	GLOBAL STR11
+	GLOBAL WBLKOUT
+	GLOBAL WBLKIN
+	GLOBAL ZBLKOUT
+ 
+* The graphics control codes -
+ 
+CDATESC	EQU 16
+CMOVETO	EQU 0
+CMOVE	EQU 12
+CTURNT	EQU 1
+CARC	EQU 2
+CTURN	EQU 3
+CMODE	EQU 4
+CFILL	EQU 5
+CCOLOU	EQU 6
+CTEXT	EQU 7
+CRETPAR	EQU 8
+CPOINT	EQU 9
+CSCALE	EQU 10
+CORIGI	EQU 11
+CDRAWTO	EQU 13
+CDRAW	EQU 14
+CBACKG	EQU 15
+CWIPE	EQU 16
+CAXES	EQU 17
+CPLACE	EQU 18
+CRADIAN	EQU 19
+CDEGREE	EQU 20
+CFLAG	EQU 21
+CCIRCLE	EQU 22
+ 
+* Ycodes
+ 
+YZERO	EQU 5
+YSTSTR	EQU 88H
+ 
+* Lowest plot ycode times 2
+ 
+LPCODE	EQU (0ABH.SHL.1).AND.0FFH
+ 
+* Offset from IY -
+ 
+OUTCON	EQU 6
+	EJECT
+* Compilation routines -
+ 
+PSCAN:
+ 
+* PSCAN is like the SCAN of days gone by. It has nothing
+* to do with tokens, a concept which is alien to the
+* routines in this module. The text pointed to by the
+* BASIC internal reader pointer is scanned for any of 
+* the keywords in the table that is given as an argument.
+* If no keyword is found, carry is set on exit and the
+* internal reader pointer is preserved. If a keyword is 
+* found, the internal reader is advanced beyond it, and
+* the two-byte code corresponding to that keyword is 
+* delivered in BC. On entry HL points to the table
+* whose format is: 1) A byte indicating the number of
+* keywords in that table. 2) That number of keywords,
+* whose last character has its top bit set, each
+* followed by the two byte code. DE is preserved.
+ 
+	LD B,(HL)
+	INC HL
+	DEFW ZSVINST
+PSCAN1:	DEFW ZRDSCH	;ignore leading spaces
+PSCAN2:	DEFW ZTTCAPS	;make a capital
+	SUB (HL)
+	AND 7FH		;allow top bit error
+	JR NZ PSCAN3	;jump if mis-match
+	DEFW ZRDNCH
+	BIT 7,(HL)	;test for last character
+	INC HL
+	JR Z PSCAN2	;loop if not
+	LD C,(HL)
+	INC HL
+	LD B,(HL)
+	RET
+ 
+PSCAN3:	DEFW ZRSINST	;reset INPTR
+PSCAN4:	BIT 7,(HL)	;move to next keyword
+	INC HL		;in the table
+	JR Z PSCAN4
+	INC HL
+	INC HL
+	DJNZ PSCAN1	;loop if it was not the last
+	SCF		;table exhausted
+	RET
+ 
+ 
+PSTATEL:
+ 
+* PSTATEL is the replacement for STATEL. The word 'PLOT'
+* is scanned for and if it is there the PLOT statement is
+* dealt with, if not the old STATEL is jumped to.
+ 
+	LD HL,TPLOT
+	CALL PSCAN	;check for 'PLOT'
+	JP C STATEL	;if not jump to old STATEL
+	CALL CGSTR
+	RET C
+CPLOT1:	LD HL,PLTLST
+	CALL PSCAN	;check for any of the plot-list
+			;keywords
+	LD L,YPLOTC
+	JR C TEXT	;must be TEXT if no keyword
+	LD H,C
+	DEFW ZCM2HL
+	DEC B
+	JR Z CPLOT5	;jump if no arguments
+	DEFW WCHKOPN
+CPLOT4:	PUSH BC		;NUMEXP smashes BC
+	DEFW WNUMEXP
+	POP BC
+	RET C
+	LD A,YPLOTN
+	DEFW ZCMONE
+	DEC B
+	JR Z CPLOT3	;Last argument?
+	DEFW WCHKCOM
+	JR CPLOT4
+ 
+CGSTR:		;compile #stream number where default
+		;is value contained in STR11
+	DEFW ZCHKHSH
+	JP NC LCDVOA
+	LD A,YPSTR11
+	DEFW ZCMONE
+	JP LCDV1
+ 
+TEXT:
+	LD H,CTEXT
+	DEFW ZCM2HL
+	DEFW WEXPN
+	RET C
+	OR A
+	JR NZ TEXT1	;compile STR$ if numeric
+	LD A,YSTSTR
+	DEFW ZCMONE
+	DEFW WFORMAT
+	LD H,B
+	LD L,C
+	DEFW WCM2HL
+	RET C
+TEXT1:	LD A,YPLOTS
+	DEFW ZCMONE
+	DEFB 21H	;code for LD HL,.. i.e. skip
+CPLOT3:	DEFW WCHKCLS
+CPLOT5:	RET C
+	DEFW ZCHKCOM
+	JR NC CPLOT1	;Any more plot-items?
+	LD A,YPLEND
+	JP CSTOP1
+ 
+TPLOT:	DEFB 1
+	DEFM 'PLO'
+	DEFB 'T'+80H
+ 
+* The plot keywords table is such that the first
+* byte is the corresponding control code, and the
+* second byte indicates 1 greater than the number of
+* arguments.
+ 
+PLTLST:	DEFB 40
+ 
+	DEFM 'MOVEB'		;formerly move
+	DEFB 'Y'+80H,CMOVE,2
+ 
+	DEFM 'MOV'		;formerly moveto
+	DEFB 'E'+80H,CMOVETO,3
+ 
+	DEFM 'TURNB'		;formerly turn
+	DEFB 'Y'+80H,CTURN,2
+ 
+	DEFM 'TUR'		;formerly turnto
+	DEFB 'N'+80H,CTURNT,2
+ 
+	DEFM 'MOD'
+	DEFB 'E'+80H,CMODE,2
+ 
+	DEFM 'COLOU'
+	DEFB 'R'+80H,CCOLOU,2
+ 
+	DEFM 'RANG'		;formerly scale
+	DEFB 'E'+80H,CSCALE,3
+ 
+	DEFM 'CENTR'
+	DEFB 'E'+80H,CORIGI,3
+ 
+	DEFM 'BACKGROUN'
+	DEFB 'D'+80H,CBACKG,2
+ 
+	DEFM 'WIP'
+	DEFB 'E'+80H,CWIPE,1
+ 
+	DEFM 'PLAC'
+	DEFB 'E'+80H,CPLACE,3
+ 
+	DEFM 'DO'
+	DEFB 'T'+80H,CPOINT,4
+ 
+	DEFM 'DEGREE'
+	DEFB 'S'+80H,CDEGREE,1
+ 
+	DEFM 'RADIAN'
+	DEFB 'S'+80H,CRADIAN,1
+ 
+	DEFM 'DRAWB'
+	DEFB 'Y'+80H,CDRAW,3
+ 
+	DEFM 'DRA'
+	DEFB 'W'+80H,CDRAWTO,4
+ 
+	DEFM 'AR'
+	DEFB 'C'+80H,CARC,3
+ 
+	DEFM 'FIL'
+	DEFB 'L'+80H,CFILL,1
+ 
+	DEFM 'AXE'
+	DEFB 'S'+80H,CAXES,3
+ 
+	DEFM 'MB'		;formerly move
+	DEFB 'Y'+80H,CMOVE,2
+ 
+	DEFM 'MV'		;formerly moveto
+	DEFB 'E'+80H,CMOVETO,3
+ 
+	DEFM 'TB'		;formerly turn
+	DEFB 'Y'+80H,CTURN,2
+ 
+	DEFM 'TR'		;formerly turnto
+	DEFB 'N'+80H,CTURNT,2
+ 
+	DEFM 'MD'
+	DEFB 'E'+80H,CMODE,2
+ 
+	DEFM 'CO'
+	DEFB 'L'+80H,CCOLOU,2
+ 
+	DEFM 'RN'		;formerly scale
+	DEFB 'G'+80H,CSCALE,3
+ 
+	DEFM 'CE'
+	DEFB 'N'+80H,CORIGI,3
+ 
+	DEFM 'BC'
+	DEFB 'K'+80H,CBACKG,2
+ 
+	DEFM 'WI'
+	DEFB 'P'+80H,CWIPE,1
+ 
+	DEFM 'PL'
+	DEFB 'A'+80H,CPLACE,3
+ 
+	DEFM 'DE'
+	DEFB 'G'+80H,CDEGREE,1
+ 
+	DEFM 'RA'
+	DEFB 'D'+80H,CRADIAN,1
+ 
+	DEFM 'DB'
+	DEFB 'Y'+80H,CDRAW,3
+ 
+	DEFM 'DR'
+	DEFB 'W'+80H,CDRAWTO,4
+ 
+	DEFM 'FI'
+	DEFB 'L'+80H,CFILL,1
+ 
+	DEFM 'AX'
+	DEFB 'E'+80H,CAXES,3
+ 
+	DEFM 'FLA'
+	DEFB 'G'+80H,CFLAG,2
+ 
+	DEFM 'FL'
+	DEFB 'G'+80H,CFLAG,2
+ 
+	DEFM 'CIRCL'
+	DEFB 'E'+80H,CCIRCLE,4
+ 
+	DEFM 'CI'
+	DEFB 'R'+80H,CCIRCLE,4
+ 
+PASFNM:
+	LD HL,TPEN
+	CALL PSCAN
+	JP C ASFNM
+		;BC now has parameters for PEN
+	RET
+ 
+PNUMFN:
+	BIT 2,B		;test for any "new" fn
+	JP Z NUMFN
+			;insert further tests on BC
+			;here if more new fns used
+	DEFW ZCHKOPN
+	RET C
+	DEFW ZCHKHSH
+	LD A,YPSTR11	;push f.p. stream on userstack
+	JR C CPEN1
+	DEFW ZNUMEXP
+	DEFW WCHKCOM
+	DEFB 21H	;code for LD HL,.. i.e. skip
+CPEN1:	DEFW ZCMONE
+	LD HL,(CRETPAR.SHL.8)+CDATESC
+	DEFW WCPSH
+	LD C,YPEN
+	PUSH BC
+	JP NMF2
+ 
+TPEN:	DEFB 1
+	DEFM 'PE'
+	DEFB 'N'+80H
+	DEFB 0,4		;function data:
+		; Bit 10=1 to indicate a "new" function
+		; Other bits may be used to 
+		; distinguish between new functions
+		; - at present only one (TPEN), so
+		; all other bits off for this one.
+ 
+* Replacement of XCL3 and the plotter X-table.
+ 
+PXCL3:	LD BC,XTABLE
+	JP M ENTER
+	LD BC,XTABL2
+	CP LPCODE
+	JP C ENTER
+	LD BC,XTABL3
+	JP ENTER
+ 
+ 
+XTABL3	EQU $-LPCODE
+PXTABLE	EQU XTABL3-100H		;same trick as in XTABL2
+ 
+YPLOTC	EQU ($-PXTABLE)/2
+	DEFW XPLOTC
+ 
+YPLOTN	EQU ($-PXTABLE)/2
+	DEFW XPLOTN
+ 
+YPLOTS	EQU ($-PXTABLE)/2
+	DEFW XPLOTS
+ 
+YPLEND	EQU ($-PXTABLE)/2
+	DEFW XPLEND
+ 
+YPEN	EQU ($-PXTABLE)/2
+	DEFW XPEN
+ 
+YPSTR11	EQU ($-PXTABLE)/2
+	DEFW XPSTR11
+ 
+* X-routines -
+ 
+XPLOTC:	
+ 
+* The XPLOTC routine sticks the control code specified
+* as the one-byte argument with the data-link escape
+* on to the user-stack.
+ 
+	LD A,(HL)
+	INC HL
+	PUSH HL
+	LD L,A
+	LD H,CDATESC
+	JP LXP21
+ 
+XPLOTS:
+ 
+* XPLOTS has to turn upside down the entire string,
+* including its own length as a 2-byte fixed integer.
+ 
+	PUSH HL
+	CALL GUSTP
+	LD E,(HL)
+	INC HL
+	LD D,(HL)
+	DEC HL		;so HL still = USRSTP
+	INC DE
+	INC DE		;so DE = length inc 2-byte 'length'
+XPLS1:	EX DE,HL
+	ADD HL,DE
+	LD B,H
+	LD C,L
+	EX DE,HL
+	DEFW ZRDLN2	;turn upside-down
+	JP XRUN1D
+ 
+XPLOTN:	
+ 
+* XPLOTN simply turns the number on top of the
+* user-stack upside down.
+ 
+	PUSH HL
+	CALL GUSTP
+	LD DE,6
+	JR XPLS1
+ 
+XPLEND:
+ 
+* This is the end of a plot statement when the line
+* that has been assembled is output. First it has to
+* be turned upside down again. It is assumed that there
+* is no junk on the user stack. This could be dodgy.
+ 
+	CALL GFORP
+	LD B,H
+	LD C,L
+	CALL GUSTP
+	PUSH BC
+	PUSH HL
+	DEFW ZRDLN2	;sets NC
+	POP DE
+	POP HL
+	CALL LDUSTP
+	SBC HL,DE
+	LD B,H
+	LD C,L
+	EX DE,HL
+	LD E,(IY+OUTCON)
+	DEFW ZBLKOUT
+	RET
+ 
+XPEN:	
+ 
+* XPEN([#S,]X) has to put out X at stream S
+* and delivers an answer equal to the
+* the number that is subsequently read from
+* the stream. Note that INCON and OUTCON are not
+* used in this as they must be preserved. 
+ 
+	PUSH HL
+	CALL UNST6
+	PUSH DE		;DE ==> f.p. parameter
+	PUSH HL		;HL ==> instruction code
+	LD BC,2
+	CALL UNST
+	DEFW ZUNSTSS	;DE = stream no
+	LD A,0
+	SBC A,D
+	LD A,90
+	POP HL
+	PUSH DE
+	LD BC,2
+	DEFW WBLKOUT
+	POP DE
+	POP HL
+	LD BC,6
+	PUSH BC
+	PUSH DE
+	DEFW WBLKOUT
+	POP DE
+	POP BC
+	JP C XRUN1D
+	INC HL
+	INC HL
+	CALL LDUSTP
+	DEFW WBLKIN
+	JP XRUN1D
+ 
+XPSTR11:
+ 
+* XPSTR11 simply has to push onto the user stack the
+* floating point value of the contents of STR11
+ 
+	PUSH HL
+	LD A,(STR11)
+	LD E,A
+	JP XASC98
+ 
+SETDE:		;Sets DE to point to
+		;offset IX + n
+		;Call by: CALL SETDE
+		;	  DEFB n
+	CALL GETP
+	EX DE,HL
+	RET
+ 
+	DEFW XRUN1D	;unused - but this is what was
+			;just here before so it reduces
+			;the number of shouts in a
+			;byte-by-byte comparison !
+ 
+	END
+                          

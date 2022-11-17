@@ -1,0 +1,317 @@
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+	NAME TEXT
+; This module of the graphics driver contains
+; the TEXT, RANGE, and FLAG routines.
+;
+	GLOBAL LDDE
+	GLOBAL SWAP12
+	GLOBAL COMPZ
+	GLOBAL FPDIV
+	GLOBAL FPFIX
+	GLOBAL FPINC
+	GLOBAL FPLD
+	GLOBAL FPMUL
+	GLOBAL FPST
+;
+	GLOBAL ABMASK
+	GLOBAL LOCATE
+	GLOBAL MEMTST
+		;defined in this module
+	GLOBAL ERRRET
+	GLOBAL FLAG
+	GLOBAL RANGE
+	GLOBAL SIZER1
+	GLOBAL TEXT
+	GLOBAL XIT
+	GLOBAL ZCMSTATE
+ 
+; Graphics error messages
+ 
+NOSPACE	EQU 100		;Insufficient memory
+INVSNO	EQU 90		;Stream no > 255
+INVSYN	EQU 110		;Syntax error in parameter string
+INVFILL	EQU 112		;FILL memory insufficient
+INVSTYPE	EQU 113		;Linked stream not TV capable
+INVSDEP	EQU 114		;Requested depth too large
+INVOSTR	EQU 115		;Linked stream has been closed
+INVXY	EQU 116		;Cannot place text off screen
+INVPAR	EQU 117		;Illegal parameter or command
+INVINP	EQU 118		;Only PEN may be used for input
+INVOUT	EQU 119		;Cannot OUTPUT till PEN completed
+ 
+ 
+; Fixed quantities
+ 
+PRST8	EQU 8		;start of RST 8 code
+RESPAR	EQU 140		;hardware dependent resolution 
+			;parameter for e.g. ARC routine
+ 
+	GLOBAL CHRROM
+	INCLUDE PRTNIX
+ 
+ 
+TEXT:		;this routine writes characters
+		;to the graphics portion of the
+		;screen.  Note several parameters
+		;need recalculating for each byte,
+		;as they relate to the own memory
+		;areas of the EDIT driver, which
+		;may have been moved between calls
+	PUSH BC		;save input byte
+	LD A,129
+	CP (IX+CMSTATE)	;129 iff not first byte of string
+	JR Z FINDRAM
+		;First time: get TXTB = offset from
+		;start of screen area to current line.
+		;Exact memory address is then found
+		;each time by adding this to SCSTART
+		;and TXTCT to the result.
+	LD (IX+CMSTATE),A
+	CALL LOCATE	;so HL = memory address
+	JR C FIND3
+	LD E,10
+	XOR A
+BCOUNT	INC A
+	DEC E
+	RR D
+	JR NC BCOUNT
+		;now bit mask returned in D
+		;decoded to give A = 1 + bit number,
+		;E = 10 - bit number
+		;Note: CY = 1 at this point
+	LD (IX+TXTBIT),A
+	LD (IX+TXTFILL),E
+	LD (IX+TXTCT),C
+	LD E,(IX+SCSTART)
+	LD D,(IX+SCSTART+1)
+	XOR A
+	LD B,A
+	SBC HL,DE
+	SBC HL,BC
+	LD (IX+TXTB),L
+	LD (IX+TXTB+1),H
+			;now determine drawing mode
+			;operator from pen colour &
+			;mode parameter
+	LD D,A
+	LD A,(IX+CP)
+	AND 03H
+	LD E,A
+	LD A (IX+MODEP)
+	RRA
+	RL E
+	RRA
+	RL E		;two lowest bits of mode param mm
+	LD HL XOPTAB	;table entry ppmm contains two 
+	ADD HL DE	;operator values - one for use if
+	LD A (HL)	;background=0 and one if not
+	BIT 0,(IX+CBACK)
+	JR Z XSTORE	;background 0 in low half-byte
+	RRA
+	RRA
+	RRA
+	RRA		;background 1 in high half-byte
+XSTORE	LD (IX+TXTOPR) A
+FINDRAM	CALL LDDE
+	DEFB TXTB
+	LD L,(IX+SCSTART)
+	LD H,(IX+SCSTART+1)
+	ADD HL,DE
+	LD A,(IX+TXTBIT)
+	DEC A		;so Z iff char starts in first bit
+	LD E,(IX+TXTCT)
+	LD A,(IX+SCWBYT)
+	JR Z FIND2
+	DEC A
+FIND2	DEC A
+	SUB E
+FIND3	JR C SIZER1
+	LD D,0
+	ADD HL,DE
+	INC E
+	LD (IX+TXTCT),E
+	POP BC
+	CALL TESTSZ
+		;now start entering the character
+	LD B 10		;bottom row first
+	JR GETCHR
+ 
+TESTSZ:		;check dot-position is within RAM bounds
+		;If not, signal error and destroy return
+		;address, so RET will return to op. sys
+		;Only used when BC is on the stack
+	CALL MEMTST
+	RET NC
+SIZER1	POP AF		;destroy return address to caller
+	LD A INVXY
+ERRRET:	SCF
+ZCMSTATE:		;just load IX+CMSTATE with 0
+	LD (IX+CMSTATE),0
+	RET		;to COMMAND or op. system
+ 
+NXTROW:
+	LD D 0
+	LD E (IX+SCWBYT)
+	OR A		;clear CY
+	SBC HL DE	;up a line in RAM area
+	CALL TESTSZ 
+GETCHR:
+	PUSH BC		;save row number and string byte
+	PUSH HL		;save TV RAM address
+	DEC B		;so B = row 0-9
+	LD A,C
+	SUB 32		;char 0-31?
+	JR C XCH5
+	BIT 7,C		;Z iff char < 128
+	JR Z XCH1
+	AND 128		;NZ iff char >= 160
+	JR Z XCH5
+XCH1	LD A,B
+	SUB 8		;CY clear iff row > 7
+	JR NC XCH2
+	CALL XOBTAIN	;load pattern into D
+	BIT 0,D
+	JR NZ XCH3
+	JR XCH4
+ 
+XCH2	LD B,A		;gets row-8
+	CALL XOBTAIN
+	BIT 0,D
+	JR NZ XCH4
+XCH3	XOR A		;no descender so zero pattern
+XCH4	AND D
+	LD D,A
+	JR XCH7
+ 
+XCH5	BIT 3,B
+	JR Z XCH6
+	LD B,7
+XCH6	CALL XOBTAIN
+XCH7	POP HL
+		;ready now to retrieve existing contents
+		;of TV buffer and insert char pattern
+	LD A (HL)
+	LD E,(IX+TXTOPR)
+	LD B (IX+TXTBIT)
+	DEC B		;number to skip
+	JR Z XFIL1
+SKIP1	RRA
+	DJNZ SKIP1
+XFIL1	LD B (IX+TXTFILL) ;bits to be set up
+	DEC B
+	CALL XFILL
+	LD (HL) A
+		;second byte to do too usually
+	LD B (IX+TXTBIT)
+	DEC B
+	JR Z XEND	;byte boundary - one byte only
+	INC HL
+	LD A (HL)
+		;same again, nearly
+	CALL XFILL
+		;then fill in original bits again
+	LD B (IX+TXTFILL)
+	DEC B
+SKIP2	RRA
+	DJNZ SKIP2
+	LD (HL) A
+	DEC HL		;go back pointing to
+			;first byte of the pair
+XEND:
+	POP BC		;10 rows need doing
+	DEC B		;going up
+	JR NZ NXTROW
+XIT:	XOR A
+	RET		;to op. system
+ 
+XFILL	LD C E		;restore operator
+	RRA		;previous bit --> CY
+	JR NC XF2
+	RR C
+	RR C		;select upper half of operator
+XF2	RL D
+	JR NC XF3
+	RR C		;select upper bit of the two
+XF3	RR C		;selected bit into CY
+	DJNZ XFILL	;where CY floats into A
+	RRA
+	RET
+ 
+XOBTAIN:		;gets character pattern into D
+	LD HL (CHRROM)
+	ADD HL,BC
+	LD D,(HL)
+	LD A,0FEH	;mask to clear descender flag
+	RET
+ 
+XOPTAB:    ;   	00   02   01   03     mode  ~  pen
+	DEFB  0CCH,0D8H, 8DH, 99H	    ;  00
+	DEFB   4EH, 5AH, 0FH, 1BH	    ;  01
+	DEFB  0E4H,0F0H,0A5H,0B1H	    ;  02
+	DEFB   66H, 72H, 27H, 33H	    ;  03
+ 
+RANGE:	CALL FPINC
+	DEFB XR
+	CALL FPDIV	;so FACC = SCWTH / PI 
+	DEFB P1
+	CALL FPST	;P1 = new XSF
+	DEFB P1
+	CALL FPLD
+	DEFB XOD
+	CALL FPMUL	;so FACC = XOD * old XSF
+	DEFB XSF
+	CALL FPDIV	;FACC = XOD*old XSF/new XSF
+	DEFB P1
+	CALL FPST
+	DEFB XOD
+	CALL FPLD
+	DEFB XP
+	CALL FPMUL
+	DEFB XSF
+	CALL FPDIV
+	DEFB P1
+	CALL FPST
+	DEFB XP
+	CALL FPINC
+	DEFB YR
+	CALL FPDIV
+	DEFB P2
+	CALL FPST	;so P2 = new YSF
+	DEFB P2
+	CALL FPLD
+	DEFB YOD
+	CALL FPMUL
+	DEFB YSF
+	CALL FPDIV
+	DEFB P2
+	CALL FPST
+	DEFB YOD
+	CALL FPLD
+	DEFB YP
+	CALL FPMUL
+	DEFB YSF
+	CALL FPDIV
+	DEFB P2
+	CALL FPST
+	DEFB YP
+	CALL SWAP12
+	DEFB XSF,P1	;new XSF,YSF done
+	RET
+ 
+FLAG:		;allows user to specify the contents of
+		;(IX+UFLAGS) apart from bit 7, DEGTOG.
+	CALL FPFIX
+	DEFB P1,P1
+	LD A,117
+	INC D
+	DEC D
+	RET NZ
+	LD A,(IX+UFLAGS)
+	OR 7FH		;DEGTOG left alone, other bits on
+	RES 7,E		;top bit cleared
+	OR E		;parameter accepted
+	LD (IX+UFLAGS),A
+	RET
+ 
+	END
+      

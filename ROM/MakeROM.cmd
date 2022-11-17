@@ -1,0 +1,1 @@
+copy /b .\80rom\BOOTLD_8000.BIN+.\abrom\abrom.bin+.\abrom\CHARSET.BIN+.\cdrom\cdrom.bin+.\efrom\efrom.bin OSNB2.BIN

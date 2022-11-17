@@ -1,0 +1,27 @@
+ORG $6000
+INCLUDE BOOTLD_8000.SYM
+
+		DI
+		LD A,0
+		OUT (7),A
+		LD B,10
+		LD C,20
+DOAGN: 		DI
+		IN A,(C)
+		PUSH BC
+		PUSH AF
+		CALL DEL2
+		POP AF
+		CALL SOUTAS
+		POP BC
+		LD A,B
+		CP 4
+		JR C, SKP
+		OUT (4),A
+SKP:		DJNZ DOAGN
+		DI
+		CALL RS_RX
+		CP 'G'
+		JP Z,$6000
+
+		JP MENU

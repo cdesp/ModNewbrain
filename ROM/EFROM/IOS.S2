@@ -1,0 +1,552 @@
+	NAME IOS
+ 
+*INPUT/OUTPUT SYSTEM
+ 
+;INTERNALS
+ 
+	GLOBAL OPENIN
+	GLOBAL OPNOUT
+	GLOBAL INPUT
+	GLOBAL OUTPUT
+	GLOBAL CLOSE
+	GLOBAL MKBUFF
+	GLOBAL FSTRM
+	GLOBAL FDEV
+	GLOBAL FDE
+	GLOBAL CALLHL
+	GLOBAL CALLIX
+ 
+;EXTERNALS
+ 
+;(1) LOCATIONS
+ 
+	GLOBAL DEVTAB
+	GLOBAL IOSRAM
+	GLOBAL STRTAB
+	GLOBAL STRTOP
+	GLOBAL PLLEN
+	GLOBAL BUFLG
+ 
+;(2) ROUTINES
+ 
+	GLOBAL SPACE
+	GLOBAL GSPCBK
+	GLOBAL SAVIRS
+	GLOBAL RESIRS
+ 
+;ERROR NUMBERS
+ 
+NOSTRM	EQU 105		;stream not open
+NODEV	EQU 106		;no such device
+DEVERR	EQU 107		;device already open
+STRMERR	EQU 108		;stream already open
+REQERR	EQU 109		;illegal request
+ 
+	EJECT
+*OPEN ROUTINES
+*
+*	Entry:	A=driver#
+*		D=port#
+*		E=stream#
+*		BCHL=parameter string
+*
+*	Exit:	DE,IX,IY preserved
+*	Either:	CY clear
+*		BCHL from device driver
+*		A destroyed
+*	Or:	CY set
+*		A=errno
+*		BCHL destroyed
+ 
+OPENIN:	OR A		;flag "in"
+	JR OPEN
+ 
+OPNOUT:	SCF		;flag "out"
+OPEN:	PUSH HL
+	PUSH BC
+	PUSH AF
+	CALL SAVIRS
+	INC E
+	DEC E
+	JR NZ OPN1	;if not console
+	LD HL,PLLEN	;Set print formatting locations
+	LD (HL),E	;(PLLEN,PHPOS,PZLEN) to zero.
+	INC HL
+	LD (HL),E
+	INC HL
+	LD (HL),E
+OPN1:	CALL FDEV	;see if dvr+port already there
+	LD A,DEVERR
+	JR NC OPNERR	;if it is
+	CALL FSTRM	;stream already there?
+	LD A,STRMERR
+	JR NC OPNERR	;if it is
+	LD BC,6
+	CALL SPACE	;space for strm tab entry?
+	JR C OPNERR	;if none
+	LD HL,(STRTOP)	;loc for strm tab entry
+	LD (HL),E	;stream#
+	INC HL
+	POP BC		;dvr# and I/O flag
+	LD (HL),B	;driver#
+	INC HL
+	LD (HL),D	;port#
+	INC HL
+	XOR A		;rest of entry set to 0
+	LD (HL),A
+	INC HL
+	LD (HL),A
+	INC HL
+	LD (HL),A
+	INC HL
+	LD (STRTOP),HL	;new top of strm tab
+	INC A		;so A is code for "in"
+	AND C
+	LD C,A		;so C=request code
+	CALL FDE	;find entry for driver rtn
+	POP BC		;as on entry
+	EX (SP),HL	;HL as on entry
+	EX (SP),IX	;rtn addr to IX
+	PUSH DE		;save strm# in case error
+	CALL NC CALLIX	;enter device driver
+	POP DE
+	POP IX
+	JR C REMOVE	;if error
+	JR OPN9
+ 
+OPNERR:	SCF
+	POP BC
+	POP BC
+	POP HL
+OPN9:	CALL RESIRS
+	RET
+ 
+*INPUT, OUTPUT, CLOSE ROUTINES
+*
+*	Entry:	A=byte
+*		E=stream#
+*
+*	Exit:	BCDEHL preserved
+*	Either:	CY clear
+*		A=byte from device driver
+*	Or:	CY set
+*		A=errno
+ 
+MOVE:	PUSH BC
+	LD C,5
+	JR INOUT
+ 
+INPUT:	PUSH BC
+	LD C,2		;Code for input
+	JR INOUT
+ 
+OUTPUT:	PUSH BC
+	LD C,3		;Code for output
+INOUT:	CALL IOC
+	POP BC
+	RET
+ 
+	EJECT
+CLOSE:	PUSH BC
+	CALL SAVIRS
+	LD C,4		;Code for close
+	CALL IOC
+	POP BC
+	JR NC REMOVE
+	CP NOSTRM
+	RET Z 		;Not an error for CLOSE
+	SCF
+REMOVE:	EQU $	;Remove stream table entry
+		;and own RAM area
+		;preserves AFBCDEHL etc
+		;First removes own RAM area
+		;(if present) by shifting down
+		;areas for later streams and
+		;part of strmtab for earlier
+		;streams.Then updates all ptrs 
+		;except STRTOP.Then shifts down
+		;rest of strtab (removing str tab
+		;entry) and updates STRTOP.
+	PUSH AF
+	PUSH BC
+	PUSH DE
+	PUSH HL
+	LD HL,BUFLG
+	SET 0,(HL)	;flag buffers in motion
+	CALL FSTRM
+	JR C RMV9	;if no stream
+	PUSH HL		;str entry ptr to TOS
+	CALL CHKPBD	;own RAM ptr in bounds?
+	JR C RMV8	;no-so no own RAM to rmv
+	PUSH DE		;own RAM ptr to TOS
+	EX DE,HL
+RMVLP1:	CALL CHKVBD	;str tab ptr in bds?
+	EX DE,HL
+	JR C RMV3	;if no
+	CALL CHKPBD	;own RAM ptr in bds?
+	EX DE,HL
+	JR C RMVLP1	;if no- try next entry
+	JR RMV4		;fnd top of RAM to be rmvd
+ 
+RMV3:	LD HL,(STRTAB)	;top of own RAM was (STRTAB)
+RMV4:	POP BC 		;base of area to which upper
+			;part of IOS area is to be
+			;shifted down
+	POP DE		;top of area to be shifted
+	PUSH BC
+	PUSH HL		;base of area to be shifted
+	OR A
+	SBC HL,BC
+	EX (SP),HL	;TOS=size of area to be rmvd
+	EX DE,HL	;DE->base of area to be shifted 
+			;HL->top of area to be shifted
+	CALL SHFTDN	;shift area-preserves HL
+	LD C,6
+	ADD HL,BC	;so HL->nxt str tab entry
+	POP BC		;size of rmvd area
+	EX DE,HL	;so DE-> base of unshifted part
+			;of str tab - which is the ptr to
+			;the nxt str tab entry
+	EX (SP),HL	;so HL-> base of rmv'd area
+			;TOS-> new top of shifted area
+	PUSH DE
+RMVLP2:	CALL CHKVBD	;still below (STRTOP)?
+	EX DE,HL
+	JR C RMV6	;if no -  all strtab ptrs done
+	INC HL
+	INC HL
+	INC HL
+	INC HL		;pt at own RAM ptr
+	CALL UPDPTR	;update it (if in bds)
+	EX DE,HL
+	JR RMVLP2
+ 
+RMV6:	LD A,6		;#fixed ptrs
+	LD HL,STRTAB	;1st ptr - IOSRAM must be last
+RMVLP3:	CALL UPDPTR
+	DEC A
+	JR NZ RMVLP3
+	POP HL		;ptr to unshifted pt of strtab
+RMV8:	POP BC		;base to which to shift it
+	EX DE,HL
+	LD HL,(STRTOP)	;top of area to shift
+	CALL SHFTDN
+	LD (STRTOP),DE
+	OR A
+	SBC HL,DE
+	LD B,H
+	LD C,L		;BC=size of area rmvd
+	CALL GSPCBK	;return space to user prog
+	LD HL,(STRTAB)	;Call move rtns for all opn strms
+RMVLP4:	LD D,H		;Now strm tab ptr in DE
+	LD E,L
+	CALL CHKUBD	;<(STRTOP) ?
+	JR C RMV9	;if not
+	LD E,(HL)	;else call move
+	CALL MOVE	;  rtn for this stream
+	LD DE,6
+	ADD HL,DE	;pt at nxt strtab entry
+	JR RMVLP4
+ 
+RMV9:	LD HL,BUFLG
+	RES 0,(HL)	;flag buffers not in motion
+	POP HL
+	POP DE
+	POP BC
+	POP AF
+	CALL RESIRS
+	RET
+ 
+	EJECT
+ 
+SHFTDN:		;Shift down a memory area
+		;Entry:	HL->top of area
+		;	DE->base of area
+		;	BC->base to which it is
+		;		to be shifted
+		;MUST HAVE BC<=DE<=HL
+		;Exit:	AHL preserved
+		;	DE->new top of area
+		;	BC=0
+	OR A
+	PUSH BC
+	SBC HL,DE
+	EX (SP),HL
+	POP BC
+	EX DE,HL
+	RET Z
+	LDIR
+	RET
+ 
+CHKUBD:		;Check (STRTOP) > DE >= HL
+		;preserves all but F
+	PUSH HL
+	JR CHKP1
+ 
+CHKPBD:		;Check strtab ptr >= (IOSRAM)
+		;		  <  (STRTOP)
+		;Entry:	HL->strtab entry
+		;Exit:	HL->nxt strtab entry
+		;	DE=value of ptr
+		;	ABC preserved
+		;	CY clear iff ptr in bounds
+	INC HL
+	INC HL
+	INC HL
+	INC HL
+	LD E,(HL)
+	INC HL
+	LD D,(HL)
+	INC HL
+CHKVBD:		;Check value in DE is in bds
+		;as CHKPBD but preserves HL
+	PUSH HL
+	LD HL,(IOSRAM)
+CHKP1:	SCF
+	SBC HL,DE
+	CCF
+	JR C CHKP2
+	LD HL,(STRTOP)
+	SCF
+	SBC HL,DE
+CHKP2:	POP HL
+	RET
+ 
+	EJECT
+UPDPTR:		;If pointer pted to by HL lies between
+		;DE and (STRTOP) then subtract BC from
+		;it otherwise leave it alone. Preserves
+		;BC, DE, icrements HL by 2.
+	PUSH DE
+	LD E,(HL)
+	INC HL
+	LD D,(HL)	;DE=value of ptr
+	EX (SP),HL	;HL=lower bound
+	CALL CHKUBD
+	JR C UPDPT1
+	EX DE,HL
+	SBC HL,BC
+	EX DE,HL
+UPDPT1:	EX (SP),HL
+	LD (HL),D
+	DEC HL
+	LD (HL),E
+	INC HL
+	INC HL
+	POP DE
+	RET
+ 
+	EJECT
+ 
+IOC:		;Common routine for INPUT, OUTPUT
+		;and CLOSE. Preserves all but AFBC
+	PUSH HL
+	PUSH DE
+	LD D,A
+	CALL FSTRM
+	LD A,NOSTRM
+	JR C IOCEND	;if stream not found
+	PUSH DE		;byte to stack
+	INC HL
+	LD B,(HL)	;driver#
+	INC HL
+	LD D,(HL)	;port#
+	INC HL
+	INC HL
+	LD A,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,A		;own RAM addr to HL
+	POP AF
+	PUSH HL		;thence to stack
+	PUSH AF		;with byte on top
+	CALL FDE
+	POP BC		;byte
+	EX (SP),HL	;own RAM addr to HL
+	EX (SP),IX	;driver entry addr to IX
+	JR C IOCE1	;if driver not found
+	LD A,B		;byte on entry
+	CALL CALLIX	;enter driver
+IOCE1:	POP IX
+IOCEND:	POP DE
+	POP HL
+	RET
+ 
+	EJECT
+ 
+FDE:		;Find driver entry address
+		;Entry:	C=request code (0..127)
+		;	B=driver#
+		;Exit:	DE preserved
+		;Either:CY clear
+		;	HL=entry address
+		;	ABC destroyed
+		;Or:	CY set
+		;	A=errno
+		;	BCHL destroyed
+ 
+	LD HL,(DEVTAB)
+	LD A,B		;A&B=driver#
+	CP (HL)		;driver#>#drivers?
+	LD A,NODEV
+	CCF
+	RET C		;if too large
+	INC HL		;HL->zero'th driver addr
+	LD A,C		;request code to A
+	LD C,B		;driver# to C
+	LD B,0
+	ADD HL,BC
+	ADD HL,BC	;HL->req'd driver addr
+	LD C,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,C		;HL=driver addr
+	LD C,A		;C=req. code
+	LD A,(HL)	;A= max. req. permitted
+	SUB C
+	JR C GOTREQERR	;since req.>max req.
+	INC HL		;pt. at displ. for req. 0
+	ADD HL,BC	;add in request code
+	XOR A
+	OR (HL)
+	JR Z GOTREQERR	;since invalid req.
+	LD C,(HL)
+	ADD HL,BC	;add in disp to req rtn
+	RET
+ 
+GOTREQERR
+	SCF
+	LD A REQERR
+	RET
+	EJECT
+*
+*FIND STREAM TABLE ENTRY
+*
+*FSTRM:	Finds entry to match stream#
+*
+*	Entry:	E=stream#
+*
+*FDEV:	Finds entry to match driver#,
+*	port# pair
+*
+*	Entry:	A=driver#
+*		D=port#
+*
+*	Exit:	ABCDE preserved
+*	Either:	CY clear
+*		HL->entry
+*	Or:	CY set
+*		HL->one past last entry
+*
+FSTRM:	PUSH BC
+	PUSH AF
+	PUSH DE
+	LD A,E		;stream#
+	LD HL,(STRTAB)	;HL->zero'th entry
+	LD DE,(STRTOP)	;DE->past last entry
+	LD BC,6		;entry length
+FSTLP:	PUSH HL
+	OR A
+	SBC  HL,DE
+	POP HL
+	SCF		;flag entry not found
+	JR Z FSDE	;if no entry found
+	CP (HL)
+	JR Z FSDE	;if match found
+	ADD HL,BC	;go on to next entry
+	JR FSTLP
+ 
+FDEV:	PUSH BC
+	PUSH AF
+	PUSH DE		;port# on TOS
+	LD HL,(STRTAB)	;HL->zero'th entry
+	LD DE,(STRTOP)	;DE->past last entry
+	LD BC,6		;entry length
+FDVLP:	PUSH HL
+	OR A
+	SBC  HL,DE
+	POP HL
+	SCF		;flag entry not found
+	JR Z FSDE	;if no entry found
+	INC HL		;HL->driver#
+	CP (HL)
+	JR NZ FDVL1	;if driver# doesn't match
+	INC HL
+	LD A,(HL)	;port# from entry
+	EX (SP),HL
+	CP H		;port# to match
+	EX (SP),HL
+	DEC HL		;HL->driver#
+	LD A,(HL)	;retore to A (it matched)
+FDVL1:	DEC HL		;so HL-> start of entry
+	JR Z FSDE	;if both matched
+	ADD HL,BC	;go on to next entry
+	JR FDVLP
+ 
+FSDE:	POP DE
+	POP BC		;restore A without 
+	LD A,B		;hurting F
+	POP BC
+	RET
+ 
+	EJECT
+*
+*MKBUFF - MAKE OWN RAM FOR DRIVER
+*
+*	Entry:	E=stream#
+*		BC=#bytes req'd
+*	
+*	Exit:	BCDE preserved
+*	Either:	CY clear
+*		HL -> own memory
+*		A destroyed
+*	Or:	CY set
+*		A=errno
+*		HL destroyed
+*
+*CRASH	if #bytes requested = 0
+*	or if stream doesn't exist
+*
+MKBUFF:	CALL SPACE	;check user prog.
+	RET C		;for availaable space
+	PUSH DE
+	PUSH BC
+	CALL FSTRM	;point HL at part
+	INC HL		;of stream tab entry
+	INC HL		;for own RAM addr
+	INC HL
+	INC HL
+	LD DE,(STRTAB)	;DE will be own RAM addr
+	LD (HL),E
+	INC HL
+	LD (HL),D
+	PUSH DE
+	LD H,B
+	LD L,C		;now HL = #bytes req'd
+	ADD HL,DE	;HL=addr for strtab
+	LD (STRTAB),HL	;moved out to make space
+	LD HL,(STRTOP)	;for own RAM
+	PUSH HL		;so TOS = source for shift
+	OR A		;of strtab + 1
+	SBC HL,DE	;HL=#bytes to shift
+	EX (SP),HL	;TOS= "    "     "
+	PUSH HL		;source addr+1
+	ADD HL,BC	;destn addr+1
+	LD (STRTOP),HL
+	EX DE,HL
+	DEC DE
+	POP HL
+	DEC HL
+	POP BC
+	LDDR
+	POP HL
+	POP BC		;CY cleared by
+	POP DE		;ADD HL,BC above
+	RET
+ 
+	EJECT
+ 
+CALLIX:	JP (IX)
+ 
+	END
+                                                                                                    

@@ -1,0 +1,624 @@
+	TITLE (C)1982 GRUNDY BUSINESS SYSTEMS
+	NAME FILL
+; This module of the graphics driver contains
+; the FILL routine and various others.
+	INCLUDE PRTNIX
+;
+		;globals defined in other PLOT modules
+;
+	GLOBAL SETHL
+	GLOBAL LDDE
+	GLOBAL MAHLCDE
+	GLOBAL STDE
+	GLOBAL SBMOV
+	GLOBAL TBMOV
+	GLOBAL FPLD
+	GLOBAL FPST
+	GLOBAL MEMTST
+	GLOBAL BMASK
+	GLOBAL GETSCALE
+	GLOBAL DOLINE
+	GLOBAL MOVETO
+	GLOBAL SIZER1
+			;defined in BASIC ROMS
+	GLOBAL ZFSTRM
+			;defined in this module
+	GLOBAL F4EXIT
+	GLOBAL FILL
+	GLOBAL LOCATE
+	GLOBAL MEMBDS
+INVFILL	EQU 112		;FILL memory insufficient
+ 
+ZBRKTST	EQU 36E7H	;test STOP key
+ 
+INVXY	EQU 116		;Position off the screen
+INVPAR	EQU 117		;Illegal parameter or command
+PRST8	EQU 8		;temporary entry - decl in MOVE
+;
+; Offsets from IY (other driver memory start) used
+; when preparing FILL. Note that GETSTART uses the
+; same values, but uses (HL) addressing and assumes
+; the values that are listed here.
+CSTO	EQU 0
+ORIGDEP	EQU 3
+DEP	EQU 4
+EL	EQU 6
+;
+MEMBDS:		;routine to get upper bound of
+		;other driver memory into HL
+	LD A,(IY+CSTO)
+	ADD A,5
+	LD E,A
+	LD D,0
+	PUSH IY
+	POP HL
+	ADD HL,DE
+	LD C,(IY+EL)
+	LD E,(IY+ORIGDEP)	;note D = 0
+	CALL MAHLCDE
+	RET
+ 
+LOCATE:		;locates current pen position & colour
+		;Returns HL = memory address,
+		;	 A  = current colour 0 or 1
+		;	 C  = byte in line (0 - SCWBYT-1)
+		;	 D  = bit mask
+		;	 E  = contents of (HL) when
+		;	      end-point of last line
+		;	      had not yet been coloured
+	CALL TBMOV
+	DEFB CT,CP
+	LD (IX+CP),0	;only l.s. byte of CP is
+			;used by DOLINE at present.
+LOC2:		;alternative entry point with CP
+		;non-zero. Must have CT=CP on entry.
+	CALL SBMOV
+	DEFB P1,XP
+	CALL SBMOV
+	DEFB P2,YP
+	CALL GETSCALE
+		;transient flags are cleared by DOLINE
+	CALL DOLINE	;line of length 0, colour 0
+			;but memory address details
+			;stored in LSTMEM and XBYT
+			;locations
+	PUSH BC		;with C = prior byte value
+	PUSH HL		;TV RAM last address
+	CALL TBMOV
+	DEFB CP,CT
+	BIT OFFSCR,(IX+JFLAGS)
+	POP HL
+	JP NZ SIZER1
+	LD A,(IX+XBIT)	;bit mask last used
+	LD C,(IX+XBYT)	;offset from LHS 0 to SCWBYT-1
+	POP DE
+	LD D,A		;so D = bit mask for C
+	AND (HL)
+	RET Z
+	LD A,1
+	RET
+	EJECT
+FILL:		;Colour in entire area
+		;First get current point details on stack,
+		;as that involves calling routines
+		;which smash P1,P2 areas
+	CALL TBMOV
+	DEFB CT,CP
+	CALL LOC2
+	LD B,C
+	LD C,D
+	LD (HL),E
+	RET C
+	LD D,A
+	PUSH HL
+	PUSH DE
+	PUSH BC
+		;Next task is to establish the
+		;buffer area in the "other driver"
+		;own memory space.
+		;It is necessary for the correct
+		;functioning of the FSAVE and FGET
+		;routines which handle this saved-point
+		;buffer that its length be a multiple
+		;of 4. That apart, the requirement is
+		; FIFST =  SCTOP + 1
+		; FIFTOP = CSTO + 5 + EL*ORDEP
+		; FIFNXT = FIFST
+		;then IY = FIFST
+	CALL MEMBDS
+	LD E,(IX+SCTOP)
+	LD D,(IX+SCTOP+1)
+	INC DE
+	SBC HL,DE	;CY cleared by MAHLCDE
+	RES FIFULL,(IX+JFLAGS)
+	JR C FILL1
+	LD A,L
+	AND 0FCH	;round down to multiple of 4
+	LD L,A
+	ADD HL,DE
+	LD (IX+FIFTOP),L
+	LD (IX+FIFTOP+1),H
+	PUSH DE
+	POP IY
+	CALL STDE
+	DEFB FIFST
+	CALL TBMOV
+	DEFB FIFNXT,FIFST
+FILL1	POP BC
+	POP DE
+	POP HL
+	JR C F4ERR
+	INC B		;so byte number is 1 to SCWBYT
+		;Next bit of code sets up the restart.
+		;For the case when D=1, the code at 8
+		;needs to read:
+		;  00	  NOP
+		;  C6	  OR (HL)
+		;  C9	  RET
+		;
+		;For the case when D=0, the code at 8
+		;needs to read
+		;  2F	  CPL
+		;  A6	  AND (HL)
+		;  C9	  RET
+	PUSH DE
+	LD A,D
+	OR D
+	LD DE,PRST8
+	JR NZ FILL2
+	LD A,2FH
+	LD (DE),A
+	LD A,0A6H
+	INC DE
+	LD (DE),A
+	JR FILL2A
+ 
+FILL2	LD A,0B6H
+	LD (DE),A
+FILL2A	LD A,0C9H
+	INC DE
+	LD (DE),A
+	POP DE
+	EJECT
+* Algorithm for reasonably quick FILL using not too much
+* buffer memory:
+*
+*  Select action according to number of coloured points
+*  adjacent to the current point.
+*
+*  If this number is not zero, colour the current point
+*  immediately.
+*
+*  Case 0: Test diagonal points.
+*	   If any diagonal point is coloured, set
+*	   the next point to any adjacent point
+*	   which is adjacent to a coloured point
+*	   otherwise, colour the current point and
+*	   set the next point to any adjacent point.
+*
+* Case 1: Set the next point to the one opposite
+*	  the adjacent coloured point, then save
+*	  in the FIFO buffer any of the other two
+*	  adjacent points which is between the
+*	  coloured adjacent point and a coloured
+*	  diagonal point.
+*
+* Case 2: subcase 2a) applies if the coloured points
+*	  are opposite one another, subcase 2b) otherwise.
+* Subcase 2a): Set the next point to one adjacent
+*	       uncoloured point and save the other.
+* Subcase 2b): If the diagonal point included by the
+*	       adjacent uncoloured points is coloured,
+*	       save one of the adjacent uncoloured points
+*	       and set the next point to the other,
+*	       otherwise set the next point to either
+*	       adjacent uncoloured point.
+*
+* Case 3: Set the next point to the adjacent uncoloured
+*	  point.
+*
+* Case 4: If the FIFO store is empty, stop, otherwise get
+*	  the next point from the FIFO.
+*
+		;Details stored in the buffer: BC and HL.
+		;HL = memory address
+		;B  = byte number in the row (L.H.S.=1)
+		;C  = bit mask L.H.S.= 128, R.H.S. = 1
+		;If at any time the available memory
+		;space for the buffer is exhausted,
+		;the fact is flagged and BC,HL are
+		;not stored. However, no other action is
+		;taken, as all other stored points may
+		;still be used from the buffer in their
+		;turn.
+FLOOP			;loop returns here till done
+	DEFW ZBRKTST
+	JR C F4EXIT
+	XOR A
+	LD E,A
+	CALL FMOVER
+	CALL FLOOK
+	JR NC FLKUP
+	SET 0,E
+FLKUP	CALL FMOVEL
+	CALL FMOVEU
+	CALL FLOOK
+	JR NC FLKLFT
+	SET 1,E
+FLKLFT	CALL FMOVED
+	CALL FMOVEL
+	CALL FLOOK
+	JR NC FLKDWN
+	SET 2,E
+FLKDWN	CALL FMOVER
+	CALL FMOVED
+	CALL FLOOK
+	JR NC FLKOUT
+	SET 3,E
+FLKOUT	CALL FMOVEU	;now E reflects true neighbours
+	LD A,E
+	OR A		;zero possible at start - if
+			;so, better not colour point
+			;yet, but in F0 instead.
+	JR Z FCASE
+	LD A,C
+	RST 8		;to colour point
+	LD (HL),A
+FCASE	PUSH HL
+	LD HL,FILLCASE	;table of jump points for
+			;possible E values 0-15
+	PUSH DE
+	LD D,0
+	ADD HL,DE	;once..
+	ADD HL,DE	;..twice.
+	POP DE
+	LD A,(HL)
+	INC HL
+	LD H,(HL)
+	LD L,A		;jump in HL, mem at TOS
+	EX (SP),HL	;jump on stack, mem in HL
+	RET		;jump via stack
+ 
+F4:	CALL FGET	;retrieve stored point
+	JR NC FLOOP
+	XOR A
+	BIT FIFULL,(IX+JFLAGS)
+	JR Z F4EXIT
+	SCF
+F4ERR	LD A,INVFILL
+F4EXIT	LD E,0C3H	;to restore JP for RST 8
+	LD HL,PRST8
+	LD (HL),E	;preserving AF
+	RET
+ 
+F1R:
+	CALL FDIAG
+	BIT 1,E
+	JR Z F1RD
+	CALL FMOVEU
+	CALL FSAVE
+	CALL FMOVED
+F1RD	BIT 2,E
+	JR Z FLOUT
+	CALL FMOVED
+	CALL FSAVE
+	CALL FMOVEU
+FLOUT	JP FLEFT
+ 
+F1U:
+	CALL FDIAG
+	BIT 2,E
+	JR Z F1UR
+	CALL FMOVEL
+	CALL FSAVE
+	CALL FMOVER
+F1UR	BIT 3,E
+	JR Z FDOUT
+	CALL FMOVER
+	CALL FSAVE
+	CALL FMOVEL
+FDOUT	JP FDOWN
+ 
+F1L:
+	CALL FDIAG
+	BIT 3,E
+	JR Z F1LU
+	CALL FMOVED
+	CALL FSAVE
+	CALL FMOVEU
+F1LU	BIT 0,E
+	JR Z FROUT
+	CALL FMOVEU
+	CALL FSAVE
+	CALL FMOVED
+FROUT	JR FRIGHT
+ 
+F1D:
+	CALL FDIAG
+	BIT 0,E
+	JR Z F1DL
+	CALL FMOVER
+	CALL FSAVE
+	CALL FMOVEL
+F1DL	BIT 1,E
+	JR Z FLEFT
+	CALL FMOVEL
+	CALL FSAVE
+	CALL FMOVER
+	JR FUP
+ 
+F0:
+	CALL FDIAG
+	LD A,E
+	OR E
+	JR NZ F0DIAG	;some diagonal pts - which?
+	LD A,C
+	RST 8		;to colour point
+	LD (HL),A
+	JR FRIGHT
+ 
+F0DIAG	CP 3
+	JR NC FDOWN	;bit 2 set so down makes sense
+	JR FUP		;bits 0 or 1 set so up is OK
+ 
+F2RU:		;bdy pts right & up only
+	CALL FMOVEL
+	CALL FMOVED
+	CALL FLOOK
+	JR NC FRIGHT
+	CALL FMOVER
+	CALL FSAVE
+	CALL FMOVEU
+FLEFT:	CALL FMOVEL
+	JP FLOOP
+ 
+F2UL:
+	CALL FMOVED
+	CALL FMOVER
+	CALL FLOOK
+	JR NC FUP
+	CALL FMOVEU
+	CALL FSAVE
+	CALL FMOVEL
+FDOWN:	CALL FMOVED
+	JP FLOOP
+ 
+F2LD:
+	CALL FMOVER
+	CALL FMOVEU
+	CALL FLOOK
+	JR NC FLEFT
+	CALL FMOVEL
+	CALL FSAVE
+	CALL FMOVED
+FRIGHT:	CALL FMOVER
+	JP FLOOP
+ 
+F2DR:
+	CALL FMOVEU
+	CALL FMOVEL
+	CALL FLOOK
+	JR NC FDOWN
+	CALL FMOVED
+	CALL FSAVE
+	CALL FMOVER
+FUP:	CALL FMOVEU
+	JP FLOOP
+ 
+F2RL:
+	CALL FMOVEU
+	CALL FSAVE
+	CALL FMOVED
+	JR FDOWN
+ 
+F2UD:
+	CALL FMOVEL
+	CALL FSAVE
+	CALL FMOVER
+	JR FRIGHT
+	EJECT
+FILLCASE:
+	DEFW F0		; 0000
+	DEFW F1R	; 0001
+	DEFW F1U	; 0010
+	DEFW F2RU	; 0011
+	DEFW F1L	; 0100
+	DEFW F2RL	; 0101
+	DEFW F2UL	; 0110
+	DEFW FDOWN	; 0111
+	DEFW F1D	; 1000
+	DEFW F2DR	; 1001
+	DEFW F2UD	; 1010
+	DEFW FLEFT	; 1011
+	DEFW F2LD	; 1100
+	DEFW FUP	; 1101
+	DEFW FRIGHT	; 1110
+	DEFW F4		; 1111
+ 
+FLOOK:		;determines whether current point
+		;is off the map, or coloured CFILL
+		;Entry: HL = memory address
+		;        C = bit in question (n,say)
+		;        B = byte in row (LHS = 1)
+	LD A,B
+	OR B
+	SCF
+	RET Z		;with CY set if B=0
+	LD A,(IX+SCWBYT)
+	CP B
+	RET C		;if B > SCWBYT
+		;now check memory bounds
+	CALL MEMTST
+	RET C
+	LD A,(HL)	;now test byte in TV RAM
+	BIT 0,D		;bit set iff bit-on = coloured
+	JR Z FLOOK2
+	AND C
+	RET Z
+	SCF
+	RET
+ 
+FLOOK2	AND C
+	RET NZ
+	SCF
+	RET
+ 
+FMOVER:		;shifts to point one to right
+		;NB no checks except that B is set
+		;to show byte position in row (LHS=1)
+	OR A		;clear CY
+	RR C		;move set bit to right
+	RET NC
+	RR C		;top bit of next byte
+	DEC HL
+	DEC B
+	RET
+ 
+FMOVEL	OR A		;clear CY
+	RL C		;move set bit to left
+	RET NC
+	RL C		;lowest bit of prior byte
+	INC HL
+	INC B
+	RET
+ 
+FMOVED:	PUSH BC
+	LD C,(IX+SCWBYT)
+	LD B,0
+	ADD HL,BC
+	POP BC
+	RET
+ 
+FMOVEU:	PUSH BC
+	LD C,(IX+SCWBYT)
+	XOR A
+	LD B,A
+	SBC HL,BC
+	POP BC
+	RET
+ 
+FDIAG:	LD E,0
+	CALL FMOVER
+	CALL FMOVEU
+	CALL FLOOK
+	JR NC FDUL
+	SET 0,E
+FDUL	CALL FMOVEL
+	CALL FMOVEL
+	CALL FLOOK
+	JR NC FDLD
+	SET 1,E
+FDLD	CALL FMOVED
+	CALL FMOVED
+	CALL FLOOK
+	JR NC FDLR
+	SET 2,E
+FDLR	CALL FMOVER
+	CALL FMOVER
+	CALL FLOOK
+	JR NC FDEND
+	SET 3,E
+FDEND	CALL FMOVEU
+	CALL FMOVEL	;position restored
+	RET		;with info in E
+ 
+FSAVE:		;Routine to save the values of
+		;BC and HL in the special buffer.
+		;Entry: IY = buffer save pointer
+		;   FIFTOP = end of buffer
+		;   FIFNXT = buffer restore pointer
+		;Exit: CY clear if room found, then
+		;   IY increased by 4 with wraparound
+		;      CY set if no more room, also bit
+		;      FIFULL of JFLAGS.
+		;This routine will not work unless the
+		;buffer length is non-zero & a multiple
+		;of 4.
+	PUSH DE
+	EX DE,HL
+	PUSH IY
+	POP HL
+	LD (HL),C
+	INC HL
+	LD (HL),B
+	INC HL
+	LD (HL),E
+	INC HL
+	LD (HL),D
+	CALL FNEXT
+	LD A,(IX+FIFNXT)
+	CP L
+	JR NZ FSTORE
+	LD A,(IX+FIFNXT+1)
+	CP H
+	JR NZ FSTORE
+	SET FIFULL,(IX+JFLAGS)
+	SCF		;even if not used by caller
+	JR FSVEND
+ 
+FSTORE	OR A
+	PUSH HL
+	POP IY
+FSVEND	EX DE,HL
+	POP DE
+	RET
+ 
+FGET:		;Routine to collect next point details
+		;from the special buffer.
+		;Entry: FIFNXT = next item
+		;       FIFTOP = end of buffer
+		;           IY = save pointer
+		;Exit: CY clear if any in buffer.
+		;      HL,BC set from buffer contents
+		;      A smashed
+		;      FIFNXT advanced 4 with wraparound
+		;       DE preserved
+		;  CY set if no more items in buffer.
+		;  HL,BC smashed in that case
+		;It is essential for this routine to
+		;work that the buffer length be non-zero
+		;and a multiple of 4
+	PUSH IY
+	POP HL
+	LD A,L
+	CP (IX+FIFNXT)
+	JR NZ FGET1
+	LD A,H
+	CP (IX+FIFNXT+1)
+	JR NZ FGET1
+	SCF
+	RET
+ 
+FGET1	PUSH DE
+	LD L,(IX+FIFNXT)
+	LD H,(IX+FIFNXT+1)
+	LD C,(HL)
+	INC HL
+	LD B,(HL)
+	INC HL
+	LD E,(HL)
+	INC HL
+	LD D,(HL)
+	CALL FNEXT
+	LD (IX+FIFNXT),L
+	LD (IX+FIFNXT+1),H
+	OR A
+	EX DE,HL
+	POP DE
+	RET
+ 
+FNEXT:		;This handles the wraparound
+		;for the FGET and FSAVE routines
+	INC HL
+	LD A,L
+	CP (IX+FIFTOP)
+	RET NZ
+	LD A,H
+	CP (IX+FIFTOP+1)
+	RET NZ
+	LD L,(IX+FIFST)
+	LD H,(IX+FIFST+1)
+	RET
+ 
+	END
+                                                                   
