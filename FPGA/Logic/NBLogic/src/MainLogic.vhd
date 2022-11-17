@@ -113,7 +113,7 @@ signal COPcount : std_logic_vector(4 DOWNTO 0);      -- counter to receive bytes
 
 Signal KB_Stop:std_logic:='0';                      --STOP KEY PRESSED FROM KEYB
 Signal KBint:std_logic:='1';                      --
-signal KBcount : std_logic_vector(3 DOWNTO 0);      -- counter to check the keyboard
+signal KBcount : std_logic_vector(2 DOWNTO 0);      -- counter to check the keyboard
 Signal CLRKBD:std_logic:='1';                      --
 Signal CLRKBDnxt:std_logic:='1';                      --CLRKBDnxt
 SIGNAL rtvon:std_logic:='0';
@@ -232,7 +232,7 @@ NBMMU: MMU2
 	  elsif falling_edge(NB13_clk) then
 		  COPint<='0';		          
           KBcount <= KBcount + 1; 	
-          IF KBcount="0000" THEN 
+          IF KBcount="000" THEN 
               KBint<='0';
           END IF;
 	  end if;
@@ -244,7 +244,7 @@ PROCESS (cpu_clk)
 BEGIN
   IF nRESET='0' THEN
        INTEN <='1';
-       NBEN<='1'; --NB IS ENABLED FALSE
+       NBEN<='1'; --NB IS ENABLED FALSE       
   ELSIF rising_edge(cpu_clk) then
     IF nIORQin='0' and nWRin='0' AND ADDRin=x"E0"  THEN     --OUT E0,0 TO ENABLE INTERRUPT SERVICE
        INTEN <='0';
