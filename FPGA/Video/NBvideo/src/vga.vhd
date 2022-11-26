@@ -105,6 +105,8 @@ Signal wre_i : std_logic := '1';
 Signal ad_i : std_logic_vector(12 downto 0);
 Signal din_i : std_logic_vector(7 downto 0);
 
+Signal ReadFNT : STD_LOGIC; --FRO READING THE FONT TO INTERNAL RAM
+
 --NB STUFF
 			  --VIDEO SIGNALS
 Signal sUCR     : STD_LOGIC; --10 PIXEL PER CHAR
@@ -126,6 +128,7 @@ Signal NBMEMAD  : INTEGER RANGE 0 TO 32767 :=0;    --NB Mem accees address
 Signal ReadREGs : STD_LOGIC;
 Signal ISGRAPH  : STD_LOGIC:='0';
 Signal ISTEXT   : STD_LOGIC:='1';
+Signal tvena    : STD_LOGIC:='1'; --1 means tv enabled
 
 Signal NXTPXL : STD_LOGIC;
 
@@ -167,6 +170,56 @@ SPRMEM: Gowin_SPRAM
         din => din_i
     );
 
+--READ FONT TO INTERNAL MEMORY
+
+type BTReadState is (BRS_IDLE,BRS_INIT,BRS_DataST,BRS_DataST2,BRS_DataST3,BRS_DataRD,BRS_DataSV);
+SIGNAL sprstate : BTReadState := BRS_IDLE;
+
+
+PROCESS(Rpixel_clk,ReadFNT)
+VARIABLE STEP:INTEGER RANGE 0 TO 10 := 0; 
+VARIABLE FNTPATADDR:INTEGER 0 TO 4096;
+VARIABLE BYTCNT:INTEGER 0 TO 2565;
+BEGIN
+
+    IF sUCR='0' THEN
+       FNTPATADDR:=4096;
+    ELSE 
+       FNTPATADDR:=0;
+    END IF;
+
+    wre_i<='0';  --WRITE DISABLED
+    reset_i <='0'; -- NO RESET
+    ce_i <= '1';  --ALWAYS ENABLED
+    oce_i <= '0';  --
+
+   IF ReadFNT='1' AND BYTCNT<2560 THEN 
+   BEGIN
+     CASE sprstate IS
+       WHEN BRS_IDLE=> STEP:=0;
+                      BYTCNT:=0;
+                      sprstate<=BRS_DataST;
+       WHEN BRS_DataST=> MEMBUF<=FNTPATADDR+BYTCNT;
+                         ad_i <=BYTCNT;        
+                         wre_i <= '0';   --WHEN HIGH WRITE IS ENABLED                    
+                         sprstate<=BRS_DataST2;
+       WHEN BRS_DataST2=>sprstate<=BRS_DataST3; --JUST WAIT A COUPLE OF TICKS TO STABILIZE MEMADDR AND DATAOUT                         
+       WHEN BRS_DataST3=>sprstate<=BRS_DataRD;
+       WHEN BRS_DataRD=> din_i <= datain;   --READ DATA
+                         BYTCNT:=BYTCNT+1;
+                         sprstate<=BRS_DataSV;
+       WHEN BRS_DataSV=> wre_i <= '1';   --WHEN HIGH WRITE IS ENABLED         
+                         sprstate<=BRS_DataST;                                                 
+     END CASE;
+
+   ELSE 
+    STEP:=0;
+    BYTCNT:=0;
+    sprstate<=BRS_IDLE;
+   END IF; 
+END PROCESS;
+
+
 --READ NB REGISTERS
 PROCESS(Rpixel_clk,ReadREGs)
 VARIABLE STEP:INTEGER RANGE 0 TO 2047 := 0; 
@@ -174,6 +227,7 @@ VARIABLE EL:INTEGER RANGE 0 TO 128 := 0;
 
 BEGIN
   IF rising_edge(Rpixel_clk) THEN
+    NBMEMAD<=NBMEMAD;
     IF ReadREGs='1' THEN 
       STEP:=STEP+1;
     ELSE 
@@ -183,46 +237,48 @@ BEGIN
     case STEP is
       when 1 =>  NBMEMAD<= 92;      --SETUP ADDR REG                 
       
-      when 2 =>  TVRAM(7 DOWNTO  0) <=DATAIN;       --READ ADDR TO REGISTER
+      when 3 =>  TVRAM(7 DOWNTO  0) <=DATAIN;       --READ ADDR TO REGISTER
 
-      when 3 =>  NBMEMAD<= 93;
+      when 4 =>  NBMEMAD<= 93;
 
-      when 4 =>  TVRAM(15 DOWNTO  8) <=DATAIN;       --READ ADDR TO REGISTER
+      when 6 =>  TVRAM(15 DOWNTO  8) <=DATAIN;       --READ ADDR TO REGISTER
 
-      when 5 =>  NBMEMAD<= to_integer(unsigned(TVRAM));
+      when 7 =>  NBMEMAD<= to_integer(unsigned(TVRAM));
 
-      when 6 =>  TVOFFS<= DATAIN;
+      when 9 =>  TVOFFS<= DATAIN;
 
-      when 7 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+6;   --EL
+      when 10 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+6;   --EL
 
-      when 8 =>  TVEL<= DATAIN;
+      when 12 =>  TVEL<= DATAIN;
                  EL:=to_integer(unsigned(TVEL));
 
-      when 9 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+10;      --FRM
+      when 13 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+10;      --FRM
 
-      when 10 =>  TVFRM<= DATAIN;
+      when 15 =>  TVFRM<= DATAIN;
 
-      when 11 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+1;       --TVMODE
+      when 16 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+1;       --TVMODE
 
-      when 12 =>  sUCR  <= DATAIN(3); -- 0 = 10 lines , 1= 8 lines per char
+      when 17 =>  sUCR  <= DATAIN(3); -- 0 = 10 lines , 1= 8 lines per char
                   s80L  <= DATAIN(6); -- 0 = 40 chars 1 = 80 chars
                   s3240 <= DATAIN(2); -- 0 = 320 or 640 pxl, 1=256 or 512 pxl
                   sFS   <= DATAIN(1); -- 0 = 128 nrm chars and 128 rvse field chrs, 1= 256 chars
                   sRV   <= DATAIN(0); -- 0 = white on black , 1 = black on white
 
-      when 13 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+4;       --TVDEP
+      when 18 =>  NBMEMAD<= to_integer(unsigned(TVRAM))+4;       --TVDEP
 
-      when 14 =>  TVDEP<= DATAIN;
-        
+      when 20 =>  TVDEP<= DATAIN;
+      
+      when 21 =>  NBMEMAD<= 36;       --enregmap $24=36 for tv enabled
 
-      when 20 =>  NBVIDAD<= std_logic_vector(to_unsigned( to_integer(unsigned(TVRAM)) + to_integer(unsigned(TVOFFS)) + to_integer(unsigned(TVFRM))*EL + 5 , NBVIDAD'length ));
-    end case;
+      when 23 =>  tvena<= DATAIN(2);  --bit 2 is tv enabled or not
 
-
-    
-
+      when 50 =>  NBVIDAD<= std_logic_vector(to_unsigned( to_integer(unsigned(TVRAM)) + to_integer(unsigned(TVOFFS)) + to_integer(unsigned(TVFRM))*EL + 5 , NBVIDAD'length ));
+    end case;   
   end if; --end clock 
 END PROCESS;
+
+
+
 
 
  PROCESS(Rpixel_clk,MEMBUF)
@@ -258,14 +314,11 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
 
     
     PROCEDURE NBNEWCHAR(TC:INTEGER) IS    
-    BEGIN
-         
-
+    BEGIN        
          VIDDAT0:=VIDDAT1;
          VIDDAT1:=VIDDAT2;
          VIDDAT2:=VIDDAT3;
-         VIDDAT3:=TC;     
-       
+         VIDDAT3:=TC;            
 
          NBSCRFIN:=((VIDDAT0=0) AND (VIDDAT1=0) AND (VIDDAT2=32) AND (VIDDAT3=32) ) ;-- AND VIDDAT2=32 AND TC=32;
          --ISTEXT:=NOT ((VIDDAT2=0) AND (VIDDAT3=0));--DOUBLE ZEROES ENDS TEXT
@@ -283,33 +336,32 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
 --             END IF;     
         
            END IF;
-        END IF;
-         
-
+        END IF;         
     END PROCEDURE;
-
-
-
 
 
     PROCEDURE DONBTEXT IS
     VARIABLE EL:INTEGER range 0 to 255;
     VARIABLE CHRSZ:INTEGER RANGE 0 TO 10;
     VARIABLE CHRCOL:INTEGER RANGE 0 TO 15;
+    VARIABLE FNTPATADDR:INTEGER RANGE 0 TO 5000; 
     BEGIN
         EL := to_integer(unsigned(TVEL));
         LETCOL := (COLUMN MOD (HORZPXL*8))/HORZPXL;
 		
         IF sUCR='0' THEN
           CHRSZ:=10; -- OR 8
+          FNTPATADDR:=4096;
         ELSE 
           CHRSZ:=8; -- OR 8
+          FNTPATADDR:=0;
         END IF;
 
         PRLINES:=ROW/(VERTPXL*CHRSZ);
         CHRCOL:=COLUMN MOD (HORZPXL*8);
 		
         TXFontline<=TXFontline;
+        membuf<=membuf;
 
 		IF H_COUNT>H_PIXELS THEN --AFTER VISIBLE PIXELS                    
           CASE SETUPCHAR IS            
@@ -321,7 +373,7 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
                         SKIPLINE:=FALSE;                                                                     
                         TEXTCHAR:=to_integer(unsigned(DATAIN));                        
 		    WHEN 4 TO 5 =>
-                        MEMADDR<=4096+TEXTCHAR+(TXFontline*256); --FONT AT ADDR 4096 on buffer 0 ONLY, CHANGE TO 0 FONT IF 8X8
+                        MEMADDR<=FNTPATADDR+TEXTCHAR+(TXFontline*256); --FONT AT ADDR 4096 on buffer 0 ONLY, CHANGE TO 0 FONT IF 8X8
                         membuf<='0';                        
             WHEN 6=>    PXLTEXTnx<=DATAIN;                  
             WHEN 7 =>   PXLTEXT<=PXLTEXTnx;
@@ -331,13 +383,15 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
           case CHRCOL is    
             WHEN 0 =>  VIDEOaddr:= VIDEOaddr +1;
                         membuf<='1';  
+                       MEMADDR<=VIDEOaddr;
             WHEN 1 TO 3 => -- VIDEOaddr:= VIDEOaddr +1;                  
-                      MEMADDR<=VIDEOaddr;
+                      --MEMADDR<=VIDEOaddr;
                       --  membuf<='1';  
-            WHEN 4 => MEMADDR<=VIDEOaddr;	--CHARACTER ADDRESS	 			
+                    TEXTCHAR:=to_integer(unsigned(DATAIN));	--GET TEXT CHARACTER 	                                                     
+            --WHEN 4 => --MEMADDR<=VIDEOaddr;	--CHARACTER ADDRESS	 			
                        -- membuf<='1';  
-                       TEXTCHAR:=to_integer(unsigned(DATAIN));	--GET TEXT CHARACTER 	                                                     
-            WHEN  5 TO 6 => MEMADDR<=4096+TEXTCHAR+(TXFontline*256); --FONT PATTERN ADDRESS on Buffer 0 ONLY	
+                       --TEXTCHAR:=to_integer(unsigned(DATAIN));	--GET TEXT CHARACTER 	                                                     
+            WHEN  4 TO 6 => MEMADDR<=FNTPATADDR+TEXTCHAR+(TXFontline*256); --FONT PATTERN ADDRESS on Buffer 0 ONLY	
                         membuf<='0';
             WHEN 7  =>    PXLTEXTnx<=DATAIN;--membuf<='0';
                        IF HORZPXL=1 THEN  --7 OR 15 
@@ -361,7 +415,7 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
        LEFTGAP:=0;
        if s3240='1' then		      
 	   --NARROW            
-            LEFTGAP:=64; 
+            LEFTGAP:=64;          
 	   end if;
     END;
 
@@ -641,6 +695,12 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
       END IF;
 		
     
+      IF v_count>v_pixels+2 and v_count<v_pixels+11 THEN --ABOUT 8192 CLOCKS
+          ReadFNT<='1';
+          MEMBUF<='0'; --READ FROM VIDEO BUFFER LOW FNT ADDR IS 0 AND 4096
+      ELSE
+          ReadFNT<= '0';
+      END IF;
 
 
      -- membuf<='0';  --ALWAYS LOW FOR REGISTERS
@@ -698,7 +758,7 @@ VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
      
 
      -- ******** SCREEN DISPLAY **********
-     IF v_count<v_PIXELS or (v_count=v_period-1)  THEN 
+     IF (v_count<v_PIXELS or (v_count=v_period-1)) and tvena='1'  THEN 
         donbscreen;               
      END IF; --SCREEN DISPLAY END
     

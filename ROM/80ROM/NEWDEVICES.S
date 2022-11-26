@@ -22,13 +22,13 @@ STNEWD:		LD HL, $58 							;DEVTAB
 		INC HL
 		LD (HL), D
 		LD HL, DEFSTOR
-		LD A, 9 							;DEFAULT STORE DEVICE IS 9	NB STORAGE MODULE
+		LD A, 12 							;DEFAULT STORE DEVICE IS 12	NB STORAGE MODULE
 		LD (HL), A
 		RET
 		
 		
 ;START OF NEW DEVICE TABLE
-DEVTAB:		DEFB 14 							;number of entries	;number of entries
+DEVTAB:		DEFB 17 							;number of entries	;number of entries
 		DEFW TVIO 							;
 		DEFW TP1IO 							;
 		DEFW TP2IO 							;
@@ -40,6 +40,9 @@ DEVTAB:		DEFB 14 							;number of entries	;number of entries
 		DEFW LPIO 							;
 		DEFW JGIO 							;
 		DEFW DUMMY 							;
-		DEFW GRAPH 							;
-		DEFW RS2IO 							;MY SERIAL DEVICE 12
-                DEFW SG2IO 							;MY STORAGE DEVICE 13
+		DEFW GRAPH 							;		
+                DEFW SG2IO 							;MY STORAGE DEVICE 13 BDISCIO BINARY SERIAL
+                DEFW SG2IO                                                      ;MY STORAGE DEVICE 14 TDISCIO SAME AS 13 FOR ME
+                DEFW SG2IO                                                      ;MY STORAGE DEVICE 15 RDISCIO RANDOM ACCESS
+                DEFW SG2IO                                                      ;MY STORAGE DEVICE 16 SDISCIO DIR COMMANDS
+                DEFW RS2IO 							;MY SERIAL DEVICE 17
