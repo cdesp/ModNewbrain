@@ -218,7 +218,8 @@ SPRMEM: Gowin_SPRAM
          VIDDAT2:=VIDDAT3;
          VIDDAT3:=TC;            
 
-         NBSCRFIN:=((VIDDAT0=0) AND (VIDDAT1=0) AND (VIDDAT2=32) AND (VIDDAT3=32) ) ;-- AND VIDDAT2=32 AND TC=32;
+         NBSCRFIN:=((VIDDAT0=0) AND (VIDDAT1=0) AND (VIDDAT2=32) AND (TC=32) ) AND ROW>15 ;-- AND VIDDAT2=32 AND TC=32;
+        -- NBSCRFIN:=( (VIDDAT2=0) AND (TC=0)  ) ;-- AND VIDDAT2=32 AND TC=32;
          --ISTEXT:=NOT ((VIDDAT2=0) AND (VIDDAT3=0));--DOUBLE ZEROES ENDS TEXT
          SKIPLINE:=TC=0 OR SKIPLINE;
          IF PRLINES=to_integer(unsigned(TVDEP)) THEN
@@ -276,18 +277,17 @@ SPRMEM: Gowin_SPRAM
           CASE SETUPCHAR IS            
             WHEN 0 TO 2  =>  VIDEOaddr := to_integer(unsigned(NBVIDAD))+TEXTLINE*EL;--to_integer(unsigned(TVEL));                             
                              MEMADDR<= VIDEOaddr;                         
-           -- WHEN 3 =>    
-             --            MEMADDR<=VIDEOaddr;
             WHEN 3 =>    SKIPLINE:=FALSE;   
                          MEMADDR<=VIDEOaddr;
                          TEXTCHAR:=to_integer(unsigned(DATAIN));                          
             WHEN 4 =>    ad_i<= std_logic_vector(to_unsigned(TEXTCHAR+(TXFontline*256),ad_i'length));            
             WHEN 7 =>    PXLTEXTnx<=dout_o; 
                          PXLTEXT<=PXLTEXTNX;
-            WHEN 8 =>    --PXLTEXT<="01100110";--dout_o; 
-                       --  PXLTEXTnx<=dout_o; 
+            WHEN 8 =>    
                          PXLTEXT<=dout_o; 
-                         NBNEWCHAR(TEXTCHAR);                            
+                         IF S80L='0' THEN
+                           NBNEWCHAR(TEXTCHAR);                            
+                         END IF;
           END CASE;
 	    ELSE  --PRINT VISIBLE PIXELS FOR TEXT
           TXFontline:= integer((ROW/VERTPXL)) MOD CHRSZ; -- 0..9 FOR 10
@@ -297,7 +297,8 @@ SPRMEM: Gowin_SPRAM
             WHEN 0  =>  VIDEOaddr:= VIDEOaddr +1;
                         MEMADDR<=VIDEOaddr; 
             WHEN 1 TO 2 => MEMADDR<=VIDEOaddr;
-            WHEN 3 =>   MEMADDR<=VIDEOaddr;
+            WHEN 3 =>   
+                        MEMADDR<=VIDEOaddr;
                         TEXTCHAR:=to_integer(unsigned(DATAIN));	--GET TEXT CHARACTER 	                                                                            
             WHEN 4 =>  ad_i<= std_logic_vector(to_unsigned(TEXTCHAR+(TXFontline*256),ad_i'length));
             WHEN 6 =>  PXLTEXTnx<=dout_o;
@@ -312,6 +313,7 @@ SPRMEM: Gowin_SPRAM
             END IF;
         END IF;
 
+        MEMADDR<= VIDEOaddr;
         NXTPXL:=PXLTEXT(7-LETCOL);
     
     END PROCEDURE;
@@ -433,28 +435,19 @@ SPRMEM: Gowin_SPRAM
         MEMBUF<='1';
                 
 
-      --  IF NBSCRFIN THEN 
-      --     RETURN;
-      --  END IF;
+
   --8 PIXELS PER BYTE
 	    TXFontline<=TXFontline;
-		--TEXTCHAR:=TEXTCHAR;
 		PXLTEXT<=PXLTEXT;
         PXLTEXTnx<=PXLTEXTnx;
         MEMBUF<=MEMBUF;
-		MEMADDR<= MEMADDR;	
-		--CHARaddr:=CHARaddr;
-        
-
+		MEMADDR<= MEMADDR;	      
+       
         EL:=64;
-        IF S80L='1' THEN 
-          EL:=2*EL;  
-        END IF;         
-        
-
         IF s80L='1' THEN          
           HORZPXL := 1;
           VERTPXL := 2;
+          EL:=2*EL;  
         ELSE
           HORZPXL := 2; -- DOUBLE PIXELS
           VERTPXL := 2;
@@ -467,7 +460,7 @@ SPRMEM: Gowin_SPRAM
         END IF;
 
 
-        IF ISTEXT='1' THEN
+        IF ISTEXT='1' AND NOT NBSCRFIN THEN
           DONBTEXT;
         ELSIF ISGRAPH='1' THEN           
              DONBGRAPH;            
@@ -476,10 +469,7 @@ SPRMEM: Gowin_SPRAM
          if  NXTPXL='1' THEN --AND NOT SKIPLINE THEN --PRINT FOREGROUND
             PUTFOREPXL;
 		 END IF;     
-
-        NBSCRFIN:= (ROW/VERTPXL)>249 ;
-
-
+    
 --        IF PRLINES=to_integer(unsigned(TVDEP)) THEN
 --            PXLOUT <= "0101";
 --        END IF;
@@ -506,9 +496,13 @@ SPRMEM: Gowin_SPRAM
        IF SKIPLINE THEN
          PUTBACKPXL;  
        END IF;
-       IF NBSCRFIN THEN
-         PXLOUT <= "0000";    
-       END IF;
+
+       IF NBSCRFIN  THEN
+          --PXLOUT <= "0000";  
+          PUTBACKPXL  ;
+        END IF;
+
+
     --   IF TEXTCHAR=0 THEN
      --    PXLOUT <= "0101";    
      --  END IF;
@@ -534,9 +528,6 @@ SPRMEM: Gowin_SPRAM
 --     IF ROW MOD VERTPXL=1 AND COLUMN<30 THEN
 --         PXLOUT <= "1001";    
 --       END IF;
-
-
-     
     end procedure;
 
 
@@ -544,8 +535,6 @@ SPRMEM: Gowin_SPRAM
     PROCEDURE DOREADREGISTERS IS    
     BEGIN
 
-     
-     -- IF ReadREGs='1' THEN 
         MEMBUF<='1';
         MYSTEP:=MYSTEP+1;
         case MYSTEP is
@@ -582,9 +571,6 @@ SPRMEM: Gowin_SPRAM
             WHEN OTHERS=> MEMBUF<='1';
             
          end case;    
-    --  ELSE 
-        --MYSTEP:=0;    
-   --   END IF;
 
 
     END PROCEDURE;
@@ -623,6 +609,25 @@ BEGIN
  --  END IF; 
 END PROCEDURE;
 
+PROCEDURE READCOLORS IS
+BEGIN
+      IF READREGISTER=1 THEN
+        MEMBUF<='0';
+        MEMADDR<=32760;        
+      ELSIF READREGISTER=2 THEN
+        CONFIGREG<=DATAIN;
+      ELSIF READREGISTER=3 THEN
+        VIDSET<=CONFIGREG(1 DOWNTO  0);                        
+      ELSIF READREGISTER=4 THEN
+        MEMADDR<=32761;
+      ELSIF READREGISTER=5 THEN
+        CONFIGREG<=DATAIN;
+      ELSIF READREGISTER=6 THEN
+        PXLFORE<=CONFIGREG(3 DOWNTO  0);
+        PXLBACK<=CONFIGREG(7 DOWNTO  4);
+      END IF;
+END;
+
 
   BEGIN
     
@@ -631,21 +636,7 @@ END PROCEDURE;
 
    IF rising_edge(Rpixel_clk)  THEN
 
-	  
-      
-      PXLBACK<=PXLBACK;
-	  PXLFORE<=PXLFORE;
-      MEMADDR<=MEMADDR;
-      MEMBUF<=MEMBUF;
-      tvena<= tvena;
-
-
-      wre_i<='0';
-      reset_i <='0';
-      ce_i <= '1';  
-      oce_i <= '0';  
-
-
+	 
 	 
       --counters
       IF(h_count < h_period - 1) THEN    --horizontal counter (pixels)
@@ -691,84 +682,69 @@ END PROCEDURE;
       ELSE                                                --blanking time
         disp_ena <= '0';                                    --disable display
       END IF;
-		
-    
-      IF v_count>v_pixels+2 and v_count<v_pixels+20 THEN --ABOUT 8192 CLOCKS
-         -- ReadFNT<='1';      
+		   
+---==========================================================================================
+
+      PXLBACK<=PXLBACK;
+	  PXLFORE<=PXLFORE;
+      MEMADDR<=MEMADDR;
+      MEMBUF<=MEMBUF;
+      tvena<= tvena;
+
+
+      wre_i<='0';
+      reset_i <='0';
+      ce_i <= '1';  
+      oce_i <= '0';  
+
+
+
+      --READ FONT TO INTERNAL RAM
+      IF v_count>v_pixels+2 and v_count<v_pixels+20 THEN --
           MEMBUF<='0'; --READ FROM VIDEO BUFFER LOW FNT ADDR IS 0 AND 4096
           READFONT;
       ELSE
-         -- ReadFNT<='0';            
           sprstate<=BRS_IDLE;
       END IF;
       
-
-      --V_COUNT GOES UP TO V_PERIOD-1
-        
+      --READ DEFAULT COLORS FOR BACK AND FORE  
       IF v_count=v_period-5 THEN	
 	    READREGISTER<=READREGISTER+1; 
-        MEMBUF<='0';              
+        MEMBUF<='0';               
+        READCOLORS;       
 	  ELSE
 	    READREGISTER<=0;        
 	  END IF; 
 
-      
-      if v_count=v_period-4 then --for NB Read the registers INIT FRAME VARS
-        -- ReadREGs<='1';         
+      --for NB Read the registers INIT FRAME VARS
+      if v_count=v_period-4 then 
          MEMBUF<='1';    
          DOREADREGISTERS;            
       ELSE
-     --   ReadREGs<='0';         
         MYSTEP:=0;
       end if;
      
         
-      IF v_count=v_period-2 then
-         NBSCRFIN:=FALSE;        
+      IF v_count=v_period-2 AND H_COUNT<2 then --NEW FRAME INITIALIZED                
          NBNEWCHAR(255);
+         NBSCRFIN:=FALSE; 
          ISGRAPH<='0';  
          ISTEXT<='1';
          PRLINES:=0;
       END IF;
       
-     --IF v_count>=v_PIXELS then
-      --  ROW:=0;
-       -- COLUMN:=0;              
-      --END if;
-
       IF (v_count<v_pixels OR V_COUNT=V_PERIOD-1) and H_COUNT>H_PIXELS AND H_COUNT<H_PIXELS+9 THEN
        SETUPCHAR<=SETUPCHAR+1;
       ELSE 
        SETUPCHAR<=0;
-      END IF;
+      END IF;     
 
-      --READ DEFAULT COLORS FOR BACK AND FORE
-      IF READREGISTER=1 THEN
-        MEMBUF<='0';
-        MEMADDR<=32760;        
-      ELSIF READREGISTER=2 THEN
-        CONFIGREG<=DATAIN;
-      ELSIF READREGISTER=3 THEN
-        VIDSET<=CONFIGREG(1 DOWNTO  0);                        
-      ELSIF READREGISTER=4 THEN
-        MEMADDR<=32761;
-      ELSIF READREGISTER=5 THEN
-        CONFIGREG<=DATAIN;
-      ELSIF READREGISTER=6 THEN
-        PXLFORE<=CONFIGREG(3 DOWNTO  0);
-        PXLBACK<=CONFIGREG(7 DOWNTO  4);
-      END IF;
-
-     
 
      -- ******** SCREEN DISPLAY **********
                     --or (v_count=v_period-1)
      IF ((v_count<v_PIXELS) or (v_count=v_period-1)) AND tvena='1'  THEN 
         donbscreen;               
      END IF; --SCREEN DISPLAY END
-    
-
-
 
     END IF; --RISINGEDGE CLOCK
 
