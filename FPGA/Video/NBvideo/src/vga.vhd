@@ -207,7 +207,8 @@ SPRMEM: Gowin_SPRAM
     VARIABLE BTCNT1:INTEGER  RANGE 0 TO 800;
     VARIABLE MYSTEP:INTEGER RANGE 0 TO 2047 ; 
     VARIABLE BYTCNT:INTEGER RANGE 0 TO 2565;
-    VARIABLE EL:INTEGER RANGE 0 TO 255;    
+    VARIABLE EL:INTEGER RANGE 0 TO 255;   
+    VARIABLE REVF:BOOLEAN; 
 
 
 
@@ -254,11 +255,17 @@ SPRMEM: Gowin_SPRAM
     END PROCEDURE;
 
 
+    PROCEDURE CHECKCHARPAT IS
+    BEGIN
+       
+    END PROCEDURE;
+
+
     PROCEDURE DONBTEXT IS   
     VARIABLE CHRSZ:INTEGER RANGE 0 TO 10;
     VARIABLE CHRCOL:INTEGER RANGE 0 TO 15;   
     VARIABLE TXFontline:INTEGER RANGE 0 TO 255;   
-    VARIABLE TEXTline:INTEGER RANGE 0 TO 480;   
+    VARIABLE TEXTline:INTEGER RANGE 0 TO 480;       
     BEGIN
 
         CHRCOL:=COLUMN MOD (HORZPXL*8);--0..7 OR 0..15
@@ -269,22 +276,26 @@ SPRMEM: Gowin_SPRAM
           CHRSZ:=10;           
         END IF;
 
-        PRLINES:=integer(ROW/(VERTPXL*CHRSZ));       		
-
+        PRLINES:=integer(ROW/(VERTPXL*CHRSZ));       		        
 		IF H_COUNT>H_PIXELS THEN --AFTER VISIBLE PIXELS                                
           TXFontline:= integer((ROW+1)/VERTPXL) MOD CHRSZ; -- 0..9 FOR 10 --ROW+1 CAUSE WE ARE ON THE PREVIOUS ROW AND SETTING UP NEXT ROW
           TEXTline := integer(((ROW+1)/VERTPXL)/CHRSZ);         
           CASE SETUPCHAR IS            
             WHEN 0 TO 2  =>  VIDEOaddr := to_integer(unsigned(NBVIDAD))+TEXTLINE*EL;--to_integer(unsigned(TVEL));                             
-                             MEMADDR<= VIDEOaddr;                         
+                             MEMADDR<= VIDEOaddr;                              
             WHEN 3 =>    SKIPLINE:=FALSE;   
                          MEMADDR<=VIDEOaddr;
-                         TEXTCHAR:=to_integer(unsigned(DATAIN));                          
+                         TEXTCHAR:=to_integer(unsigned(DATAIN));
+                         REVF:= sFS='0' AND TEXTCHAR>127;                           
             WHEN 4 =>    ad_i<= std_logic_vector(to_unsigned(TEXTCHAR+(TXFontline*256),ad_i'length));            
-            WHEN 7 =>    PXLTEXTnx<=dout_o; 
+                         IF REVF THEN  ad_i<= std_logic_vector(to_unsigned(TEXTCHAR-128+(TXFontline*256),ad_i'length));   END IF;                        
+            WHEN 7 =>    PXLTEXTnx<=dout_o;
+                         IF REVF THEN  PXLTEXTnx<=dout_o XOR x"FF";  END IF;                        
                          PXLTEXT<=PXLTEXTNX;
+                         IF REVF THEN  PXLTEXT<=PXLTEXTNX XOR x"FF";  END IF;                        
             WHEN 8 =>    
                          PXLTEXT<=dout_o; 
+                         IF REVF THEN  PXLTEXT<=dout_o XOR x"FF";  END IF;
                          IF S80L='0' THEN
                            NBNEWCHAR(TEXTCHAR);                            
                          END IF;
@@ -299,9 +310,12 @@ SPRMEM: Gowin_SPRAM
             WHEN 1 TO 2 => MEMADDR<=VIDEOaddr;
             WHEN 3 =>   
                         MEMADDR<=VIDEOaddr;
-                        TEXTCHAR:=to_integer(unsigned(DATAIN));	--GET TEXT CHARACTER 	                                                                            
+                        TEXTCHAR:=to_integer(unsigned(DATAIN));	--GET TEXT CHARACTER 
+                        REVF:= sFS='0' AND TEXTCHAR>127;                         
             WHEN 4 =>  ad_i<= std_logic_vector(to_unsigned(TEXTCHAR+(TXFontline*256),ad_i'length));
+                       IF REVF THEN  ad_i<= std_logic_vector(to_unsigned(TEXTCHAR-128+(TXFontline*256),ad_i'length));   END IF;                        
             WHEN 6 =>  PXLTEXTnx<=dout_o;
+                       IF REVF THEN  PXLTEXTnx<=dout_o XOR x"FF";  END IF;
             WHEN 7 =>  IF HORZPXL=1 THEN  --7 OR 15 
                             PXLTEXT<=PXLTEXTnx;           
                         END IF;
@@ -314,8 +328,8 @@ SPRMEM: Gowin_SPRAM
         END IF;
 
         MEMADDR<= VIDEOaddr;
-        NXTPXL:=PXLTEXT(7-LETCOL);
-    
+        NXTPXL:=PXLTEXT(7-LETCOL);        
+
     END PROCEDURE;
     
     PROCEDURE DONBGRAPH  IS
@@ -346,13 +360,8 @@ SPRMEM: Gowin_SPRAM
 
 
           IF S3240='0' AND NOT GR1STLN  THEN  --ONLY ONCE HERE FOR WIDE TO REPEAT 1ST LINE
-            GR1STLN:=TRUE;
-            IF S80L='0' THEN
-              GRSTLN:=VIDEOaddr-3;
-            ELSE 
-             GRSTLN:=VIDEOaddr-2;
-            END IF;
-           -- BTCNT1:=3;
+            GR1STLN:=TRUE;            
+            GRSTLN:=VIDEOaddr-3;            
           END IF;
           
                 
