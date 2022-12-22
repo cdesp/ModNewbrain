@@ -11,26 +11,26 @@
   <PnR Version>: V1.9.8.06
   <Part Number>: GW1NR-LV9QN88PC6/I5
   <Device>: GW1NR-9C
-  <Created Time>:Thu Nov 17 19:23:09 2022
+  <Created Time>:Thu Dec 22 16:58:13 2022
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.016s, Elapsed time = 0h 0m 0.016s
-    Placement Phase 1: CPU time = 0h 0m 0.072s, Elapsed time = 0h 0m 0.072s
+    Placement Phase 0: CPU time = 0h 0m 0.015s, Elapsed time = 0h 0m 0.015s
+    Placement Phase 1: CPU time = 0h 0m 0.071s, Elapsed time = 0h 0m 0.07s
     Placement Phase 2: CPU time = 0h 0m 0.006s, Elapsed time = 0h 0m 0.007s
-    Placement Phase 3: CPU time = 0h 0m 0.806s, Elapsed time = 0h 0m 0.805s
-    Total Placement: CPU time = 0h 0m 0.9s, Elapsed time = 0h 0m 0.9s
+    Placement Phase 3: CPU time = 0h 0m 0.706s, Elapsed time = 0h 0m 0.705s
+    Total Placement: CPU time = 0h 0m 0.798s, Elapsed time = 0h 0m 0.797s
  Running routing:
     Routing Phase 0: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Routing Phase 1: CPU time = 0h 0m 0.118s, Elapsed time = 0h 0m 0.117s
-    Routing Phase 2: CPU time = 0h 0m 0.13s, Elapsed time = 0h 0m 0.13s
-    Total Routing: CPU time = 0h 0m 0.248s, Elapsed time = 0h 0m 0.247s
+    Routing Phase 1: CPU time = 0h 0m 0.113s, Elapsed time = 0h 0m 0.113s
+    Routing Phase 2: CPU time = 0h 0m 0.126s, Elapsed time = 0h 0m 0.126s
+    Total Routing: CPU time = 0h 0m 0.239s, Elapsed time = 0h 0m 0.239s
  Generate output files:
-    CPU time = 0h 0m 0.831s, Elapsed time = 0h 0m 0.833s
+    CPU time = 0h 0m 0.789s, Elapsed time = 0h 0m 0.789s
 
- Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 173MB
+ Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 170MB
 
 
 3. Resource Usage Summary
@@ -38,15 +38,15 @@
   ----------------------------------------------------------
   Resources                   | Usage
   ----------------------------------------------------------
-  Logic                       | 195/8640  2%
-    --LUT,ALU,ROM16           | 195(131 LUT, 64 ALU, 0 ROM16)
+  Logic                       | 193/8640  2%
+    --LUT,ALU,ROM16           | 193(129 LUT, 64 ALU, 0 ROM16)
     --SSRAM(RAM16)            | 0
   Register                    | 150/6693  2%
     --Logic Register as Latch | 1/6480  1%
     --Logic Register as FF    | 142/6480  2%
     --I/O Register as Latch   | 7/213  3%
     --I/O Register as FF      | 0/213  0%
-  CLS                         | 150/4320  3%
+  CLS                         | 147/4320  3%
   I/O Port                    | 43
   I/O Buf                     | 42
     --Input Buf               | 16
@@ -98,17 +98,17 @@
   -------------------------------------------
   Signal         | Global Clock   | Location
   -------------------------------------------
-  nSetBANK0      | PRIMARY        |  BR BL
-  nSetBANK1      | PRIMARY        |  BR BL
-  TSTOUT3_d      | PRIMARY        |  BR BL
   nSetBANK3      | PRIMARY        |  BR BL
-  nSetBANK4      | PRIMARY        |  BR BL
-  nSetBANK5      | PRIMARY        |  BR BL
+  TSTOUT3_d      | PRIMARY        |  BR
+  nSetBANK1      | PRIMARY        |  BR BL
+  nSetBANK0      | PRIMARY        |  BR
+  nSetBANK7      | PRIMARY        |  BR
   nSetBANK6      | PRIMARY        |  BR BL
-  nSetBANK7      | PRIMARY        |  BR BL
+  nSetBANK5      | PRIMARY        |  BR
+  nSetBANK4      | PRIMARY        |  BR BL
   nRESET_d       | SECONDARY      |  -
   n150_3         | SECONDARY      |  -
-  n600_3         | SECONDARY      |  -
+  n601_3         | SECONDARY      |  -
   cpuclkO_d      | SECONDARY      |  -
   tmp_3          | SECONDARY      |  -
   tmp_3_0        | SECONDARY      |  -

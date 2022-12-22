@@ -4,6 +4,7 @@
                 GLOBAL SG2IO
 
                 WMKBUFF EQU 037EFH
+                ZTTCAPS EQU $2FE7 
 
 
 ;A=DRIVER NUMBER
@@ -31,6 +32,19 @@ SG2IO:		EQU $
 ;COPIES THE FNAME ON HL AND BC THE FILENAME CHAR COUNT TO THE BUFFER
 CPYFNAME:       LD DE,STRGBUFF
                 LDIR
+                RET
+;MAKES A ZT STRING IN CAPS
+;HL THE STRING
+;HL PRESERVED
+MKCAPS:         PUSH HL
+MC_NXT:         LD A,(HL)
+                OR A
+                JR Z,MC_EXIT
+                DEFW ZTTCAPS
+                LD (HL),A
+                INC HL
+                JR MC_NXT
+MC_EXIT:        POP HL
                 RET
 
 ;STRUCT FOR FILE OPEN
@@ -99,13 +113,15 @@ SG2OPN:         PUSH HL
                 LDIR                                                            ;TRANSFER THE FNAME TO OUR STRUCT        
                 XOR A
                 LD (DE),A                                                       ;NULL TERMINATED STRING
-                POP HL                                                          ;START OF FNAME
+                POP HL                                                          ;START OF FNAME                
+                CALL MKCAPS                                                     ;make hl filename caps  
                 LD A,(IX)
                 CP 0
                 JR NZ,SG2EX                                                      ;IF FILE OPEN OUT EXIT
                 ;TEST IF FILE EXISTS
                 LD BC,0
                 INC DE
+                CALL STRG_OPENCDIR	;OPEN UP TO CURRENT DIR		
                 CALL STRG_LOADFILE
                 LD A,ERROPF                                                     ;ERROR NO IF FILE ERROR
                 RET C
@@ -203,6 +219,7 @@ RDFMFILE:       PUSH HL                                                         
                 PUSH DE                                                         ;BC THE FILE OFFSET TO READ FROM
                                                                                 ;DE THE DEST BUFFER
                                                                                 ;HL THE FILENAME
+                CALL STRG_OPENCDIR	;OPEN UP TO CURRENT DIR                                                                                
                 CALL STRG_READBUFR                                              ;READ 500 BYTES FROM FILE TO BUFFER BC= BYTES READ
                 POP DE                                                          ;THE BUFFER TO READ THE BYTE
                 LD A,ERRRDF                                                     ;ERROR CODE CAN'T READ FROM FILE
@@ -297,6 +314,7 @@ SG2OTP:         PUSH IX
                 EX DE,HL
                 ;CALL PRINTDBG
                 ;DE THE BUFFER
+                CALL STRG_OPENCDIR	;OPEN UP TO CURRENT DIR
                 CALL STRG_WRITEBUFR                             ;WRITES 500 BYTES FROM BUFFER DE TO THE END OF THE FILE
                 LD A,ERROPF
                 JR C,SO_ERROUT

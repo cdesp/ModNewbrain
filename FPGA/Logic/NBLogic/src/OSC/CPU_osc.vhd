@@ -31,7 +31,7 @@ architecture Behavioral of CPUOSC is
 begin
     osc_inst: OSC
         generic map (
-            FREQ_DIV => 20,       --13 GIVES 20 MHZ
+            FREQ_DIV => 18,       --13 GIVES 20MHZ -- 20 = 13MHZ -- 18 =15MHZ
             DEVICE => "GW1NR-9"
         )
         port map (

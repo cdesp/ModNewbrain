@@ -111,6 +111,7 @@ Signal NBEN:std_logic:='1';                       --
 signal COPcount : std_logic_vector(4 DOWNTO 0);      -- counter to receive bytes for cop (lcd)
 
 
+
 Signal KB_Stop:std_logic:='0';                      --STOP KEY PRESSED FROM KEYB
 Signal KBint:std_logic:='1';                      --
 signal KBcount : std_logic_vector(2 DOWNTO 0);      -- counter to check the keyboard
@@ -179,7 +180,7 @@ CLK20: Clock_Divider
     port map (
         clk => cpu_clk,
         reset => '1',
-        FREQCNTR => 100000,     --200000 FOR 20MHZ MAIN CLOCK 20MS
+        FREQCNTR => 146000,     --200000 FOR 20MHZ MAIN CLOCK 20MS
         clock_out => NB20_clk
     );
 
@@ -187,7 +188,7 @@ CLK13: Clock_Divider
     port map (
         clk => cpu_clk,
         reset => '1',
-        FREQCNTR => 65000,     --130000 FOR 20MHZ MAIN CLOCK 13MS
+        FREQCNTR => 95000,     --130000 FOR 20MHZ MAIN CLOCK 13MS
         clock_out => NB13_clk
     );
 
@@ -225,6 +226,7 @@ NBMMU: MMU2
 
 	process (NB13_clk,CLRCOP)   --in from port 20=$14 clears cop int
 	begin
+                
       IF CLRCOP='0' THEN
           COPint<='1';
       ELSIF CLRKBD='0' THEN
@@ -246,8 +248,9 @@ BEGIN
        INTEN <='1';
        NBEN<='1'; --NB IS ENABLED FALSE       
   ELSIF rising_edge(cpu_clk) then
-    IF nIORQin='0' and nWRin='0' AND ADDRin=x"E0"  THEN     --OUT E0,0 TO ENABLE INTERRUPT SERVICE
-       INTEN <='0';
+    IF nIORQin='0' and nWRin='0' AND ADDRin=x"E0"  THEN     --OUT E0,00b TO ENABLE INTERRUPT SERVICE & SET NBEN
+       INTEN <=DATAIN(0);
+       NBEN <= DATAIN(1);
     END IF;
 
    IF nIORQin='1' THEN
@@ -266,7 +269,7 @@ BEGIN
 
    IF nIORQin='0' and nWRin='0'  AND  ADDRin=x"07" THEN  --WHEN OUT 7 ENREG
      NBEN<='0';
-    END IF;
+   END IF;
   end if;     --RISING
 
    
@@ -322,6 +325,7 @@ DATAin<=DATAio;
 
 
     
+  
 	  --out 6 cop control
     COPcount<= "00000" when nIORQin='0' and nWRin='0' and  (ADDRin=x"06") AND COPCMD/=x"A0" AND COPCMD/=x"B0"
             ELSE COPcount+1 WHEN nIORQin='0' and nWRin='0' and  (ADDRin=x"06") and (COPCMD=x"A0" OR COPCMD=x"B0")
@@ -349,7 +353,7 @@ DATAin<=DATAio;
 --BRKOK	EQU 3	;IF RES ALLOWS BREAK
 --TIMER0	EQU 0
 --CBRK	EQU 1	;BREAK KEY BIT
-   
+  
    DATAout <= 
 			 COPCTL2 WHEN nIORQin='0' and nRDin='0'  AND  ADDRin=x"06"
 	  --ELSE mydata WHEN IRQ='0' AND RDin='0' AND ADDRin=KBPORT -- from ps/2 data	
@@ -395,11 +399,11 @@ dvI2Cout <=i2cce; --to i2c Devices --no more pins avail
 --TEST SIGNALS
  BNUM <= A15 & A14 & A13;
    --TSTOUT <='0' WHEN COPint='0' AND FRMINT='0' ELSE '1';
-    TSTOUT <= '0' WHEN nIORQin='0' and nWRin='0' AND  ADDRin=x"09" ELSE '1';
+    --TSTOUT <= '0' WHEN nIORQin='0' and nWRin='0' AND  ADDRin=x"09" ELSE '1';
    -- TSTOUT <= '0' WHEN nIORQin='0'  AND  (ADDRin=x"06" OR ADDRin=x"14" )  ELSE '1';--'0' WHEN nIORQin='0' AND ( ADDRin=x"14" OR ADDRin=x"04"  ) ELSE '1' ;--OR ADDRin=x"07")   ELSE '1';  
                 --'0' WHEN nMREQin='0' AND A15='1'  ELSE '1';
    -- TSTOUT <= '0' WHEN A15='1' AND NMREQIN='0' ELSE '1';
-    
+    TSTOUT <= NB13_clk;
     --TSTOUT <= '1'; 
     TSTVLT <= '1';
     --TSTOUT2 <= nIORQin;
