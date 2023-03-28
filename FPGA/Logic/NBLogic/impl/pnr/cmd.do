@@ -6,7 +6,10 @@
 -bit
 -tr
 -ph
--warning_all
 -timing
+-ireg_not_in_iob
+-oreg_not_in_iob
+-ioreg_not_in_iob
 -cst_error
--no_cst_warning
+-place_option 1
+-route_option 2

@@ -11,26 +11,26 @@
   <PnR Version>: V1.9.8.06
   <Part Number>: GW1NR-LV9QN88PC6/I5
   <Device>: GW1NR-9C
-  <Created Time>:Thu Dec 22 16:58:13 2022
+  <Created Time>:Tue Jan 17 17:47:07 2023
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.015s, Elapsed time = 0h 0m 0.015s
-    Placement Phase 1: CPU time = 0h 0m 0.071s, Elapsed time = 0h 0m 0.07s
-    Placement Phase 2: CPU time = 0h 0m 0.006s, Elapsed time = 0h 0m 0.007s
-    Placement Phase 3: CPU time = 0h 0m 0.706s, Elapsed time = 0h 0m 0.705s
-    Total Placement: CPU time = 0h 0m 0.798s, Elapsed time = 0h 0m 0.797s
+    Placement Phase 0: CPU time = 0h 0m 0.015s, Elapsed time = 0h 0m 0.016s
+    Placement Phase 1: CPU time = 0h 0m 0.065s, Elapsed time = 0h 0m 0.065s
+    Placement Phase 2: CPU time = 0h 0m 0.008s, Elapsed time = 0h 0m 0.007s
+    Placement Phase 3: CPU time = 0h 0m 0.791s, Elapsed time = 0h 0m 0.792s
+    Total Placement: CPU time = 0h 0m 0.879s, Elapsed time = 0h 0m 0.88s
  Running routing:
     Routing Phase 0: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Routing Phase 1: CPU time = 0h 0m 0.113s, Elapsed time = 0h 0m 0.113s
-    Routing Phase 2: CPU time = 0h 0m 0.126s, Elapsed time = 0h 0m 0.126s
-    Total Routing: CPU time = 0h 0m 0.239s, Elapsed time = 0h 0m 0.239s
+    Routing Phase 1: CPU time = 0h 0m 0.111s, Elapsed time = 0h 0m 0.11s
+    Routing Phase 2: CPU time = 0h 0m 0.187s, Elapsed time = 0h 0m 0.188s
+    Total Routing: CPU time = 0h 0m 0.298s, Elapsed time = 0h 0m 0.298s
  Generate output files:
-    CPU time = 0h 0m 0.789s, Elapsed time = 0h 0m 0.789s
+    CPU time = 0h 0m 0.771s, Elapsed time = 0h 0m 0.772s
 
- Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 170MB
+ Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 217MB
 
 
 3. Resource Usage Summary
@@ -42,11 +42,11 @@
     --LUT,ALU,ROM16           | 193(129 LUT, 64 ALU, 0 ROM16)
     --SSRAM(RAM16)            | 0
   Register                    | 150/6693  2%
-    --Logic Register as Latch | 1/6480  1%
+    --Logic Register as Latch | 8/6480  1%
     --Logic Register as FF    | 142/6480  2%
-    --I/O Register as Latch   | 7/213  3%
+    --I/O Register as Latch   | 0/213  0%
     --I/O Register as FF      | 0/213  0%
-  CLS                         | 147/4320  3%
+  CLS                         | 148/4320  3%
   I/O Port                    | 43
   I/O Buf                     | 42
     --Input Buf               | 16
@@ -98,14 +98,14 @@
   -------------------------------------------
   Signal         | Global Clock   | Location
   -------------------------------------------
-  nSetBANK3      | PRIMARY        |  BR BL
-  TSTOUT3_d      | PRIMARY        |  BR
-  nSetBANK1      | PRIMARY        |  BR BL
-  nSetBANK0      | PRIMARY        |  BR
-  nSetBANK7      | PRIMARY        |  BR
-  nSetBANK6      | PRIMARY        |  BR BL
-  nSetBANK5      | PRIMARY        |  BR
-  nSetBANK4      | PRIMARY        |  BR BL
+  nSetBANK3      | PRIMARY        |  BL
+  TSTOUT3_d      | PRIMARY        |  BL
+  nSetBANK1      | PRIMARY        |  BL
+  nSetBANK0      | PRIMARY        |  BL
+  nSetBANK7      | PRIMARY        |  BL
+  nSetBANK6      | PRIMARY        |  BL
+  nSetBANK5      | PRIMARY        |  BL
+  nSetBANK4      | PRIMARY        |  BL
   nRESET_d       | SECONDARY      |  -
   n150_3         | SECONDARY      |  -
   n601_3         | SECONDARY      |  -
@@ -136,7 +136,7 @@ nWRin      |           | 26/2          | Y          | in    | IOB8[B]  | LVCMOS3
 A13        |           | 36/2          | Y          | in    | IOB29[B] | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3       
 A14        |           | 37/2          | Y          | in    | IOB31[A] | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3       
 A15        |           | 38/2          | Y          | in    | IOB31[B] | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3       
-btn1_n     |           | 3/3           | Y          | in    | IOT2[A]  | LVCMOS18   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
+btn1_n     |           | 3/3           | Y          | in    | IOT2[A]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 cpuclkO    |           | 72/1          | Y          | out   | IOT39[B] | LVCMOS33   | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 nWRout     |           | 70/1          | Y          | out   | IOT41[B] | LVCMOS33   | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 nINTout    |           | 71/1          | Y          | out   | IOT41[A] | LVCMOS33   | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
@@ -155,14 +155,14 @@ dvI2Cout   |           | 81/3          | Y          | out   | IOT11[B] | LVCMOS3
 TSTVLT     |           | 86/3          | Y          | out   | IOT8[A]  | LVCMOS33   | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 TSTOUT2    |           | 85/3          | Y          | out   | IOT8[B]  | LVCMOS33   | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 TSTOUT3    |           | 84/3          | Y          | out   | IOT10[A] | LVCMOS33   | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[0]  |           | 51/1          | Y          | io    | IOR17[B] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[1]  |           | 53/1          | Y          | io    | IOR15[B] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[2]  |           | 54/1          | Y          | io    | IOR15[A] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[3]  |           | 55/1          | Y          | io    | IOR14[B] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[4]  |           | 56/1          | Y          | io    | IOR14[A] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[5]  |           | 57/1          | Y          | io    | IOR13[A] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[6]  |           | 68/1          | Y          | io    | IOT42[B] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-DATAio[7]  |           | 69/1          | Y          | io    | IOT42[A] | LVCMOS33   | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[0]  |           | 51/1          | Y          | io    | IOR17[B] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[1]  |           | 53/1          | Y          | io    | IOR15[B] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[2]  |           | 54/1          | Y          | io    | IOR15[A] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[3]  |           | 55/1          | Y          | io    | IOR14[B] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[4]  |           | 56/1          | Y          | io    | IOR14[A] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[5]  |           | 57/1          | Y          | io    | IOR13[A] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[6]  |           | 68/1          | Y          | io    | IOT42[B] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+DATAio[7]  |           | 69/1          | Y          | io    | IOT42[A] | LVCMOS33   | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 ==================================================================================================================================================================================================================
 
 
@@ -173,7 +173,7 @@ DATAio[7]  |           | 69/1          | Y          | io    | IOT42[A] | LVCMOS3
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Loc./Bank| Signal     | Dir.  | Site     | IO Type  | Drive | Pull Mode | PCI Clamp | Hysteresis | Open Drain | Slew Rate | Vref       | Single Resistor | Diff Resistor | Bank Vccio
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-3/3      | btn1_n     | in    | IOT2[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3  
+3/3      | btn1_n     | in    | IOT2[A]  | LVCMOS33 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3  
 88/3     | -          | in    | IOT5[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 87/3     | -          | in    | IOT6[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 86/3     | TSTVLT     | out   | IOT8[A]  | LVCMOS33 | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
@@ -192,8 +192,8 @@ Loc./Bank| Signal     | Dir.  | Site     | IO Type  | Drive | Pull Mode | PCI Cl
 72/1     | cpuclkO    | out   | IOT39[B] | LVCMOS33 | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 71/1     | nINTout    | out   | IOT41[A] | LVCMOS33 | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 70/1     | nWRout     | out   | IOT41[B] | LVCMOS33 | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
-69/1     | DATAio[7]  | io    | IOT42[A] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
-68/1     | DATAio[6]  | io    | IOT42[B] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+69/1     | DATAio[7]  | io    | IOT42[A] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+68/1     | DATAio[6]  | io    | IOT42[B] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 17/2     | -          | in    | IOB2[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 18/2     | -          | in    | IOB2[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
@@ -237,13 +237,13 @@ Loc./Bank| Signal     | Dir.  | Site     | IO Type  | Drive | Pull Mode | PCI Cl
 61/1     | -          | in    | IOR11[B] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 60/1     | -          | in    | IOR12[A] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 59/1     | -          | in    | IOR12[B] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
-57/1     | DATAio[5]  | io    | IOR13[A] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
-56/1     | DATAio[4]  | io    | IOR14[A] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
-55/1     | DATAio[3]  | io    | IOR14[B] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
-54/1     | DATAio[2]  | io    | IOR15[A] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
-53/1     | DATAio[1]  | io    | IOR15[B] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+57/1     | DATAio[5]  | io    | IOR13[A] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+56/1     | DATAio[4]  | io    | IOR14[A] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+55/1     | DATAio[3]  | io    | IOR14[B] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+54/1     | DATAio[2]  | io    | IOR15[A] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+53/1     | DATAio[1]  | io    | IOR15[B] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 52/1     | -          | in    | IOR17[A] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
-51/1     | DATAio[0]  | io    | IOR17[B] | LVCMOS33 | 8     | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+51/1     | DATAio[0]  | io    | IOR17[B] | LVCMOS33 | 24    | UP        | NA        | NONE       | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 50/1     | -          | in    | IOR22[B] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 49/1     | dvSTRout   | out   | IOR24[A] | LVCMOS33 | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 48/1     | nCE2       | out   | IOR24[B] | LVCMOS33 | 24    | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  

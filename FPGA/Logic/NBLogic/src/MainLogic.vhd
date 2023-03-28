@@ -291,7 +291,7 @@ EA13 <= sEA(13);
 EA14 <= sEA(14);
 EA15 <= sEA(15);
 --nWRout <= nWRin;
-nWRout <= nWRin WHEN NBEN='1' 
+nWRout <= nWRin WHEN NBEN='1'-- OR nMREQin='1'
         ELSE  '1' WHEN sEA(16 DOWNTO 13)=x"06" OR sEA(16 DOWNTO 13)=x"05" OR sEA(16 DOWNTO 13)=x"04" OR sEA(16 DOWNTO 13)=x"09"--CHECK IF PAGE IS ROM
         ELSE nWRin;
 nReset2 <= nReset;
@@ -394,7 +394,7 @@ DATAin<=DATAio;
     dvSTRout <= STRce; --STRce;
 
 dvKBout <= KBce; --to PS/2 Keyboard Device
-dvI2Cout <=i2cce; --to i2c Devices --no more pins avail
+dvI2Cout <=I2Cce; --to i2c Devices --no more pins avail
 
 --TEST SIGNALS
  BNUM <= A15 & A14 & A13;
