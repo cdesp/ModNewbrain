@@ -31,8 +31,8 @@ architecture Behavioral of CPUOSC is
 begin
     osc_inst: OSC
         generic map (
-            FREQ_DIV => 18,       --13 GIVES 20MHZ -- 20 = 13MHZ -- 18 =15MHZ
-            DEVICE => "GW1NR-9"
+            FREQ_DIV => 22,       --26=10 MHz --24= 11MHz  --22 = 12MHz -- 20 = 13MHZ -- 18 =14MHZ --13 = 20MHZ
+            DEVICE => "GW1NR-9"     --66=4 Mhz 32=8 Mhz
         )
         port map (
             OSCOUT => oscout

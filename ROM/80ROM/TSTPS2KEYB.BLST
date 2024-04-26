@@ -1,0 +1,32 @@
+325)   4000 DB 06       		 IN A,(6)	;
+326)   4002 17          		 RLA	;
+327)   4003 38 FB       		 JR C,TSTKB	;
+329)   4005 CD 22 40    		 CALL READCHAR2  ;GET THE KEY FROM USB KEYBOARD (HAS A TIMEOUT)	;GET THE KEY FROM USB KEYBOARD (HAS A TIMEOUT)
+330)   4008 28 F6       		 JR Z,TSTKB	;
+331)   400A 3A E5 00    		 LD A,(LASTKEY)	;
+332)   400D F5          		 PUSH AF	;
+333)   400E CD 22 8C    		 CALL RS_TX	;
+334)   4011 3E 20       		 LD A,32	;
+335)   4013 CD 22 8C    		 CALL RS_TX	;
+336)   4016 F1          		 POP AF  	;
+337)   4017 CD B6 80    		 CALL SOUTAS	;
+338)   401A 01 FF FF    		 LD BC, FFFFh	;
+339)   401D CD A3 9C    		 CALL $9CA3  ;pAUSE DELAY	;pAUSE DELAY
+340)   4020 18 DE       		 JR TSTKB	;
+342)   4022 CD 2B 40    		READCHAR2: CALL NGETKEY2	;
+343)   4025 B7          		 OR A ;	;
+344)   4026 C8          		 RET Z	;
+345)   4027 CD C6 98    		 CALL PS2LOK	;
+346)   402A C9          		 RET	;
+348)   402B F3          		NGETKEY2: DI	;
+349)   402C DB 48       		 IN A,(DEVKBI)	;
+350)   402E 4F          		 LD C,A	;
+351)   402F AF          		 XOR A	;
+352)   4030 D3 48       		 OUT (DEVKBI), A	;
+353)   4032 D3 48       		 OUT (DEVKBI), A	;
+354)   4034 D3 48       		 OUT (DEVKBI), A	;
+355)   4036 79          		 LD A,C	;
+356)   4037 FB          		 EI	;
+357)   4038 06 1E       		 LD B,30	;
+358)   403A 10 FC       		 DJNZ $FE	;
+360)   403C C9          		 RET	;

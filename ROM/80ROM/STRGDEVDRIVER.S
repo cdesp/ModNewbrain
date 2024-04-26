@@ -4,6 +4,7 @@
                 GLOBAL SG2IO
 
                 WMKBUFF EQU 037EFH
+                ZMKBUFF EQU 037E7H
                 ZTTCAPS EQU $2FE7 
 
 
@@ -56,7 +57,7 @@ MC_EXIT:        POP HL
 ;  25    5 BYTES READ ON BUFFER            2   BYTES
 ;  27    6 FILEBUF                       500   BYTES     
 
-                SPCNEED EQU 527
+                SPCNEED EQU 528 ;WAS 527
                 FILEOFS EQU 1
                 BUFFOFS EQU FILEOFS+2
                 FNAMEIX EQU BUFFOFS+2
@@ -81,7 +82,7 @@ SG2OPN:         PUSH HL
                 PUSH BC 							;OPENOUT
                 PUSH AF
 		LD BC, SPCNEED 							;NO OF BYTES REQUIRED
-		DEFW WMKBUFF 							;
+		DEFW ZMKBUFF 							;
                 POP DE
 		POP BC                                 
 		JR C, ERREXIT                
@@ -388,6 +389,7 @@ PRNHL:          PUSH HL
                 POP BC
                 POP HL
                 RET
+                
 PRINTDBG:       PUSH HL
                 PUSH BC
                 PUSH DE

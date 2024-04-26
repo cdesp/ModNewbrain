@@ -71,7 +71,7 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Version</td>
-<td>V1.9.8.06</td>
+<td>V1.9.8.11 Education</td>
 </tr>
 <tr>
 <td class="label">Part Number</td>
@@ -79,16 +79,20 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Device</td>
-<td>GW1NR-9C</td>
+<td>GW1NR-9</td>
+</tr>
+<tr>
+<td class="label">Device Version</td>
+<td>C</td>
 </tr>
 <tr>
 <td class="label">Created Time</td>
-<td>Tue Jan 17 17:47:07 2023
+<td>Sun Feb 25 17:09:41 2024
 </td>
 </tr>
 <tr>
 <td class="label">Legal Announcement</td>
-<td>Copyright (C)2014-2022 Gowin Semiconductor Corporation. All rights reserved.</td>
+<td>Copyright (C)2014-2023 Gowin Semiconductor Corporation. All rights reserved.</td>
 </tr>
 </table>
 <h1><a name="Summary">Power Summary</a></h1>
@@ -96,15 +100,15 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <table class="summary_table">
 <tr>
 <td class="label">Total Power (mW)</td>
-<td>14.824</td>
+<td>14.729</td>
 </tr>
 <tr>
 <td class="label">Quiescent Power (mW)</td>
-<td>9.605</td>
+<td>9.586</td>
 </tr>
 <tr>
 <td class="label">Dynamic Power (mW)</td>
-<td>5.219</td>
+<td>5.143</td>
 </tr>
 <tr>
 <td class="label">Psram Power (mW)</td>
@@ -115,7 +119,7 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <table class="summary_table">
 <tr>
 <td class="label">Junction Temperature</td>
-<td>25.318</td>
+<td>25.316</td>
 </tr>
 <tr>
 <td class="label">Theta JA</td>
@@ -123,7 +127,7 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Max Allowed Ambient Temperature</td>
-<td>84.682</td>
+<td>84.684</td>
 </tr>
 </table>
 <h2><a name="Configure_Info">Configure Information:</a></h2>
@@ -192,23 +196,30 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <tr>
 <td>VCC</td>
 <td>1.200</td>
-<td>0.787</td>
-<td>2.170</td>
-<td>3.548</td>
+<td>0.781</td>
+<td>2.192</td>
+<td>3.567</td>
 </tr>
 <tr>
 <td>VCCX</td>
 <td>2.500</td>
-<td>0.737</td>
+<td>0.729</td>
 <td>2.424</td>
-<td>7.903</td>
+<td>7.882</td>
 </tr>
 <tr>
-<td>VCCO33</td>
+<td>VCCIO18</td>
+<td>1.800</td>
+<td>0.014</td>
+<td>0.086</td>
+<td>0.180</td>
+</tr>
+<tr>
+<td>VCCIO33</td>
 <td>3.300</td>
-<td>0.737</td>
-<td>0.285</td>
-<td>3.373</td>
+<td>0.715</td>
+<td>0.224</td>
+<td>3.100</td>
 </tr>
 </table>
 <h1><a name="Detail">Power Details</a></h1>
@@ -222,15 +233,15 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td>Logic</td>
-<td>0.047</td>
+<td>0.043</td>
 <td>NA</td>
-<td>4.800</td>
+<td>4.680</td>
 </tr>
 <tr>
 <td>IO</td>
-<td>7.154
-<td>1.995
-<td>19.000
+<td>7.125
+<td>2.044
+<td>18.026
 </tr>
 </table>
 <h2><a name="By_Hierarchy">Power By Hierarchy:</a></h2>
@@ -242,20 +253,20 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td>NBLOGIC</td>
-<td>0.047</td>
-<td>0.047(0.041)</td>
+<td>0.043</td>
+<td>0.043(0.037)</td>
 <tr>
 <td>NBLOGIC/CLK13/</td>
-<td>0.011</td>
-<td>0.011(0.000)</td>
+<td>0.009</td>
+<td>0.009(0.000)</td>
 <tr>
 <td>NBLOGIC/CLK20/</td>
-<td>0.011</td>
-<td>0.011(0.000)</td>
+<td>0.009</td>
+<td>0.009(0.000)</td>
 <tr>
 <td>NBLOGIC/NBMMU/</td>
-<td>0.020</td>
-<td>0.020(0.004)</td>
+<td>0.019</td>
+<td>0.019(0.004)</td>
 <tr>
 <td>NBLOGIC/NBMMU/Bankreg0/</td>
 <td>0.001</td>
@@ -297,19 +308,9 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <th class="label">Total Dynamic Power(mW)</th>
 </tr>
 <tr>
-<td>n601_3</td>
-<td>50.000</td>
-<td>0.004</td>
-</tr>
-<tr>
-<td>tmp_3_0</td>
-<td>50.000</td>
-<td>0.003</td>
-</tr>
-<tr>
-<td>n150_3</td>
-<td>50.000</td>
-<td>0.002</td>
+<td>CLKCPU/osc_inst/OSCOUT.default_clk</td>
+<td>11.364</td>
+<td>0.017</td>
 </tr>
 <tr>
 <td>NO CLOCK DOMAIN</td>
@@ -317,39 +318,24 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <td>0.000</td>
 </tr>
 <tr>
-<td>CLKCPU/osc_inst/OSCOUT.default_clk</td>
-<td>13.889</td>
-<td>0.021</td>
+<td>tmp_3</td>
+<td>50.000</td>
+<td>0.002</td>
 </tr>
 <tr>
-<td>NBMMU/nSetBANK1</td>
+<td>tmp_3_0</td>
 <td>50.000</td>
 <td>0.003</td>
 </tr>
 <tr>
-<td>NBMMU/TSTOUT3_d</td>
-<td>50.000</td>
-<td>0.003</td>
-</tr>
-<tr>
-<td>NBMMU/nSetBANK0</td>
+<td>n185_3</td>
 <td>50.000</td>
 <td>0.004</td>
 </tr>
 <tr>
-<td>NBMMU/nSetBANK4</td>
+<td>NBMMU/nSetBANK2</td>
 <td>50.000</td>
-<td>0.004</td>
-</tr>
-<tr>
-<td>NBMMU/nSetBANK3</td>
-<td>50.000</td>
-<td>0.003</td>
-</tr>
-<tr>
-<td>NBMMU/nSetBANK6</td>
-<td>50.000</td>
-<td>0.003</td>
+<td>0.005</td>
 </tr>
 <tr>
 <td>NBMMU/nSetBANK5</td>
@@ -359,12 +345,37 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <tr>
 <td>NBMMU/nSetBANK7</td>
 <td>50.000</td>
-<td>0.003</td>
+<td>0.004</td>
 </tr>
 <tr>
-<td>tmp_3</td>
+<td>NBMMU/nSetBANK3</td>
 <td>50.000</td>
-<td>0.002</td>
+<td>0.004</td>
+</tr>
+<tr>
+<td>NBMMU/nSetBANK4</td>
+<td>50.000</td>
+<td>0.004</td>
+</tr>
+<tr>
+<td>NBMMU/nSetBANK6</td>
+<td>50.000</td>
+<td>0.004</td>
+</tr>
+<tr>
+<td>NBMMU/nSetBANK0</td>
+<td>50.000</td>
+<td>0.004</td>
+</tr>
+<tr>
+<td>NBMMU/nSetBANK1</td>
+<td>50.000</td>
+<td>0.004</td>
+</tr>
+<tr>
+<td>n642_3</td>
+<td>50.000</td>
+<td>0.003</td>
 </tr>
 </table>
 </div><!-- content -->

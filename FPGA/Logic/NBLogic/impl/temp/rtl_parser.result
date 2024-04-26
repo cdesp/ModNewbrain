@@ -9,7 +9,7 @@
   "SubInsts" : [
    {
     "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
-    "InstLine" : 174,
+    "InstLine" : 196,
     "InstName" : "CLKCPU",
     "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/OSC/cpu_osc.vhd",
     "ModuleLine" : 12,
@@ -17,7 +17,7 @@
    },
    {
     "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
-    "InstLine" : 179,
+    "InstLine" : 201,
     "InstName" : "CLK20",
     "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
     "ModuleLine" : 5,
@@ -25,7 +25,7 @@
    },
    {
     "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
-    "InstLine" : 187,
+    "InstLine" : 210,
     "InstName" : "CLK13",
     "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
     "ModuleLine" : 5,
@@ -33,7 +33,15 @@
    },
    {
     "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
-    "InstLine" : 195,
+    "InstLine" : 219,
+    "InstName" : "CLK25",
+    "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
+    "ModuleLine" : 5,
+    "ModuleName" : "Clock_Divider"
+   },
+   {
+    "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
+    "InstLine" : 228,
     "InstName" : "NBMMU",
     "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd",
     "ModuleLine" : 32,

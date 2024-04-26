@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="NBLOGIC" Register="20" Lut="44">
+<Module name="NBLOGIC" Register="20" Lut="49">
     <SubModule name="CLKCPU"/>
     <SubModule name="CLK20" Register="33" Alu="31" Lut="12"/>
     <SubModule name="CLK13" Register="33" Alu="31" Lut="12"/>
-    <SubModule name="NBMMU" Lut="64">
+    <SubModule name="NBMMU" Lut="56">
         <SubModule name="Bankreg0" Register="8"/>
         <SubModule name="Bankreg1" Register="8"/>
         <SubModule name="Bankreg2" Register="8"/>

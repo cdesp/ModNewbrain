@@ -8,6 +8,7 @@ use ieee.std_logic_unsigned.all;
 ENTITY NBLOGIC IS  
   PORT(
     cpuclkO :   OUT     STD_LOGIC;  --main cpu clock
+    sndclkO :   OUT     STD_LOGIC;  --sound clock up to 4MHz def 2.5MHz
     nRESET  :   IN     STD_LOGIC;  --main RESET
    -- nbclk20 :   OUT     STD_LOGIC;  --50hz   20ms clock
    -- nbclk13 :   OUT     STD_LOGIC;  --76,923 13ms cop clock
@@ -28,14 +29,16 @@ ENTITY NBLOGIC IS
     nCE0	:  OUT STD_LOGIC;
     nCE1	:  OUT STD_LOGIC;
     nCE2	:  OUT STD_LOGIC;
-    dvSERout:  OUT STD_LOGIC;
-    dvSTRout:  OUT STD_LOGIC;
-    DIROUT  :  OUT STD_LOGIC;
-    TSTOUT  :  OUT STD_LOGIC;
-    dvKBout	:  OUT STD_LOGIC;
-    dvI2Cout:  OUT STD_LOGIC;  
+    DIROUT  :  OUT STD_LOGIC;  --voltage chip direction select
+    dvSERout:  OUT STD_LOGIC;  --serial pin
+    dvSTRout:  OUT STD_LOGIC;  --storage pin
+    dvKBout	:  OUT STD_LOGIC;  --keyboard pin
+    dvKBin	:  IN STD_LOGIC;  --keyboard int input
+    dvI2Cout:  OUT STD_LOGIC;  --i2c pin
+    dvSNDout:  OUT STD_LOGIC;  --sound pin
     btn1_n  :   IN STD_LOGIC;  
     TSTVLT  :  OUT STD_LOGIC;  
+    TSTOUT  :  OUT STD_LOGIC;
     TSTOUT2 :  OUT STD_LOGIC;
     TSTOUT3 :  OUT STD_LOGIC
     
@@ -44,7 +47,8 @@ END NBLOGIC;
 
 ARCHITECTURE behavior OF NBLOGIC IS
 
-Constant KBPORT:std_logic_vector(8-1 downto 0) :=x"46";--70;
+--Constant KBPORT:std_logic_vector(8-1 downto 0) :=x"46";--70;
+Constant KBPORT:std_logic_vector(8-1 downto 0) :=x"48";--72;
 Constant i2cPORT:std_logic_vector(8-1 downto 0) :=x"70";--112;
 Constant i2cPORT1:std_logic_vector(8-1 downto 0) :=x"71";--113;
 Constant i2cPORT2:std_logic_vector(8-1 downto 0) :=x"72";--114;
@@ -67,12 +71,14 @@ Constant OLRS232PORT6:std_logic_vector(8-1 downto 0) :=x"26";--30;
 Constant OLRS232PORT7:std_logic_vector(8-1 downto 0) :=x"27";--31;
 Constant STORPORT:std_logic_vector(8-1 downto 0) :=x"30";--48;
 Constant STORPORT1:std_logic_vector(8-1 downto 0) :=x"31";--49;
+Constant SOUNDPORT:std_logic_vector(8-1 downto 0) :=x"38";--56;
 
 
 
 
 signal DATAin       :std_logic_vector(8-1 downto 0);
 SIGNAL DATAout      : std_logic_vector(8-1 downto 0); --byte to be read by the CPU in cmd
+SIGNAL snd_clk      : STD_LOGIC;
 SIGNAL cpu_clk      : STD_LOGIC;
 SIGNAL NB20_clk     : STD_LOGIC;
 SIGNAL NB13_clk     : STD_LOGIC;
@@ -96,6 +102,9 @@ SIGNAL RS232ce      :  STD_LOGIC:='1';  --RS232 Serial device
 SIGNAL RS232ce2     :  STD_LOGIC:='1';  --RS232 Serial device
 SIGNAL I2Cce        :  STD_LOGIC:='1';  --I2C devices
 SIGNAL STRce        :  STD_LOGIC:='1';  --Storage device
+SIGNAL SNDce        :  STD_LOGIC:='1';  --Storage device
+--Device Interrupts
+SIGNAL kbintIN      :  STD_LOGIC:='1';  --Keyboard Interrupt set when '0'
 
 
 --REGISTERS
@@ -122,13 +131,20 @@ SIGNAL CTS:std_logic:='0';
 SIGNAL RTS:std_logic:='0';
 SIGNAL TX:std_logic:='0';
 
+SIGNAL TS1:std_logic:='0';
+SIGNAL TS2:std_logic:='0';
+
 --			 CTS:in STD_LOGIC; -- v24 cts
 --			 RTS:out STD_LOGIC; -- v24 rts
 --			 RX:in STD_LOGIC; -- v24 rx
 --			 TX:out STD_LOGIC; -- v24 tx
 SIGNAL BNUM:std_logic_vector(3-1 downto 0);
 
-
+--component sound_osc
+--    port (
+--        oscout: out std_logic
+--    );
+--end component;
 
 component CPUOSC
     port (
@@ -171,6 +187,12 @@ end component;
 
 BEGIN
 
+--CLKSND: sound_osc
+--    port map (
+--        oscout => snd_clk
+--    );
+
+
 CLKCPU: CPUOSC
     port map (
         oscout => cpu_clk
@@ -180,17 +202,28 @@ CLK20: Clock_Divider
     port map (
         clk => cpu_clk,
         reset => '1',
-        FREQCNTR => 146000,     --200000 FOR 20MHZ MAIN CLOCK 20MS
-        clock_out => NB20_clk
-    );
+        FREQCNTR => 120000,     --200000 FOR 20MHZ MAIN CLOCK 20MS
+        clock_out => NB20_clk   --146000 for 10Mhz
+                                --120000   for 12Mhz
+    );                          --40000 for 4mhz,  80000 for 8mhz
 
 CLK13: Clock_Divider
     port map (
         clk => cpu_clk,
         reset => '1',
-        FREQCNTR => 95000,     --130000 FOR 20MHZ MAIN CLOCK 13MS
-        clock_out => NB13_clk
+        FREQCNTR => 78000,     --130000 FOR 20MHZ MAIN CLOCK 13MS
+        clock_out => NB13_clk  --95000 for 10MHz
+                               --78000 for 12Mhz
+    );                          --26000 for 4 mhz, 52000 for 8mhz
+
+CLK25: Clock_Divider
+    port map (
+        clk => cpu_clk,
+        reset => '1',
+        FREQCNTR => 3,     --3 for 2.5MHz when main clk is 15mhz
+        clock_out => snd_clk
     );
+
 
 NBMMU: MMU2
     port map (
@@ -209,8 +242,8 @@ NBMMU: MMU2
         nCE2		=> nsCE2,
         nCE3		=> nsCE3,
         nCE4		=> nsCE4,
-        MMUTST      => TSTOUT2,
-        MMUTST2     => TSTOUT3
+        MMUTST      => TS1,
+        MMUTST2     => TS2
     );
 
     process (NB20_clk,CLRFRM,FRMinton) -- in out on port 6 clears clock int
@@ -263,7 +296,7 @@ BEGIN
    END IF;
 
    CLRKBDnxt <= '1';
-   IF nIORQin='0' and nRDin='0' AND  ADDRin=x"06" THEN
+   IF nIORQin='0' and nRDin='0' AND  ADDRin=x"06" THEN -- in 6 clrkbd
       CLRKBDnxt<='0';
    END IF;
 
@@ -280,6 +313,7 @@ BEGIN
 END PROCESS;
 
 cpuclkO <= cpu_clk;
+--sndclkO <= '1';--snd_clk; 
 --nbclk20 <= NB20_clk;
 --nbclk13 <= NB13_clk;
 --commIN <= '0' WHEN nIORQin='0' and nRDin='0' ELSE '1';      --cpu issues an in when 0
@@ -304,8 +338,8 @@ nINTout <= FRMint and COPINT WHEN INTEN='0' ELSE '1';
 --nINTout <= '1';
 
 DIROUT <= outputData;--'1'; '1'=INPUT DATA FOR 74LVC4245 DIRECTION
-outputData <= '0' WHEN nIORQin='0' and nRDin='0' AND (ADDRin=x"06" OR ADDRin=x"14" OR ADDRin=KBPORT OR ADDRin=x"03" OR ADDRin=x"16") -- WE GIVE DATA on ports 6,20,22
-	  ELSE '1';
+outputData <= '0' WHEN nIORQin='0' and nRDin='0' AND (ADDRin=x"06" OR ADDRin=x"14"  OR ADDRin=x"03" OR ADDRin=x"16") -- WE GIVE DATA on ports 6,20,22 ,72(KB),3
+	  ELSE '1';                                                                     --OR ADDRin=KBPORT
 DATAio<=DATAout when outputData='0' else (OTHERS=>'Z');
 DATAin<=DATAio; 
 
@@ -343,9 +377,19 @@ DATAin<=DATAio;
 
 	COPCTL<=DATAin WHEN nIORQin='0' and nWRin='0' and  (ADDRin=x"06") and COPCMD/=x"A0"
 		ELSE COPCTL;
-	COPCTL2<= 		  "00110"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBint='0' --3X AND COP80='0' --KEYB iNTERRUPT IN 6
-				ELSE  "00000"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBInt='1'  AND COPCMD=x"80"	 --0X  0 at bits 4-7 means regint IN 6
-				ELSE  "00000"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBInt='1'  AND COPCMD/=x"80"
+	--COPCTL2<= 		  "00110"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBint='0' --3X AND COP80='0' --KEYB iNTERRUPT IN 6
+	--			ELSE  "00000"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBInt='1'  AND COPCMD=x"80"	 --0X  0 at bits 4-7 means regint IN 6
+	--			ELSE  "00000"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBInt='1'  AND COPCMD/=x"80"
+	--			ELSE  "00000000";
+    
+    -- kbint is for rs232 keyboard input fires every several ms low enabled
+    -- kbintIN is the real keyboard input interrupt low enabled
+    -- BITS 4-6 SELECTS REGINT,CASSER,CASSIN,KBD INTERRUPT
+    -- WHEN BITS 4-6 IS 000=REGINT, 001=CASSERR, 010=CASSIN, 011=KBD, 100=CASSOUT
+	COPCTL2<= 		  "00111"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND kbintIN='1' --3X AND COP80='0' --KEYB iNTERRUPT IN 6 ==3X at bits 4-7 mean kbdint on IN 6
+                ELSE  "00110"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBint='0' --3X AND COP80='0' --KEYB iNTERRUPT IN 6 ==3X at bits 4-7 mean kbdint on IN 6  
+   			    ELSE  "00000"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBInt='1'  AND COPCMD=x"80"	 --0X  0 at bits 4-7 means regint IN 6
+				ELSE  "00000"&KB_Stop&"00" WHEN nIORQin='0' and nRDin='0' AND  ADDRin=x"06" AND KBInt='1'  AND COPCMD/=x"80" -- all others 1x 2x 4x are for cassette control
 				ELSE  "00000000";
 
 
@@ -384,17 +428,20 @@ DATAin<=DATAio;
     RS232ce2<='0' WHEN nIORQin='0' AND (ADDRin=OLRS232PORT or ADDRin=OLRS232PORT1 or ADDRin=OLRS232PORT2 or ADDRin=OLRS232PORT3
 									 or ADDRin=OLRS232PORT4 or ADDRin=OLRS232PORT5 or ADDRin=OLRS232PORT6 or ADDRin=OLRS232PORT7)
      ELSE '1';
-    KBce<='0' WHEN nIORQin='0' AND (ADDRin=KBPORT);
-    I2Cce<='0' WHEN nIORQin='0' AND (ADDRin=i2cPORT or ADDRin=i2cPORT1 or ADDRin=i2cPORT2 or ADDRin=i2cPORT3);
-    STRce<='0' WHEN nIORQin='0' AND (ADDRin=STORPORT or ADDRin=STORPORT1 )
-     ELSE '1';
-    
+    KBce<='0' WHEN nIORQin='0' AND (ADDRin=KBPORT) ELSE '1';
+  
+    I2Cce<='0' WHEN nIORQin='0' AND (ADDRin=i2cPORT or ADDRin=i2cPORT1 or ADDRin=i2cPORT2 or ADDRin=i2cPORT3) ELSE '1';
+    STRce<='0' WHEN nIORQin='0' AND (ADDRin=STORPORT or ADDRin=STORPORT1 ) ELSE '1';
+    SNDce<='0' WHEN nIORQin='0' AND (ADDRin=SOUNDPORT) ELSE '1';
   
     dvSERout <= RS232ce AND RS232ce2 ;--RS232ce --to RS232 Device
-    dvSTRout <= STRce; --STRce;
+    dvSTRout <= STRce; --to from storage device;
+    dvKBout  <= KBce; --to PS/2 Keyboard Device
+    dvI2Cout <= I2Cce; --to i2c Devices 
+    dvSNDout <= SNDce; --to sound device
+    --kbintIN <='0' when dvKBin='1' and copint='0' and frmint='0' else kbintIN; -- 1 means a key is available on COP
+    kbintIN <=  dvKBin ;--when copint='0' and frmint='0' else kbintIN; -- 1 means a key is available on COP
 
-dvKBout <= KBce; --to PS/2 Keyboard Device
-dvI2Cout <=I2Cce; --to i2c Devices --no more pins avail
 
 --TEST SIGNALS
  BNUM <= A15 & A14 & A13;
@@ -403,10 +450,16 @@ dvI2Cout <=I2Cce; --to i2c Devices --no more pins avail
    -- TSTOUT <= '0' WHEN nIORQin='0'  AND  (ADDRin=x"06" OR ADDRin=x"14" )  ELSE '1';--'0' WHEN nIORQin='0' AND ( ADDRin=x"14" OR ADDRin=x"04"  ) ELSE '1' ;--OR ADDRin=x"07")   ELSE '1';  
                 --'0' WHEN nMREQin='0' AND A15='1'  ELSE '1';
    -- TSTOUT <= '0' WHEN A15='1' AND NMREQIN='0' ELSE '1';
-    TSTOUT <= NB13_clk;
-    --TSTOUT <= '1'; 
-    TSTVLT <= '1';
-    --TSTOUT2 <= nIORQin;
-    --TSTOUT3 <= nRESET;
+    --TSTOUT <= KBce WHEN nRDin='0' ELSE '1'; -- ONLY FOR IN DVKEYB
+   
+    TSTVLT <= NB13_clk;
+    TSTOUT2 <= dvKBin;--not working on my board
+    
+    TSTOUT3 <= NB20_clk;
+    sndclkO <= '1';--KBce WHEN nRDin='0' ELSE '1'; -- ONLY FOR IN DVKEYB
+    --...
+    TSTOUT <= '0';--kbintIn; --not working on my board
+    --TSTOUT2 <= I2Cce;
+   -- TSTOUT3 <= nRESET;
 
 END behavior;

@@ -2,7 +2,7 @@ GowinSynthesis start
 Running parser ...
 Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd'
 Analyzing entity 'nblogic'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":8)
-Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":45)
+Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":48)
 Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\NBMMU.vhd'
 Analyzing entity 'regn'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\NBMMU.vhd":7)
 Analyzing architecture 'behavioral'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\NBMMU.vhd":14)
@@ -19,21 +19,19 @@ Processing 'CPUOSC(Behavioral)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\
 Processing 'Clock_Divider(bhv)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\clk50.vhd":5)
 Processing 'MMU2(behavioral)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\NBMMU.vhd":32)
 Processing 'regn(behavioral)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\NBMMU.vhd":7)
-WARN  (EX4749) : 'clrkbd' should be on the sensitivity list of the process("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":232)
-WARN  (EX4387) : Incomplete sensitivity list specified, assuming completeness("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":241)
-WARN  (EX4749) : 'nreset' should be on the sensitivity list of the process("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":247)
-WARN  (EX4387) : Incomplete sensitivity list specified, assuming completeness("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":280)
-WARN  (EX4160) : Latch inferred for net 'ENABLEREG[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":319)
-WARN  (EX4160) : Latch inferred for net 'COPcount[4]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":330)
-WARN  (EX4160) : Latch inferred for net 'COPCMD[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":334)
-WARN  (EX4160) : Latch inferred for net 'COPCTL[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":344)
-WARN  (EX4160) : Latch inferred for net 'DATAout[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":357)
-WARN  (EX4160) : Latch inferred for net 'KBce'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":387)
-WARN  (EX4160) : Latch inferred for net 'I2Cce'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":388)
+WARN  (EX4749) : 'clrkbd' should be on the sensitivity list of the process. Signal missing is added and assuming complete sensitivity list specified. RTL design and post-synthesis netlist simulations may differ as a result("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":265)
+WARN  (EX4387) : Incomplete sensitivity list specified, assuming completeness("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":274)
+WARN  (EX4749) : 'nreset' should be on the sensitivity list of the process. Signal missing is added and assuming complete sensitivity list specified. RTL design and post-synthesis netlist simulations may differ as a result("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":280)
+WARN  (EX4387) : Incomplete sensitivity list specified, assuming completeness("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":313)
+WARN  (EX4160) : Latch inferred for net 'ENABLEREG[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":353)
+WARN  (EX4160) : Latch inferred for net 'COPcount[4]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":364)
+WARN  (EX4160) : Latch inferred for net 'COPCMD[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":368)
+WARN  (EX4160) : Latch inferred for net 'COPCTL[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":378)
+WARN  (EX4160) : Latch inferred for net 'DATAout[7]'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":401)
 NOTE  (EX0101) : Current top module is "NBLOGIC"
 WARN  (EX0206) : Instance "osc_inst" 's parameter "DEVICE" value invalid("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\OSC\cpu_osc.vhd":32)
 [5%] Running netlist conversion ...
-WARN  (CV0016) : Input btn1_n is unused("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":37)
+WARN  (CV0016) : Input btn1_n is unused("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":39)
 Running device independent optimization ...
 [10%] Optimizing Phase 0 completed
 [15%] Optimizing Phase 1 completed
@@ -49,6 +47,7 @@ Running technical mapping ...
 [75%] Tech-Mapping Phase 2 completed
 [80%] Tech-Mapping Phase 3 completed
 [90%] Tech-Mapping Phase 4 completed
+WARN  (NL0002) : The module "Clock_Divider" instantiated to "CLK25" is swept in optimizing("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\MainLogic.vhd":219)
 [95%] Generate netlist file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\gwsynthesis\NBLogic.vg" completed
 [100%] Generate report file "G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\gwsynthesis\NBLogic_syn.rpt.html" completed
 GowinSynthesis finish
