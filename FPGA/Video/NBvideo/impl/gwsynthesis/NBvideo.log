@@ -4,9 +4,9 @@ Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\N
 Analyzing entity 'gowin_spram'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":12)
 Analyzing architecture 'behavioral'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":25)
 Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd'
-Analyzing entity 'vga_controller'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":64)
-Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":94)
-Processing 'vga_controller(behavior)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":64)
+Analyzing entity 'vga_controller'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":79)
+Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":109)
+Processing 'vga_controller(behavior)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":79)
 Processing 'Gowin_SPRAM(Behavioral)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":12)
 NOTE  (EX0101) : Current top module is "vga_controller"
 [5%] Running netlist conversion ...
