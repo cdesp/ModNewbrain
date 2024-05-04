@@ -9,7 +9,7 @@
     </FileList>
     <OptionList>
         <Option type="disable_insert_pad" value="0"/>
-        <Option type="dsp_balance" value="0"/>
+        <Option type="global_freq" value="50.000"/>
         <Option type="include_path" value="G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src"/>
         <Option type="looplimit" value="2000"/>
         <Option type="output_file" value="G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\impl\gwsynthesis\NBvideo.vg"/>

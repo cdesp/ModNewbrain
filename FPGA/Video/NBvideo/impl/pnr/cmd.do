@@ -6,6 +6,8 @@
 -bit
 -tr
 -ph
--warning_all
+-timing
 -cst_error
--no_cst_warning
+-correct_hold 1
+-route_maxfan 23
+-global_freq 50.000

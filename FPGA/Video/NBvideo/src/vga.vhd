@@ -28,21 +28,50 @@ USE ieee.numeric_std.all;
 --use ieee.math_real.all; 
 
 
-  
+--chip select: GW1N-1 FPGA Tang Nano (not 1K)  GW1N-LV1QN48C6/I5
 
 
 --640x480x60Hz 25,175 MHZ clock
+--polarity neg 
+--    h_pulse  : INTEGER := 96;    --horiztonal sync pulse width in pixels
+--    h_bp     : INTEGER := 48;    --horiztonal back porch width in pixels
+--    h_pixels : INTEGER := 640;   --horiztonal display width in pixels
+--    h_fp     : INTEGER := 16;    --horiztonal front porch width in pixels
+--    h_pol    : STD_LOGIC := '0';  --horizontal sync pulse polarity (1 = positive, 0 = negative)
+-- pol neg
+--    v_pulse  : INTEGER := 2;      --vertical sync pulse width in rows
+--    v_bp     : INTEGER := 33;--35;     --vertical back porch width in rows
+--    v_pixels : INTEGER := 480; --400  --vertical display width in rows
+--    v_fp     : INTEGER := 10;--12;      --vertical front porch width in rows
+--    v_pol    : STD_LOGIC := '0');--'1'); --vertical sync pulse polarity (1 = positive, 0 = negative)
+
+--VGA Signal 640 x 350 @ 70 Hz timing
+--  polarity positive
+--    h_pulse  : INTEGER := 96;    --horiztonal sync pulse width in pixels
+--    h_bp     : INTEGER := 48;    --horiztonal back porch width in pixels
+--    h_pixels : INTEGER := 640;   --horiztonal display width in pixels
+--    h_fp     : INTEGER := 16;    --horiztonal front porch width in pixels
+--    h_pol    : STD_LOGIC := '1';  --horizontal sync pulse polarity (1 = positive, 0 = negative)
+-- polairy negative
+--    v_pulse  : INTEGER := 2;      --vertical sync pulse width in rows
+--    v_bp     : INTEGER := 60;     --vertical back porch width in rows
+--    v_pixels : INTEGER := 350;   --vertical display width in rows
+--    v_fp     : INTEGER := 37;      --vertical front porch width in rows
+--   v_pol    : STD_LOGIC := '0'); --vertical sync pulse polarity (1 = positive, 0 = negative)
+
+
+
 ENTITY vga_controller IS
   GENERIC(
     h_pulse  : INTEGER := 96;    --horiztonal sync pulse width in pixels
     h_bp     : INTEGER := 48;    --horiztonal back porch width in pixels
     h_pixels : INTEGER := 640;   --horiztonal display width in pixels
     h_fp     : INTEGER := 16;    --horiztonal front porch width in pixels
-    h_pol    : STD_LOGIC := '0';  --horizontal sync pulse polarity (1 = positive, 0 = negative)
+    h_pol    : STD_LOGIC := '1';  --horizontal sync pulse polarity (1 = positive, 0 = negative)
     v_pulse  : INTEGER := 2;      --vertical sync pulse width in rows
-    v_bp     : INTEGER := 33;--35;     --vertical back porch width in rows
-    v_pixels : INTEGER := 480; --400  --vertical display width in rows
-    v_fp     : INTEGER := 10;--12;      --vertical front porch width in rows
+    v_bp     : INTEGER := 60;--33;--35;     --vertical back porch width in rows
+    v_pixels : INTEGER := 350; --400  --vertical display width in rows
+    v_fp     : INTEGER := 37;--12;      --vertical front porch width in rows
     v_pol    : STD_LOGIC := '0');--'1'); --vertical sync pulse polarity (1 = positive, 0 = negative)
   PORT(
     pixel_clk : IN   STD_LOGIC;  --pixel clock at frequency of VGA mode being used
@@ -52,7 +81,7 @@ ENTITY vga_controller IS
    -- n_blank   : OUT  STD_LOGIC;  --direct blacking output to DAC
   --  n_sync    : OUT  STD_LOGIC; --sync-on-green output to DAC
   	 rgbi	    :  OUT  STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');  --red,green,blue,intensity magnitude output to DAC
-     scrend	 :  OUT   STD_LOGIC;  -- '0' IF DISPLAY FINISHED
+     --scrend	 :  OUT   STD_LOGIC;  -- '0' IF DISPLAY FINISHED
      scrst    :  OUT STD_LOGIC;  -- '0' IF DISPLAY START
 	 --istext	 :  IN   STD_LOGIC;  -- '1' IF WE DISPLAY TEXT or graphics
 	 --islowres :  IN   STD_LOGIC;  -- '1' IF WE DISPLAY lowres or hires
@@ -65,6 +94,8 @@ END vga_controller;
 ARCHITECTURE behavior OF vga_controller IS
   CONSTANT h_period : INTEGER := h_pulse + h_bp + h_pixels + h_fp; --total number of pixel clocks in a row
   CONSTANT v_period : INTEGER := v_pulse + v_bp + v_pixels + v_fp; --total number of rows in column
+  CONSTANT v_real : INTEGER := 250; --real vertical lines
+  CONSTANT v_dbl : INTEGER := 1; --2 for doubling lines
 
 --SIGNAL txcolumn:INTEGER RANGE 0 TO 40-1 := 0; --TEXT COLUMN
 SIGNAL txfontline:INTEGER RANGE 0 TO 10-1 :=0; --WHICH LINE OF TEXT CHAR IS PRINTED
@@ -177,8 +208,8 @@ SPRMEM: Gowin_SPRAM
  PROCESS(Rpixel_clk)
     VARIABLE h_count : INTEGER RANGE 0 TO h_period - 1 := 0;  --horizontal counter (counts the columns)
     VARIABLE v_count : INTEGER RANGE 0 TO v_period - 1 := 0;  --vertical counter (counts the rows)
-    VARIABLE column    : INTEGER RANGE 0 TO 640- 1:=0;    --horizontal pixel coordinate
-    VARIABLE row       : INTEGER RANGE 0 TO 480- 1:=0;    --vertical pixel coordinate	 
+    VARIABLE column    : INTEGER RANGE 0 TO h_pixels- 1:=0;    --horizontal pixel coordinate
+    VARIABLE row       : INTEGER RANGE 0 TO v_pixels- 1:=0;    --vertical pixel coordinate	 
     VARIABLE LETCOL:INTEGER RANGE 0 TO 7 := 0;  --LETTER COLUMN    
     VARIABLE VIDEOaddr:INTEGER RANGE 0 TO 32767 :=0;
     VARIABLE GRSTLN: INTEGER RANGE 0 TO 32767:=0; --START OF EACH LINE ON GRAPHICS WE USE IT TO DBL THE VERT LINE
@@ -265,7 +296,7 @@ SPRMEM: Gowin_SPRAM
     VARIABLE CHRSZ:INTEGER RANGE 0 TO 10;
     VARIABLE CHRCOL:INTEGER RANGE 0 TO 15;   
     VARIABLE TXFontline:INTEGER RANGE 0 TO 255;   
-    VARIABLE TEXTline:INTEGER RANGE 0 TO 480;       
+    VARIABLE TEXTline:INTEGER RANGE 0 TO v_pixels;       --480
     BEGIN
 
         CHRCOL:=COLUMN MOD (HORZPXL*8);--0..7 OR 0..15
@@ -455,11 +486,11 @@ SPRMEM: Gowin_SPRAM
         EL:=64;
         IF s80L='1' THEN          
           HORZPXL := 1;
-          VERTPXL := 2;
+          VERTPXL := v_dbl; --1 for 350 vga else 2
           EL:=2*EL;  
         ELSE
           HORZPXL := 2; -- DOUBLE PIXELS
-          VERTPXL := 2;
+          VERTPXL := v_dbl; --1 for 350 vga else 2
         END IF;
 
 
@@ -751,7 +782,7 @@ END;
 
      -- ******** SCREEN DISPLAY **********
                     --or (v_count=v_period-1)
-     IF ((v_count<v_PIXELS) or (v_count=v_period-1)) AND tvena='1'  THEN 
+     IF ((v_count<v_real) or (v_count=v_period-1)) AND tvena='1'  THEN  --v-real was V_PIXELS
         donbscreen;               
      END IF; --SCREEN DISPLAY END
 

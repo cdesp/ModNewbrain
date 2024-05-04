@@ -4,14 +4,12 @@ Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\N
 Analyzing entity 'gowin_spram'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":12)
 Analyzing architecture 'behavioral'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":25)
 Analyzing VHDL file 'G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd'
-Analyzing entity 'vga_controller'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":35)
-Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":65)
-Processing 'vga_controller(behavior)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":35)
+Analyzing entity 'vga_controller'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":64)
+Analyzing architecture 'behavior'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":94)
+Processing 'vga_controller(behavior)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":64)
 Processing 'Gowin_SPRAM(Behavioral)'("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\gowin_sp\gowin_spRAM.vhd":12)
 NOTE  (EX0101) : Current top module is "vga_controller"
-WARN  (EX0211) : The output port "scrend" of module "vga_controller" has no driver("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":55)
 [5%] Running netlist conversion ...
-WARN  (CV0003) : Output "scrend" has undriven bits, assigning undriven bits to Z, simulation mismatch possible("G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Video\NBvideo\src\vga.vhd":55)
 Running device independent optimization ...
 [10%] Optimizing Phase 0 completed
 [15%] Optimizing Phase 1 completed

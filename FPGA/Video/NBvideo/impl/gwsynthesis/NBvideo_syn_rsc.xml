@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="vga_controller" Register="273" Alu="65" Lut="899">
-    <SubModule name="SPRMEM" Bsram="4"/>
+<Module name="vga_controller" Register="272" Alu="82" Lut="880" T_Register="272(272)" T_Alu="82(82)" T_Lut="880(880)" T_Bsram="4(0)">
+    <SubModule name="SPRMEM" Bsram="4" T_Bsram="4(4)"/>
 </Module>
