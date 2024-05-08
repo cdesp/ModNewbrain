@@ -492,11 +492,11 @@
 665)   E274 CB EE       		 SET READY,(HL)	;
 666)   E276 23          		 INC HL	;
 667)   E277 C9          		 RET	;
-670)   E278 CD 13 80    		 CALL $8013 ;RS_KEYRD      ;CHECK IF KEY AVAIL CDESP ADD 3 BYTES	;RS_KEYRD      ;CHECK IF KEY AVAIL CDESP ADD 3 BYTES
+670)   E278 CD 13 80    		 CALL $8013 ;CHKKEY     ;CHECK IF KEY AVAIL CDESP ADD 3 BYTES	;CHKKEY     ;CHECK IF KEY AVAIL CDESP ADD 3 BYTES
 671)   E27B 28 1B       		 JR Z,REGINT      ;NO KEY AVAL TREAT AS REGULAR INT CDESP ADD 2 BYTES	;NO KEY AVAL TREAT AS REGULAR INT CDESP ADD 2 BYTES
 676)   E27D 00          		 NOP	;
 677)   E27E CB F6       		 SET KDATA (HL)	;
-678)   E280 CD 04 80    		KBDLP CALL $8004 ;GTKEY ;CDESP CHANGE THIS FOR MY KEYBOARD SUPPORT A SHOULD HAVE THE KEY NB STYLE	;GTKEY ;CDESP CHANGE THIS FOR MY KEYBOARD SUPPORT A SHOULD HAVE THE KEY NB STYLE
+678)   E280 CD 04 80    		KBDLP: CALL $8004 ;GTKEY ;CDESP CHANGE THIS FOR MY KEYBOARD SUPPORT A SHOULD HAVE THE KEY NB STYLE	;GTKEY ;CDESP CHANGE THIS FOR MY KEYBOARD SUPPORT A SHOULD HAVE THE KEY NB STYLE
 679)   E283 00          		 NOP	;
 680)   E284 00          		 NOP	;
 681)   E285 00          		 NOP	;
@@ -510,7 +510,7 @@
 693)   E290 CB 5E       		 BIT BRKOK (HL)	;
 694)   E292 C8          		 RET Z	;
 695)   E293 CB B6       		 RES KDATA (HL)	;
-696)   E295 CB 9E       		PREND RES BRKOK (HL)	;
+696)   E295 CB 9E       		PREND: RES BRKOK (HL)	;
 697)   E297 C9          		 RET	;
 700)   E298 E6 07       		 AND 07H ;COPY BITS 0-2 (TIMER0,BATTLOW	;COPY BITS 0-2 (TIMER0,BATTLOW
 701)   E29A B6          		 OR (HL) ;BRK,RESP) TO COPST	;BRK,RESP) TO COPST
@@ -536,168 +536,166 @@
 721)   E2BE 20 FA       		 JR NZ SYNDLP	;
 722)   E2C0 CB 6F       		 BIT CLKINTBAR,A	;
 723)   E2C2 20 F6       		 JR NZ SYNDLP	;
-724)   E2C4 42          		 LD B,D	;
-725)   E2C5 ED A3       		OUTLP OUTI ;WRITE 1 BYTE EVERY 20 MUSECS	;WRITE 1 BYTE EVERY 20 MUSECS
-726)   E2C7 DD E5       		 PUSH IX	;
-727)   E2C9 DD E1       		 POP IX	;
-728)   E2CB 00          		 NOP	;
-729)   E2CC 00          		 NOP	;
-730)   E2CD 7E          		 LD A,(HL)	;
-731)   E2CE 7E          		 LD A,(HL)	;
-732)   E2CF 20 F4       		 JR NZ OUTLP	;
-733)   E2D1 06 04       		UCLACK LD B,4	;
-734)   E2D3 21 52 00    		 LD HL,CLACK	;
-735)   E2D6 34          		UCLKLP INC (HL)	;
-736)   E2D7 23          		 INC HL	;
-737)   E2D8 C0          		 RET NZ	;
-738)   E2D9 10 FB       		 DJNZ UCLKLP	;
-739)   E2DB C9          		 RET	;
-741)   E2DC CB 46       		PDN? BIT TIMER0,(HL)	;
-742)   E2DE CB 86       		 RES TIMER0,(HL)	;
-743)   E2E0 28 EF       		 JR Z UCLACK	;
-744)   E2E2 CB 66       		 BIT TIMEOUT,(HL)	;
-745)   E2E4 28 EB       		 JR Z UCLACK	;
-746)   E2E6 3E C0       		 LD A,PDNCOM	;
-747)   E2E8 ED 79       		 OUT (C),A	;
-748)   E2EA CB A6       		 RES TIMEOUT,(HL)	;
-749)   E2EC 2B          		 DEC HL	;
-750)   E2ED 36 A0       		 LD (HL),DISPCOM	;
-751)   E2EF 21 7B E1    		 LD HL POFF	;
-752)   E2F2 E5          		 PUSH HL	;
-753)   E2F3 ED 4D       		 RETI	;
-759)   E2F5 31 68 02    		NMIRST: LD SP,STACK	;
-760)   E2F8 CD 43 E1    		 CALL RESIRS	;
-761)   E2FB 21 0E C1    		 LD HL,BREADY	;
-762)   E2FE E5          		 PUSH HL	;
-763)   E2FF FB          		 EI	;
-764)   E300 ED 45       		 RETN	;
-768)   E302 E5          		RDKEY PUSH HL	;
-769)   E303 D5          		 PUSH DE	;
-770)   E304 C5          		 PUSH BC	;
-771)   E305 E7 38       		CSET DEFW ZGETKEY	;
-772)   E307 E7 3A       		 DEFW ZKLOOK	;
-773)   E309 30 05       		 JR NC CNSET	;
-774)   E30B 20 F8       		 JR NZ CSET	;
-775)   E30D 77          		 LD (HL) A	;
-776)   E30E 18 F5       		 JR CSET	;
-777)   E310 C1          		CNSET POP BC	;
-778)   E311 D1          		 POP DE	;
-779)   E312 E1          		 POP HL	;
-780)   E313 C9          		 RET	;
-784)   E314 21 07 FF    		FPID2: LD HL,CPID2	;
-785)   E317 C3 8B F5    		 JP FSTO	;
-787)   E31A 00          		 DEFB 0 ;filler	;filler
-798)   E31B 3A 23 00    		 LD A (BRKBUF)	;
-799)   E31E B7          		 OR A	;
-800)   E31F C0          		 RET NZ	;
-801)   E320 E5          		 PUSH HL	;
-802)   E321 21 3C 00    		 LD HL,COPST	;
-803)   E324 CB 56       		 BIT BRKKEY,(HL)	;
-804)   E326 CB 96       		 RES BRKKEY,(HL)	;
-805)   E328 E1          		 POP HL	;
-806)   E329 C8          		 RET Z	;
-807)   E32A AF          		 XOR A	;
-808)   E32B 37          		 SCF 	;
-809)   E32C C9          		 RET	;
-811)   E32D 21 60 FE    		STKTST LD HL -STKRAM	;
-812)   E330 39          		 ADD HL SP	;
-813)   E331 B7          		 OR A	;
-814)   E332 ED 42       		 SBC HL BC	;
-815)   E334 C9          		 RET	;
-824)   E335 2B          		 DEC HL	;
-825)   E336 0C          		 INC C	;
-826)   E337 23          		RDNSP2 INC HL	;
-827)   E338 0D          		 DEC C	;
-828)   E339 C8          		 RET Z	;
-829)   E33A CD 6D E3    		 CALL HLTTCAPS	;
-830)   E33D FE 20       		 CP ' '	;
-831)   E33F C0          		 RET NZ	;
-832)   E340 18 F5       		 JR RDNSP2	;
-836)   E342 C5          		SHLREG: PUSH BC	;
-837)   E343 06 06       		 LD B,6	;
-838)   E345 CB 16       		SHLLP RL (HL)	;
-839)   E347 2D          		 DEC L	;
-840)   E348 10 FB       		 DJNZ SHLLP	;
-841)   E34A C1          		 POP BC	;
-842)   E34B C9          		 RET	;
-846)   E34C 4C 32 34    		TPSTR DEFM 'L24'	;
-852)   E34F E5          		IOP1 PUSH HL	;
-853)   E350 21 24 00    		 LD HL ENREGMAP	;
-854)   E353 F3          		 DI	;
-855)   E354 CB DE       		 SET IOPOWER (HL)	;
-856)   E356 7E          		 LD A (HL)	;
-857)   E357 D3 07       		 OUT (ENREG) A	;
-858)   E359 FB          		 EI	;
-859)   E35A 23          		 INC HL ;point at use count	;point at use count
-860)   E35B 34          		 INC (HL)	;
-861)   E35C B7          		 OR A ;clears CY	;clears CY
-862)   E35D E1          		 POP HL	;
-863)   E35E C9          		 RET	;
-865)   E35F 21 25 00    		IOP2 LD HL IOPUC ;should preserve C-flag	;should preserve C-flag
-866)   E362 35          		 DEC (HL)	;
-867)   E363 C0          		 RET NZ	;
-868)   E364 2B          		 DEC HL ;point at ENREGMAP	;point at ENREGMAP
-869)   E365 F3          		 DI	;
-870)   E366 CB 9E       		 RES IOPOWER (HL)	;
-871)   E368 7E          		 LD A (HL)	;
-872)   E369 D3 07       		 OUT (ENREG) A	;
-873)   E36B FB          		 EI	;
-874)   E36C C9          		 RET	;
-879)   E36D 7E          		HLTTCAPS: LD A,(HL)	;
-880)   E36E FE 61       		TTCAPS CP 61H	;
-881)   E370 D8          		 RET C	;
-882)   E371 FE 7B       		 CP 7BH	;
-883)   E373 D0          		 RET NC	;
-884)   E374 D6 20       		 SUB 20H	;
-885)   E376 C9          		 RET	;
-887)   E377 FE 30       		RDIGIT CP 30H	;
-888)   E379 D8          		 RET C	;
-889)   E37A FE 3A       		 CP 3AH	;
-890)   E37C 3F          		 CCF	;
-891)   E37D D8          		 RET C	;
-892)   E37E D6 30       		 SUB 30H	;
-893)   E380 C9          		 RET	;
-900)   E381 D5          		 PUSH DE	;
-901)   E382 CD 8B E3    		 CALL RDINT	;
-902)   E385 3E 00       		 LD A,0	;
-903)   E387 9A          		 SBC A,D ;set CY if already set or	;set CY if already set or
-904)   E388 7B          		 LD A,E ;if ans>255	;if ans>255
-905)   E389 D1          		 POP DE	;
-906)   E38A C9          		 RET	;
-921)   E38B C5          		 PUSH BC	;
-922)   E38C E5          		 PUSH HL	;
-923)   E38D 11 00 00    		 LD DE,0	;
-924)   E390 43          		 LD B,E ;flag not yet found digit	;flag not yet found digit
-925)   E391 2B          		 DEC HL	;
-926)   E392 0C          		 INC C	;
-927)   E393 23          		RDILP: INC HL ;pt at nxt char	;pt at nxt char
-928)   E394 0D          		 DEC C	;
-929)   E395 37          		 SCF	;
-930)   E396 7E          		 LD A,(HL)	;
-931)   E397 C4 77 E3    		 CALL NZ RDIGIT ;if another char.	;if another char.
-932)   E39A 30 08       		 JR NC RDI1 ;if a digit	;if a digit
-933)   E39C 05          		 DEC B	;
-934)   E39D 20 17       		 JR NZ RDI2 ;if havn't found integer	;if havn't found integer
-935)   E39F F1          		 POP AF	;
-936)   E3A0 F1          		 POP AF ;restore B	;restore B
-937)   E3A1 47          		 LD B,A	;
-938)   E3A2 B7          		 OR A	;
-939)   E3A3 C9          		 RET	;
-941)   E3A4 06 01       		RDI1: LD B,1 ;flag digit found	;flag digit found
-942)   E3A6 E5          		 PUSH HL	;
-943)   E3A7 6F          		 LD L,A ;Multiply total so far by	;Multiply total so far by
-944)   E3A8 26 00       		 LD H,0 ;10 and add in A.	;10 and add in A.
-945)   E3AA 3E 0A       		 LD A,10	;
-946)   E3AC 19          		RDILP1: ADD HL,DE	;
-947)   E3AD 38 04       		 JR C RDI15 ;if overflow	;if overflow
-948)   E3AF 3D          		 DEC A	;
-949)   E3B0 20 FA       		 JR NZ RDILP1	;
-950)   E3B2 EB          		 EX DE,HL	;
-951)   E3B3 E1          		RDI15: POP HL	;
-952)   E3B4 30 DD       		 JR NC RDILP ;unless overflow	;unless overflow
-953)   E3B6 E1          		RDI2: POP HL ;error exit	;error exit
-954)   E3B7 C1          		 POP BC	;
-955)   E3B8 C9          		 RET	;
+724)   E2C4 3E 12       		 LD A,18  ;CDESP ADD SUPPORT FOR LCD 16X2 	;CDESP ADD SUPPORT FOR LCD 16X2
+725)   E2C6 92          		 SUB D	;
+726)   E2C7 20 08       		 JR NZ, UCLACK	;
+727)   E2C9 21 3E 00    		 LD HL,OUTBUFF 	;
+728)   E2CC CD 0D 80    		 CALL $800D ;NBSTLCD	;NBSTLCD
+763)   E2CF 00          		 NOP	;
+764)   E2D0 00          		 NOP	;
+767)   E2D1 06 04       		UCLACK LD B,4	;
+768)   E2D3 21 52 00    		 LD HL,CLACK	;
+769)   E2D6 34          		UCLKLP INC (HL)	;
+770)   E2D7 23          		 INC HL	;
+771)   E2D8 C0          		 RET NZ	;
+772)   E2D9 10 FB       		 DJNZ UCLKLP	;
+773)   E2DB C9          		 RET	;
+775)   E2DC CB 46       		PDN? BIT TIMER0,(HL)	;
+776)   E2DE CB 86       		 RES TIMER0,(HL)	;
+777)   E2E0 28 EF       		 JR Z UCLACK	;
+778)   E2E2 CB 66       		 BIT TIMEOUT,(HL)	;
+779)   E2E4 28 EB       		 JR Z UCLACK	;
+780)   E2E6 3E C0       		 LD A,PDNCOM	;
+781)   E2E8 ED 79       		 OUT (C),A	;
+782)   E2EA CB A6       		 RES TIMEOUT,(HL)	;
+783)   E2EC 2B          		 DEC HL	;
+784)   E2ED 36 A0       		 LD (HL),DISPCOM	;
+785)   E2EF 21 7B E1    		 LD HL POFF	;
+786)   E2F2 E5          		 PUSH HL	;
+787)   E2F3 ED 4D       		 RETI	;
+793)   E2F5 31 68 02    		NMIRST: LD SP,STACK	;
+794)   E2F8 CD 43 E1    		 CALL RESIRS	;
+795)   E2FB 21 0E C1    		 LD HL,BREADY	;
+796)   E2FE E5          		 PUSH HL	;
+797)   E2FF FB          		 EI	;
+798)   E300 ED 45       		 RETN	;
+802)   E302 E5          		RDKEY PUSH HL	;
+803)   E303 D5          		 PUSH DE	;
+804)   E304 C5          		 PUSH BC	;
+805)   E305 E7 38       		CSET DEFW ZGETKEY	;
+806)   E307 E7 3A       		 DEFW ZKLOOK	;
+807)   E309 30 05       		 JR NC CNSET	;
+808)   E30B 20 F8       		 JR NZ CSET	;
+809)   E30D 77          		 LD (HL) A	;
+810)   E30E 18 F5       		 JR CSET	;
+811)   E310 C1          		CNSET POP BC	;
+812)   E311 D1          		 POP DE	;
+813)   E312 E1          		 POP HL	;
+814)   E313 C9          		 RET	;
+818)   E314 21 07 FF    		FPID2: LD HL,CPID2	;
+819)   E317 C3 8B F5    		 JP FSTO	;
+821)   E31A 00          		 DEFB 0 ;filler	;filler
+832)   E31B 3A 23 00    		 LD A (BRKBUF)	;
+833)   E31E B7          		 OR A	;
+834)   E31F C0          		 RET NZ	;
+835)   E320 E5          		 PUSH HL	;
+836)   E321 21 3C 00    		 LD HL,COPST	;
+837)   E324 CB 56       		 BIT BRKKEY,(HL)	;
+838)   E326 CB 96       		 RES BRKKEY,(HL)	;
+839)   E328 E1          		 POP HL	;
+840)   E329 C8          		 RET Z	;
+841)   E32A AF          		 XOR A	;
+842)   E32B 37          		 SCF 	;
+843)   E32C C9          		 RET	;
+845)   E32D 21 60 FE    		STKTST LD HL -STKRAM	;
+846)   E330 39          		 ADD HL SP	;
+847)   E331 B7          		 OR A	;
+848)   E332 ED 42       		 SBC HL BC	;
+849)   E334 C9          		 RET	;
+858)   E335 2B          		 DEC HL	;
+859)   E336 0C          		 INC C	;
+860)   E337 23          		RDNSP2 INC HL	;
+861)   E338 0D          		 DEC C	;
+862)   E339 C8          		 RET Z	;
+863)   E33A CD 6D E3    		 CALL HLTTCAPS	;
+864)   E33D FE 20       		 CP ' '	;
+865)   E33F C0          		 RET NZ	;
+866)   E340 18 F5       		 JR RDNSP2	;
+870)   E342 C5          		SHLREG: PUSH BC	;
+871)   E343 06 06       		 LD B,6	;
+872)   E345 CB 16       		SHLLP RL (HL)	;
+873)   E347 2D          		 DEC L	;
+874)   E348 10 FB       		 DJNZ SHLLP	;
+875)   E34A C1          		 POP BC	;
+876)   E34B C9          		 RET	;
+880)   E34C 4C 32 34    		TPSTR DEFM 'L24'	;
+886)   E34F E5          		IOP1 PUSH HL	;
+887)   E350 21 24 00    		 LD HL ENREGMAP	;
+888)   E353 F3          		 DI	;
+889)   E354 CB DE       		 SET IOPOWER (HL)	;
+890)   E356 7E          		 LD A (HL)	;
+891)   E357 D3 07       		 OUT (ENREG) A	;
+892)   E359 FB          		 EI	;
+893)   E35A 23          		 INC HL ;point at use count	;point at use count
+894)   E35B 34          		 INC (HL)	;
+895)   E35C B7          		 OR A ;clears CY	;clears CY
+896)   E35D E1          		 POP HL	;
+897)   E35E C9          		 RET	;
+899)   E35F 21 25 00    		IOP2 LD HL IOPUC ;should preserve C-flag	;should preserve C-flag
+900)   E362 35          		 DEC (HL)	;
+901)   E363 C0          		 RET NZ	;
+902)   E364 2B          		 DEC HL ;point at ENREGMAP	;point at ENREGMAP
+903)   E365 F3          		 DI	;
+904)   E366 CB 9E       		 RES IOPOWER (HL)	;
+905)   E368 7E          		 LD A (HL)	;
+906)   E369 D3 07       		 OUT (ENREG) A	;
+907)   E36B FB          		 EI	;
+908)   E36C C9          		 RET	;
+913)   E36D 7E          		HLTTCAPS: LD A,(HL)	;
+914)   E36E FE 61       		TTCAPS CP 61H	;
+915)   E370 D8          		 RET C	;
+916)   E371 FE 7B       		 CP 7BH	;
+917)   E373 D0          		 RET NC	;
+918)   E374 D6 20       		 SUB 20H	;
+919)   E376 C9          		 RET	;
+921)   E377 FE 30       		RDIGIT CP 30H	;
+922)   E379 D8          		 RET C	;
+923)   E37A FE 3A       		 CP 3AH	;
+924)   E37C 3F          		 CCF	;
+925)   E37D D8          		 RET C	;
+926)   E37E D6 30       		 SUB 30H	;
+927)   E380 C9          		 RET	;
+934)   E381 D5          		 PUSH DE	;
+935)   E382 CD 8B E3    		 CALL RDINT	;
+936)   E385 3E 00       		 LD A,0	;
+937)   E387 9A          		 SBC A,D ;set CY if already set or	;set CY if already set or
+938)   E388 7B          		 LD A,E ;if ans>255	;if ans>255
+939)   E389 D1          		 POP DE	;
+940)   E38A C9          		 RET	;
+955)   E38B C5          		 PUSH BC	;
+956)   E38C E5          		 PUSH HL	;
+957)   E38D 11 00 00    		 LD DE,0	;
+958)   E390 43          		 LD B,E ;flag not yet found digit	;flag not yet found digit
+959)   E391 2B          		 DEC HL	;
+960)   E392 0C          		 INC C	;
+961)   E393 23          		RDILP: INC HL ;pt at nxt char	;pt at nxt char
+962)   E394 0D          		 DEC C	;
+963)   E395 37          		 SCF	;
+964)   E396 7E          		 LD A,(HL)	;
+965)   E397 C4 77 E3    		 CALL NZ RDIGIT ;if another char.	;if another char.
+966)   E39A 30 08       		 JR NC RDI1 ;if a digit	;if a digit
+967)   E39C 05          		 DEC B	;
+968)   E39D 20 17       		 JR NZ RDI2 ;if havn't found integer	;if havn't found integer
+969)   E39F F1          		 POP AF	;
+970)   E3A0 F1          		 POP AF ;restore B	;restore B
+971)   E3A1 47          		 LD B,A	;
+972)   E3A2 B7          		 OR A	;
+973)   E3A3 C9          		 RET	;
+975)   E3A4 06 01       		RDI1: LD B,1 ;flag digit found	;flag digit found
+976)   E3A6 E5          		 PUSH HL	;
+977)   E3A7 6F          		 LD L,A ;Multiply total so far by	;Multiply total so far by
+978)   E3A8 26 00       		 LD H,0 ;10 and add in A.	;10 and add in A.
+979)   E3AA 3E 0A       		 LD A,10	;
+980)   E3AC 19          		RDILP1: ADD HL,DE	;
+981)   E3AD 38 04       		 JR C RDI15 ;if overflow	;if overflow
+982)   E3AF 3D          		 DEC A	;
+983)   E3B0 20 FA       		 JR NZ RDILP1	;
+984)   E3B2 EB          		 EX DE,HL	;
+985)   E3B3 E1          		RDI15: POP HL	;
+986)   E3B4 30 DD       		 JR NC RDILP ;unless overflow	;unless overflow
+987)   E3B6 E1          		RDI2: POP HL ;error exit	;error exit
+988)   E3B7 C1          		 POP BC	;
+989)   E3B8 C9          		 RET	;
  59)   E3B9 AF          		 XOR A	;
  60)   E3BA 92          		 SUB D	;
  61)   E3BB 3E 79       		 LD A,WPTERR	;
