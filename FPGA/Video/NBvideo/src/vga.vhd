@@ -558,6 +558,10 @@ SPRMEM: Gowin_SPRAM
           PUTBACKPXL  ;
         END IF;
 
+       IF (h_count > h_real)   THEN --SET BLACK ON EXTRA PIXELS
+         PXLOUT <= "0000"; 
+       END IF;
+
 
     --   IF TEXTCHAR=0 THEN
      --    PXLOUT <= "0101";    
@@ -594,36 +598,36 @@ SPRMEM: Gowin_SPRAM
         MEMBUF<='1';
         MYSTEP:=MYSTEP+1;
         case MYSTEP is
-            when 1 =>  MEMADDR<= 92;      --SETUP ADDR REG                       
-            when 3 =>  TVRAM(7 DOWNTO  0) <=DATAIN;       --READ ADDR TO REGISTER
+            when 1  =>  MEMADDR<= 92;      --SETUP ADDR REG                       
+            when 4  =>  TVRAM(7 DOWNTO  0) <=DATAIN;       --READ ADDR TO REGISTER
 
-            when 4 =>  MEMADDR<= 93;
-            when 6 =>  TVRAM(15 DOWNTO  8) <=DATAIN;       --READ ADDR TO REGISTER
+            when 6  =>  MEMADDR<= 93;
+            when 10 =>  TVRAM(15 DOWNTO  8) <=DATAIN;       --READ ADDR TO REGISTER
 
-            when 7 =>  MEMADDR<= to_integer(unsigned(TVRAM));
-            when 9 =>  TVOFFS<= DATAIN;
+            when 14 =>  MEMADDR<= to_integer(unsigned(TVRAM));
+            when 17 =>  TVOFFS<= DATAIN;
 
          --   when 10 =>  MEMADDR<= to_integer(unsigned(TVRAM))+6;   --EL
           --  when 12 =>  TVEL<= DATAIN;   
                         
             
-            when 13 =>  MEMADDR<= to_integer(unsigned(TVRAM))+10;      --FRM
-            when 15 =>  TVFRM<= DATAIN;
+            when 20 =>  MEMADDR<= to_integer(unsigned(TVRAM))+10;      --FRM
+            when 24 =>  TVFRM<= DATAIN;
 
-            when 16 =>  MEMADDR<= to_integer(unsigned(TVRAM))+1;       --TVMODE
-            when 17 =>  sUCR  <= DATAIN(3); -- 0 = 10 lines , 1= 8 lines per char
+            when 28 =>  MEMADDR<= to_integer(unsigned(TVRAM))+1;       --TVMODE
+            when 32 =>  sUCR  <= DATAIN(3); -- 0 = 10 lines , 1= 8 lines per char
                        s80L  <= DATAIN(6); -- 0 = 40 chars 1 = 80 chars
                        s3240 <= DATAIN(2); -- 0 = 320 or 640 pxl, 1=256 or 512 pxl
                        sFS   <= DATAIN(1); -- 0 = 128 nrm chars and 128 rvse field chrs, 1= 256 chars
                        sRV   <= DATAIN(0); -- 0 = white on black , 1 = black on white
 
-            when 18 =>  MEMADDR<= to_integer(unsigned(TVRAM))+4;       --TVDEP
-            when 20 =>  TVDEP<= DATAIN;
+            when 36 =>  MEMADDR<= to_integer(unsigned(TVRAM))+4;       --TVDEP
+            when 40 =>  TVDEP<= DATAIN;
       
-            when 21 =>  MEMADDR<= 36;       --enregmap $24=36 for tv enabled
-            when 23 =>  tvena<= DATAIN(2);  --bit 2 is tv enabled or not
+            when 44 =>  MEMADDR<= 36;       --enregmap $24=36 for tv enabled
+            when 48 =>  tvena<= DATAIN(2);  --bit 2 is tv enabled or not
 
-            when 26 =>  NBVIDAD<= std_logic_vector(to_unsigned( to_integer(unsigned(TVRAM)) + to_integer(unsigned(TVOFFS)) + to_integer(unsigned(TVFRM))*EL + 5 , NBVIDAD'length ));
+            when 52 =>  NBVIDAD<= std_logic_vector(to_unsigned( to_integer(unsigned(TVRAM)) + to_integer(unsigned(TVOFFS)) + to_integer(unsigned(TVFRM))*EL + 5 , NBVIDAD'length ));
             WHEN OTHERS=> MEMBUF<='1';
             
          end case;    
@@ -688,7 +692,7 @@ END;
   BEGIN
     
     clk_i <= Rpixel_clk;  
-  
+      
 
    IF rising_edge(Rpixel_clk)  THEN
 
@@ -795,21 +799,25 @@ END;
        SETUPCHAR<=0;
       END IF;     
 
-
+    
      -- ******** SCREEN DISPLAY **********
                     --or (v_count=v_period-1)
+     PXLOUT <= "0000";
+
      IF ((v_count<v_real) or (v_count=v_period-1))  AND tvena='1'  THEN  --v-real was V_PIXELS
         donbscreen;               
      END IF; --SCREEN DISPLAY END
 
+
     END IF; --RISINGEDGE CLOCK
+
 
     scrst <= '0';
   END PROCESS;
 
   Rpixel_clk<=pixel_clk;
   addrout <= MEMBUF & std_logic_vector(to_unsigned(memaddr, addrout'length -1 ));
-  RGBI <= "0000" WHEN DISp_ena = '0' ELSE
+  RGBI <= "0000" WHEN (DISp_ena = '0')  ELSE
             PXLOUT;
 			  
 END behavior;

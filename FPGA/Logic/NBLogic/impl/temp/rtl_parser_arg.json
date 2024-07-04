@@ -1,5 +1,11 @@
 {
+ "Device" : "GW1NR-9C",
  "Files" : [
+  {
+   "Library" : "work",
+   "Path" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
+   "Type" : "vhdl"
+  },
   {
    "Library" : "work",
    "Path" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd",
@@ -13,11 +19,6 @@
   {
    "Library" : "work",
    "Path" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/OSC/cpu_osc.vhd",
-   "Type" : "vhdl"
-  },
-  {
-   "Library" : "work",
-   "Path" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/clk50.vhd",
    "Type" : "vhdl"
   }
  ],

@@ -122,8 +122,10 @@ SG2OPN:         PUSH HL
                 ;TEST IF FILE EXISTS
                 LD BC,0
                 INC DE
+                DI
                 CALL STRG_OPENCDIR	;OPEN UP TO CURRENT DIR		
                 CALL STRG_LOADFILE
+                EI
                 LD A,ERROPF                                                     ;ERROR NO IF FILE ERROR
                 RET C
 SG2EX:          XOR A
@@ -220,8 +222,10 @@ RDFMFILE:       PUSH HL                                                         
                 PUSH DE                                                         ;BC THE FILE OFFSET TO READ FROM
                                                                                 ;DE THE DEST BUFFER
                                                                                 ;HL THE FILENAME
+                DI                                                                
                 CALL STRG_OPENCDIR	;OPEN UP TO CURRENT DIR                                                                                
                 CALL STRG_READBUFR                                              ;READ 500 BYTES FROM FILE TO BUFFER BC= BYTES READ
+                EI
                 POP DE                                                          ;THE BUFFER TO READ THE BYTE
                 LD A,ERRRDF                                                     ;ERROR CODE CAN'T READ FROM FILE
                 JP C,ERREXIT
