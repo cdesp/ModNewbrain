@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="NBLOGIC" Register="20" Lut="49">
+<Module name="NBLOGIC" Register="38" Lut="67" T_Register="201(38)" T_Alu="93(0)" T_Lut="158(67)">
     <SubModule name="CLKCPU"/>
-    <SubModule name="CLK20" Register="33" Alu="31" Lut="12"/>
-    <SubModule name="CLK13" Register="33" Alu="31" Lut="12"/>
-    <SubModule name="NBMMU" Lut="56">
-        <SubModule name="Bankreg0" Register="8"/>
-        <SubModule name="Bankreg1" Register="8"/>
-        <SubModule name="Bankreg2" Register="8"/>
-        <SubModule name="Bankreg3" Register="8"/>
-        <SubModule name="Bankreg4" Register="8"/>
-        <SubModule name="Bankreg5" Register="8"/>
-        <SubModule name="Bankreg6" Register="8"/>
-        <SubModule name="Bankreg7" Register="8"/>
+    <SubModule name="CLK20" Register="33" Alu="31" Lut="12" T_Register="33(33)" T_Alu="31(31)" T_Lut="12(12)"/>
+    <SubModule name="CLK13" Register="33" Alu="31" Lut="12" T_Register="33(33)" T_Alu="31(31)" T_Lut="12(12)"/>
+    <SubModule name="NewCpuCLK" Register="33" Alu="31" Lut="15" T_Register="33(33)" T_Alu="31(31)" T_Lut="15(15)"/>
+    <SubModule name="NBMMU" Lut="52" T_Register="64(0)" T_Lut="52(52)">
+        <SubModule name="Bankreg0" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg1" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg2" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg3" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg4" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg5" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg6" Register="8" T_Register="8(8)"/>
+        <SubModule name="Bankreg7" Register="8" T_Register="8(8)"/>
     </SubModule>
 </Module>

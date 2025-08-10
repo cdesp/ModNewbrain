@@ -29,6 +29,7 @@ USE ieee.numeric_std.all;
 
 
 --chip select: GW1N-1 FPGA Tang Nano (not 1K)  GW1N-LV1QN48C6/I5
+-- Written with programmer ver. 1.9.7.0.5 beta and usb speed 15MHz
 
 
 --640x480x60Hz 25,175 MHZ clock

@@ -66,8 +66,8 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <td>---</td>
 </tr>
 <tr>
-<td class="label">Version</td>
-<td>V1.9.8.11 Education</td>
+<td class="label">Tool Version</td>
+<td>V1.9.9.02</td>
 </tr>
 <tr>
 <td class="label">Part Number</td>
@@ -83,12 +83,12 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Created Time</td>
-<td>Sun Feb 25 17:09:41 2024
+<td>Sun Jul  7 19:34:57 2024
 </td>
 </tr>
 <tr>
 <td class="label">Legal Announcement</td>
-<td>Copyright (C)2014-2023 Gowin Semiconductor Corporation. All rights reserved.</td>
+<td>Copyright (C)2014-2024 Gowin Semiconductor Corporation. All rights reserved.</td>
 </tr>
 </table>
 <h1><a name="PnR_Details">PnR Details</a></h1>
@@ -97,24 +97,24 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <tr>
 <td class="label">Place & Route Process</td>
 <td>Running placement:
-   Placement Phase 0: CPU time = 0h 0m 0.017s, Elapsed time = 0h 0m 0.017s
-   Placement Phase 1: CPU time = 0h 0m 0.095s, Elapsed time = 0h 0m 0.096s
-   Placement Phase 2: CPU time = 0h 0m 0.006s, Elapsed time = 0h 0m 0.006s
-   Placement Phase 3: CPU time = 0h 0m 0.759s, Elapsed time = 0h 0m 0.759s
-   Total Placement: CPU time = 0h 0m 0.877s, Elapsed time = 0h 0m 0.878s
+   Placement Phase 0: CPU time = 0h 0m 0.019s, Elapsed time = 0h 0m 0.02s
+   Placement Phase 1: CPU time = 0h 0m 0.065s, Elapsed time = 0h 0m 0.065s
+   Placement Phase 2: CPU time = 0h 0m 0.015s, Elapsed time = 0h 0m 0.015s
+   Placement Phase 3: CPU time = 0h 0m 0.64s, Elapsed time = 0h 0m 0.639s
+   Total Placement: CPU time = 0h 0m 0.739s, Elapsed time = 0h 0m 0.739s
 Running routing:
    Routing Phase 0: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-   Routing Phase 1: CPU time = 0h 0m 0.117s, Elapsed time = 0h 0m 0.117s
-   Routing Phase 2: CPU time = 0h 0m 0.162s, Elapsed time = 0h 0m 0.162s
+   Routing Phase 1: CPU time = 0h 0m 0.11s, Elapsed time = 0h 0m 0.11s
+   Routing Phase 2: CPU time = 0h 0m 0.142s, Elapsed time = 0h 0m 0.142s
    Routing Phase 3: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-   Total Routing: CPU time = 0h 0m 0.279s, Elapsed time = 0h 0m 0.279s
+   Total Routing: CPU time = 0h 0m 0.252s, Elapsed time = 0h 0m 0.252s
 Generate output files:
-   CPU time = 0h 0m 0.798s, Elapsed time = 0h 0m 0.798s
+   CPU time = 0h 0m 0.466s, Elapsed time = 0h 0m 0.466s
 </td>
 </tr>
 <tr>
 <td class="label">Total Time and Memory Usage</td>
-<td>CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 170MB</td>
+<td>CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s, Peak memory usage = 320MB</td>
 </tr>
 </table>
 <br/>
@@ -129,12 +129,12 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">Logic</td>
-<td>190/8640</td>
+<td>251/8640</td>
 <td>3%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --LUT,ALU,ROM16</td>
-<td>190(126 LUT, 64 ALU, 0 ROM16)</td>
+<td>251(155 LUT, 96 ALU, 0 ROM16)</td>
 <td>-</td>
 </tr>
 <tr>
@@ -144,17 +144,17 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">Register</td>
-<td>150/6693</td>
-<td>3%</td>
+<td>201/6693</td>
+<td>4%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --Logic Register as Latch</td>
-<td>8/6480</td>
+<td>10/6480</td>
 <td><1%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --Logic Register as FF</td>
-<td>142/6480</td>
+<td>191/6480</td>
 <td>3%</td>
 </tr>
 <tr>
@@ -169,8 +169,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">CLS</td>
-<td>151/4320</td>
-<td>4%</td>
+<td>194/4320</td>
+<td>5%</td>
 </tr>
 <tr>
 <td class="label">I/O Port</td>
@@ -289,11 +289,11 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">LW</td>
-<td>6/8(75%)</td>
+<td>7/8(88%)</td>
 </tr>
 <tr>
 <td class="label">GCLK_PIN</td>
-<td>1/4(25%)</td>
+<td>1/3(34%)</td>
 </tr>
 <tr>
 <td class="label">PLL</td>
@@ -322,37 +322,37 @@ Generate output files:
 <td> TR BL</td>
 </tr>
 <tr>
-<td class="label">nSetBANK2</td>
+<td class="label">cpu_clk</td>
+<td>PRIMARY</td>
+<td> TL BL</td>
+</tr>
+<tr>
+<td class="label">NBMMU/nSetBANK1</td>
 <td>PRIMARY</td>
 <td> BR BL</td>
 </tr>
 <tr>
-<td class="label">nSetBANK0</td>
+<td class="label">NBMMU/nSetBANK0</td>
 <td>PRIMARY</td>
 <td> BR BL</td>
 </tr>
 <tr>
-<td class="label">nSetBANK1</td>
+<td class="label">NBMMU/nSetBANK7</td>
+<td>PRIMARY</td>
+<td> BR</td>
+</tr>
+<tr>
+<td class="label">NBMMU/nSetBANK6</td>
+<td>PRIMARY</td>
+<td> BR</td>
+</tr>
+<tr>
+<td class="label">NBMMU/nSetBANK5</td>
 <td>PRIMARY</td>
 <td> BR BL</td>
 </tr>
 <tr>
-<td class="label">nSetBANK5</td>
-<td>PRIMARY</td>
-<td> BR BL</td>
-</tr>
-<tr>
-<td class="label">nSetBANK7</td>
-<td>PRIMARY</td>
-<td> BR BL</td>
-</tr>
-<tr>
-<td class="label">nSetBANK6</td>
-<td>PRIMARY</td>
-<td> BR BL</td>
-</tr>
-<tr>
-<td class="label">nSetBANK4</td>
+<td class="label">NBMMU/nSetBANK4</td>
 <td>PRIMARY</td>
 <td> BR BL</td>
 </tr>
@@ -362,27 +362,32 @@ Generate output files:
 <td> -</td>
 </tr>
 <tr>
-<td class="label">n185_3</td>
+<td class="label">n215_5</td>
 <td>LW</td>
 <td> -</td>
 </tr>
 <tr>
-<td class="label">n642_3</td>
+<td class="label">n776_7</td>
 <td>LW</td>
 <td> -</td>
 </tr>
 <tr>
-<td class="label">tmp_3</td>
+<td class="label">n178_7</td>
 <td>LW</td>
 <td> -</td>
 </tr>
 <tr>
-<td class="label">tmp_3_0</td>
+<td class="label">n185_6</td>
 <td>LW</td>
 <td> -</td>
 </tr>
 <tr>
-<td class="label">nSetBANK3</td>
+<td class="label">NBMMU/nSetBANK3</td>
+<td>LW</td>
+<td> -</td>
+</tr>
+<tr>
+<td class="label">NBMMU/nSetBANK2</td>
 <td>LW</td>
 <td> -</td>
 </tr>

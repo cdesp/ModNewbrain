@@ -140,6 +140,14 @@ SIGNAL TS2:std_logic:='0';
 --			 TX:out STD_LOGIC; -- v24 tx
 SIGNAL BNUM:std_logic_vector(3-1 downto 0);
 
+SIGNAL MYCPUCLK:std_logic:='0';  --Main Cpu Clock
+SIGNAL ncpu_clk:std_logic:='0';  --Variable Cpu Clock
+SIGNAL cpu_speed : integer range 0 to 255:=0;  --cpu_speed set by out 128,n
+SIGNAL cpu_divider : integer range 0 to 255 :=1 ; -- 2 FREQCNTR for newcpuclk
+SIGNAL clk13_divider : integer range 0 to 250000 :=78000; -- for clk13 12MHz MAIN CPU
+SIGNAL clk20_divider : integer range 0 to 250000 :=120000; -- for clk20
+
+CONSTANT MAINCLOCK:INTEGER :=12; --CHANGE IT ON CPU_OSC.VHD ALSO
 --component sound_osc
 --    port (
 --        oscout: out std_logic
@@ -193,6 +201,7 @@ BEGIN
 --    );
 
 
+
 CLKCPU: CPUOSC
     port map (
         oscout => cpu_clk
@@ -202,8 +211,8 @@ CLK20: Clock_Divider
     port map (
         clk => cpu_clk,
         reset => '1',
-        FREQCNTR => 120000,     --200000 FOR 20MHZ MAIN CLOCK 20MS
-        clock_out => NB20_clk   --146000 for 10Mhz
+        FREQCNTR => clk20_divider,     --200000 FOR 20MHZ MAIN CLOCK 20MS
+        clock_out => NB20_clk   --100000 for 10Mhz
                                 --120000   for 12Mhz
     );                          --40000 for 4mhz,  80000 for 8mhz
 
@@ -211,8 +220,8 @@ CLK13: Clock_Divider
     port map (
         clk => cpu_clk,
         reset => '1',
-        FREQCNTR => 78000,     --130000 FOR 20MHZ MAIN CLOCK 13MS
-        clock_out => NB13_clk  --95000 for 10MHz
+        FREQCNTR => clk13_divider, --78000,     --130000 FOR 20MHZ MAIN CLOCK 13MS
+        clock_out => NB13_clk  --65000 for 10MHz
                                --78000 for 12Mhz
     );                          --26000 for 4 mhz, 52000 for 8mhz
 
@@ -222,6 +231,14 @@ CLK25: Clock_Divider
         reset => '1',
         FREQCNTR => 3,     --3 for 2.5MHz when main clk is 15mhz
         clock_out => snd_clk
+    );
+
+NewCpuCLK: Clock_Divider
+    port map (
+        clk => cpu_clk,
+        reset => '1',
+        FREQCNTR => cpu_divider,     --3 for 2.5MHz when main clk is 15mhz
+        clock_out => ncpu_clk
     );
 
 
@@ -257,7 +274,7 @@ NBMMU: MMU2
 	  end if;
 	end process;
 
-	process (NB13_clk,CLRCOP)   --in from port 20=$14 clears cop int
+	process (NB13_clk,CLRCOP,CLRKBD)   --in from port 20=$14 clears cop int
 	begin
                 
       IF CLRCOP='0' THEN
@@ -274,13 +291,13 @@ NBMMU: MMU2
 	end process;
 
 
-PROCESS (cpu_clk)
+PROCESS (MYCPUCLK,nRESET)
 
 BEGIN
   IF nRESET='0' THEN
        INTEN <='1';
        NBEN<='1'; --NB IS ENABLED FALSE       
-  ELSIF rising_edge(cpu_clk) then
+  ELSIF rising_edge(MYCPUCLK) then
     IF nIORQin='0' and nWRin='0' AND ADDRin=x"E0"  THEN     --OUT E0,00b TO ENABLE INTERRUPT SERVICE & SET NBEN
        INTEN <=DATAIN(0);
        NBEN <= DATAIN(1);
@@ -304,15 +321,28 @@ BEGIN
      NBEN<='0';
    END IF;
   end if;     --RISING
+END PROCESS;
 
-   
+PROCESS (MYCPUCLK,nRESET)
+BEGIN
+  IF nRESET='0' THEN
+     cpu_speed <=0;
+     cpu_divider <= 1;
+  ELSIF rising_edge(MYCPUCLK) then 
 
+    IF nIORQin='0' and nWRin='0' and ADDRin="10000000"  THEN
+      cpu_speed <= to_integer(unsigned(DATAio)); -- out 128,x set cpu speed
+      cpu_divider <= 1;
+      IF cpu_speed>0 THEN
+        cpu_divider <= cpu_speed;
+      END IF;
+    END IF;
 
-
+  END IF; 
 
 END PROCESS;
 
-cpuclkO <= cpu_clk;
+cpuclkO <= MYCPUCLK;
 --sndclkO <= '1';--snd_clk; 
 --nbclk20 <= NB20_clk;
 --nbclk13 <= NB13_clk;
@@ -334,11 +364,14 @@ nReset2 <= nReset;
 nINTMMU <= '0' when nIORQin='0' and nWRin='0' and ADDRin="00000000" and INTEN='1' --out 0 is MMU Dev , INTEN SAFE ON NB NO PAGING
         else '1'; 
 
+--cpu_speed <= to_integer(unsigned(DATAio)) when nIORQin='0' and nWRin='0' and ADDRin="10000000" -- out 128,x set cpu speed
+  --        else cpu_speed;
+
 nINTout <= FRMint and COPINT WHEN INTEN='0' ELSE '1';
 --nINTout <= '1';
 
 DIROUT <= outputData;--'1'; '1'=INPUT DATA FOR 74LVC4245 DIRECTION
-outputData <= '0' WHEN nIORQin='0' and nRDin='0' AND (ADDRin=x"06" OR ADDRin=x"14"  OR ADDRin=x"03" OR ADDRin=x"16") -- WE GIVE DATA on ports 6,20,22 ,72(KB),3
+outputData <= '0' WHEN nIORQin='0' and nRDin='0' AND (ADDRin=x"06" OR ADDRin=x"14"  OR ADDRin=x"03" OR ADDRin=x"16" OR ADDRin=x"80") -- WE GIVE DATA on ports 6,20,22 ,72(KB),3
 	  ELSE '1';                                                                     --OR ADDRin=KBPORT
 DATAio<=DATAout when outputData='0' else (OTHERS=>'Z');
 DATAin<=DATAio; 
@@ -408,6 +441,7 @@ DATAin<=DATAio;
 --UPTINTBAR	EQU 4       ;1 NOT INT
 --POWTEST	EQU 1       ;0 FOR POWER
 --EXTEST	EQU 0       ;1 MEANS 24
+       ELSE std_logic_vector(to_unsigned(MAINCLOCK /(2**cpu_speed), DATAout'length)) WHEN  nIORQin='0' and nRDin='0' AND  ADDRin=x"80" -- READ THE CPU CLOCK BY IN 128,A
 
 																				--bit 1 is pwrup should be 0 when we are ready
     -- ELSE COPCTL WHEN nIORQin='0' and nRDin='0' AND ADDRin=x"03"	
@@ -438,13 +472,43 @@ DATAin<=DATAio;
     dvSTRout <= STRce; --to from storage device;
     dvKBout  <= KBce; --to PS/2 Keyboard Device
     dvI2Cout <= I2Cce; --to i2c Devices 
-    dvSNDout <= SNDce; --to sound device
+--    dvSNDout <= SNDce; --to sound device
     --kbintIN <='0' when dvKBin='1' and copint='0' and frmint='0' else kbintIN; -- 1 means a key is available on COP
     kbintIN <=  dvKBin ;--when copint='0' and frmint='0' else kbintIN; -- 1 means a key is available on COP
 
+    
+--    cpu_divider <= 0 WHEN cpu_speed=0
+--              ELSE 1 WHEN cpu_speed=1
+ --             ELSE 2 WHEN cpu_speed=2   
+  --            ELSE 3 WHEN cpu_speed=3   
+   --           ELSE 1;                   
+    MYCPUCLK<=cpu_clk WHEN cpu_speed=0 --default full speed 12Mhz
+         ELSE ncpu_clk; --default
+         
+
+
+  --26=10 MHz --24= 11MHz  --22 = 12MHz -- 20 = 13MHZ -- 18 =14MHZ --12 = 20MHZ --64=4 Mhz 32=8 Mhz
+  --clk13_divider <=  26000 WHEN MAINCLOCK=4   
+  --            ELSE  52000 WHEN MAINCLOCK=8
+  --            ELSE  65000 WHEN MAINCLOCK=10  
+  --            ELSE  78000 WHEN MAINCLOCK=12  --for 12Mhz Clk
+  --            ELSE 130000 WHEN MAINCLOCK=20
+  --            ELSE 78000;  
+
+ clk13_divider <= 6500 * MAINCLOCK; 
+ clk20_divider <= 10000 * MAINCLOCK; 
+
+  --clk20_divider <=  40000 WHEN MAINCLOCK=4  --for 12Mhz Clk
+  --            ELSE  80000 WHEN MAINCLOCK=8              
+  --            ELSE 100000 WHEN MAINCLOCK=10
+  --            ELSE 120000 WHEN MAINCLOCK=12
+  --            ELSE 200000 WHEN MAINCLOCK=20                                    
+  --            ELSE 120000;  
+
+
 
 --TEST SIGNALS
- BNUM <= A15 & A14 & A13;
+   BNUM <= A15 & A14 & A13;
    --TSTOUT <='0' WHEN COPint='0' AND FRMINT='0' ELSE '1';
     --TSTOUT <= '0' WHEN nIORQin='0' and nWRin='0' AND  ADDRin=x"09" ELSE '1';
    -- TSTOUT <= '0' WHEN nIORQin='0'  AND  (ADDRin=x"06" OR ADDRin=x"14" )  ELSE '1';--'0' WHEN nIORQin='0' AND ( ADDRin=x"14" OR ADDRin=x"04"  ) ELSE '1' ;--OR ADDRin=x"07")   ELSE '1';  
@@ -456,7 +520,9 @@ DATAin<=DATAio;
     TSTOUT2 <= dvKBin;--not working on my board
     
     TSTOUT3 <= NB20_clk;
-    sndclkO <= '1';--KBce WHEN nRDin='0' ELSE '1'; -- ONLY FOR IN DVKEYB
+    sndclkO <= ncpu_clk;--KBce WHEN nRDin='0' ELSE '1'; -- ONLY FOR IN DVKEYB
+    dvSNDout <= dataIO(0)  when nIORQin='0' and nWRin='0' and ADDRin=x"7f"  --127
+      ELSE dvSNDout;
     --...
     TSTOUT <= '0';--kbintIn; --not working on my board
     --TSTOUT2 <= I2Cce;

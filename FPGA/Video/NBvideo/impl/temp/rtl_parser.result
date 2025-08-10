@@ -1,15 +1,15 @@
 [
  {
   "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src/vga.vhd",
-  "InstLine" : 79,
+  "InstLine" : 80,
   "InstName" : "vga_controller",
   "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src/vga.vhd",
-  "ModuleLine" : 79,
+  "ModuleLine" : 80,
   "ModuleName" : "vga_controller",
   "SubInsts" : [
    {
     "InstFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src/vga.vhd",
-    "InstLine" : 211,
+    "InstLine" : 212,
     "InstName" : "SPRMEM",
     "ModuleFile" : "G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Video/NBvideo/src/gowin_sp/gowin_spRAM.vhd",
     "ModuleLine" : 12,

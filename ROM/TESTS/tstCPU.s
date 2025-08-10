@@ -1,0 +1,17 @@
+Org 25000
+
+INCLUDE ..\80ROM\BOOTLD_8000.SYM
+
+
+
+
+
+ld a,1
+out (128),a
+IN A, (128)          ; THE CPU SPEED IN MHZ e.g. 12
+CALL SOUTAS
+
+
+JP MENU
+
+

@@ -27,18 +27,21 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <th class="label">DSP NUMBER</th>
 <th class="label">BSRAM NUMBER</th>
 <th class="label">SSRAM NUMBER</th>
+<th class="label">ROM16 NUMBER</th>
 </tr>
 <tr>
 <td class="label">NBLOGIC (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd)</td>
-<td align = "center">20</td>
+<td align = "center">38</td>
 <td align = "center">-</td>
-<td align = "center">49</td>
+<td align = "center">67</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp|--CLKCPU
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd)</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
@@ -54,6 +57,7 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
+<td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp|--CLK13
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd)</td>
@@ -63,12 +67,24 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
+<td align = "center">-</td>
+</tr>
+<td class="label">&nbsp&nbsp&nbsp&nbsp|--NewCpuCLK
+ (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd)</td>
+<td align = "center">33</td>
+<td align = "center">31</td>
+<td align = "center">15</td>
+<td align = "center">-</td>
+<td align = "center">-</td>
+<td align = "center">-</td>
+<td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp|--NBMMU
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/MainLogic.vhd)</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
-<td align = "center">56</td>
+<td align = "center">52</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
@@ -76,6 +92,7 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td class="label">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp|--Bankreg0
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd)</td>
 <td align = "center">8</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
@@ -90,10 +107,12 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
+<td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp|--Bankreg2
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd)</td>
 <td align = "center">8</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
@@ -108,10 +127,12 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
+<td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp|--Bankreg4
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd)</td>
 <td align = "center">8</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
@@ -126,6 +147,7 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
+<td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp|--Bankreg6
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd)</td>
@@ -135,10 +157,12 @@ table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-co
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
+<td align = "center">-</td>
 </tr>
 <td class="label">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp|--Bankreg7
  (G:/_Programming/_DOCS/Schematics/ModularNBrain/FPGA/Logic/NBLogic/src/NBMMU.vhd)</td>
 <td align = "center">8</td>
+<td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>
 <td align = "center">-</td>

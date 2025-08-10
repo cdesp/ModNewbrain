@@ -17,6 +17,22 @@ end CPUOSC;
 
 architecture Behavioral of CPUOSC is
 
+CONSTANT MAINCLOCK:INTEGER :=8;
+--66=  4Mhz         CLOCK OK NEEDS CHANGE ON DELAYS FOR STORAGE PROBABLY
+--44=  6MHz 
+--32=  7.8MHz
+--34=  8.2Mhz
+--26= 10.2MHz            DELAYS???
+--24= 11MHz         CLOCK OK RUN PERFECTLY
+--22= 12MHz         CLOCK OK RUN PERFECTLY
+--20= 13.2MHZ           DELAYS???
+--18= 14.6MHZ         
+--16= 16.4MHZ                     
+--12= 20MHZ 
+
+
+CONSTANT FDIV:INTEGER := 22; -- EVEN NUMBER ONLY  264 / MAINCLOCK???
+
     --component declaration
     component OSC
         generic (
@@ -27,12 +43,12 @@ architecture Behavioral of CPUOSC is
             OSCOUT: out std_logic
         );
     end component;
-
+ 
 begin
     osc_inst: OSC
         generic map (
-            FREQ_DIV => 22,       --26=10 MHz --24= 11MHz  --22 = 12MHz -- 20 = 13MHZ -- 18 =14MHZ --13 = 20MHZ
-            DEVICE => "GW1NR-9"     --66=4 Mhz 32=8 Mhz
+            FREQ_DIV => FDIV ,       
+            DEVICE => "GW1NR-9C"     
         )
         port map (
             OSCOUT => oscout

@@ -11,6 +11,6 @@
 -oreg_not_in_iob
 -ioreg_not_in_iob
 -cst_error
--route_option 1
 -correct_hold 1
 -route_maxfan 23
+-global_freq 50.000

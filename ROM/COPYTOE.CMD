@@ -1,0 +1,1 @@
+@COPY OSNB2.BIN E:\

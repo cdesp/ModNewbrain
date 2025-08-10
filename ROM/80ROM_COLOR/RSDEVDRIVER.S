@@ -1,0 +1,130 @@
+		;SERIAL DEVICE DRIVER USING 16550
+		
+		GLOBAL RS2IO
+
+		ENREGMAP EQU $24 						;
+		ENREG EQU 07
+		
+		
+		BRKTST EQU 0E31BH
+		STOPTV EQU 0E548H
+		WMKBUFF EQU 037EFH
+		ZMKBUFF EQU 037E7H
+;RSPORT EQU 33							;
+		
+;DEVSER EQU $20
+		RBR EQU DEVSER + 0 						;
+		MCR EQU DEVSER + 04
+		LSR EQU DEVSER + 05
+		
+		
+		
+;CPL			;ROM IS HERE
+;LD HL,($58) 	;=46891 B72B
+;LD B,(HL)	;=12 ENTRIES
+;RL B		;*2=24 (2 BYTES EACH ADDRESS)
+;CALL STNEWD	;SET NEW DEVICE TABLE
+		
+;JP $A015 	;CONTINUE AT ROM A000
+		
+		
+		
+		
+RS2IO:		EQU $
+		DEFB 4
+		DEFB RS2OIN-$ 							;OPEN IN
+		DEFB RS2OOT-$ 							;OPEN OUT
+		DEFB RS2INP-$ 							;INPUT BYTE
+		DEFB RS2OTP-$ 							;OUTPUT BYTE
+		DEFB RS2CLS-$ 							;CLOSE
+		
+		
+;D=PORT NUMBER
+;E=STREAM NUMBER
+;BCHL=PARAMETER STRING
+;RET CY SET,A=ERROR CODE
+;RET CY CLR,BCHL=RETURNED PARAMETER STRING
+;PRESERVE IY AND ALT REGS
+;RET BC=0 IF NOT USED IS BETTER
+RS2OIN:										;OPENIN
+		
+RS2OOT:		PUSH BC 							;OPENOUT
+		LD BC, 1 							;NO OF BYTES REQUIRED
+		DEFW ZMKBUFF 							;
+		POP BC 								;
+		RET C 								;
+;HL HAS THE BUFFER ADDR
+		LD (HL), D 							;PORT NUMBER
+RS2CLS:		XOR A 								; CLOSE STREAM
+		LD B A 								;
+		LD C A 								;
+		RET 								;
+		
+;A=DATA
+;D=PORT NUMBER
+;E=STREAM NUMBER
+;HL=OWN MEMORY
+;RET CY CLEAR, A= DATA
+;RET CY SET, A=ERROR CODE
+;PRESERVE IY AND ALT REGS
+		
+RS2INP:		DI 								;
+		LD HL ENREGMAP 							;
+		RES VIDEO, (HL) 						; NO VIDEO
+		LD A, (HL)
+		OUT (ENREG) A 							;
+		LD A, 1
+		OUT (MCR), A
+		CALL MWAIT 							;
+		XOR A 								;NOT ready to receive SIGNAL DSR 0
+		OUT (MCR), A
+		IN A, (RBR) 							;GET THE CHAR
+		CALL STOPTV 							;
+		EI 								;
+		OR A 								;
+		RET
+		
+		
+RS2OTP:		LD C, A 							;
+		
+CHECK:										;EI	;
+;CALL BRKTST	;
+;RET C	;  COULD BE USED IN LOOP FOR TESTING CTS ON THE OTHER SIDE
+		
+		DI 								;
+		CALL $E21C 							;NOVID	;
+		LD A, C
+		CALL $8007 							;RSTX 		;SEND CHAR IN A
+		CALL STOPTV 							;
+		EI 								;
+		DEC HL 								;
+		OR A 								;
+		RET 								;
+		
+		
+MWAIT:		LD HL 25600
+;return to MWAIT2 with B=0
+MWAIT2:		IN A, (LSR)
+		RRA 								;check d0 ('DATA')
+		RET C
+		DJNZ MWAIT2
+		IN A, (LSR)
+		RRA 								;check d0 ('DATA')
+		RET C
+		DEC L
+		IN A, (LSR)
+		RRA 								;check d0 ('DATA')
+		RET C
+		JP NZ MWAIT2
+		IN A, (LSR)
+		RRA 								;check d0 ('DATA')
+		RET C
+		DEC H
+		IN A, (LSR)
+		RRA
+		RET C
+		JP NZ, MWAIT2
+		POP AF 								;POP LAST RETURN ADDRESS FROM STACK
+		LD A, 200 							;TIMEOUT ERROR
+		SCF
+		RET 								;RETURN TO BASIC WITH ERROR TIMEOUT

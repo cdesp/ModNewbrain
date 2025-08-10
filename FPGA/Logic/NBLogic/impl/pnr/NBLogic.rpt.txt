@@ -1,4 +1,4 @@
-//Copyright (C)2014-2023 Gowin Semiconductor Corporation.
+//Copyright (C)2014-2024 Gowin Semiconductor Corporation.
 //All rights reserved.
 
 
@@ -8,31 +8,31 @@
   <Design File>: G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\impl\gwsynthesis\NBLogic.vg
   <Physical Constraints File>: G:\_Programming\_DOCS\Schematics\ModularNBrain\FPGA\Logic\NBLogic\src\Logic.cst
   <Timing Constraints File>: ---
-  <PnR Version>: V1.9.8.11 Education
+  <Tool Version>: V1.9.9.02
   <Part Number>: GW1NR-LV9QN88PC6/I5
   <Device>: GW1NR-9
   <Device Version>: C
-  <Created Time>:Sun Feb 25 17:09:41 2024
+  <Created Time>:Sun Jul  7 19:34:57 2024
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.017s, Elapsed time = 0h 0m 0.017s
-    Placement Phase 1: CPU time = 0h 0m 0.095s, Elapsed time = 0h 0m 0.096s
-    Placement Phase 2: CPU time = 0h 0m 0.006s, Elapsed time = 0h 0m 0.006s
-    Placement Phase 3: CPU time = 0h 0m 0.759s, Elapsed time = 0h 0m 0.759s
-    Total Placement: CPU time = 0h 0m 0.877s, Elapsed time = 0h 0m 0.878s
+    Placement Phase 0: CPU time = 0h 0m 0.019s, Elapsed time = 0h 0m 0.02s
+    Placement Phase 1: CPU time = 0h 0m 0.065s, Elapsed time = 0h 0m 0.065s
+    Placement Phase 2: CPU time = 0h 0m 0.015s, Elapsed time = 0h 0m 0.015s
+    Placement Phase 3: CPU time = 0h 0m 0.64s, Elapsed time = 0h 0m 0.639s
+    Total Placement: CPU time = 0h 0m 0.739s, Elapsed time = 0h 0m 0.739s
  Running routing:
     Routing Phase 0: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Routing Phase 1: CPU time = 0h 0m 0.117s, Elapsed time = 0h 0m 0.117s
-    Routing Phase 2: CPU time = 0h 0m 0.162s, Elapsed time = 0h 0m 0.162s
+    Routing Phase 1: CPU time = 0h 0m 0.11s, Elapsed time = 0h 0m 0.11s
+    Routing Phase 2: CPU time = 0h 0m 0.142s, Elapsed time = 0h 0m 0.142s
     Routing Phase 3: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Total Routing: CPU time = 0h 0m 0.279s, Elapsed time = 0h 0m 0.279s
+    Total Routing: CPU time = 0h 0m 0.252s, Elapsed time = 0h 0m 0.252s
  Generate output files:
-    CPU time = 0h 0m 0.798s, Elapsed time = 0h 0m 0.798s
+    CPU time = 0h 0m 0.466s, Elapsed time = 0h 0m 0.466s
 
- Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 170MB
+ Total Time and Memory Usage: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s, Peak memory usage = 320MB
 
 
 3. Resource Usage Summary
@@ -40,15 +40,15 @@
   ----------------------------------------------------------
   Resources                   | Usage
   ----------------------------------------------------------
-  Logic                       | 190/8640  3%
-    --LUT,ALU,ROM16           | 190(126 LUT, 64 ALU, 0 ROM16)
+  Logic                       | 251/8640  3%
+    --LUT,ALU,ROM16           | 251(155 LUT, 96 ALU, 0 ROM16)
     --SSRAM(RAM16)            | 0
-  Register                    | 150/6693  3%
-    --Logic Register as Latch | 8/6480  <1%
-    --Logic Register as FF    | 142/6480  3%
+  Register                    | 201/6693  4%
+    --Logic Register as Latch | 10/6480  <1%
+    --Logic Register as FF    | 191/6480  3%
     --I/O Register as Latch   | 0/213  0%
     --I/O Register as FF      | 0/213  0%
-  CLS                         | 151/4320  4%
+  CLS                         | 194/4320  5%
   I/O Port                    | 46
   I/O Buf                     | 45
     --Input Buf               | 17
@@ -87,8 +87,8 @@
   Global Clock  | Usage       
   -------------------------------
   PRIMARY       | 8/8(100%)
-  LW            | 6/8(75%)
-  GCLK_PIN      | 1/4(25%)
+  LW            | 7/8(88%)
+  GCLK_PIN      | 1/3(34%)
   PLL           | 0/2(0%)
   CLKDIV        | 0/8(0%)
   DLLDLY        | 0/8(0%)
@@ -101,19 +101,20 @@
   Signal         | Global Clock   | Location
   -------------------------------------------
   cpuclkO_d      | PRIMARY        |  TR BL
-  nSetBANK2      | PRIMARY        |  BR BL
-  nSetBANK0      | PRIMARY        |  BR BL
-  nSetBANK1      | PRIMARY        |  BR BL
-  nSetBANK5      | PRIMARY        |  BR BL
-  nSetBANK7      | PRIMARY        |  BR BL
-  nSetBANK6      | PRIMARY        |  BR BL
-  nSetBANK4      | PRIMARY        |  BR BL
+  cpu_clk        | PRIMARY        |  TL BL
+  NBMMU/nSetBANK1| PRIMARY        |  BR BL
+  NBMMU/nSetBANK0| PRIMARY        |  BR BL
+  NBMMU/nSetBANK7| PRIMARY        |  BR
+  NBMMU/nSetBANK6| PRIMARY        |  BR
+  NBMMU/nSetBANK5| PRIMARY        |  BR BL
+  NBMMU/nSetBANK4| PRIMARY        |  BR BL
   nRESET_d       | LW             |  -
-  n185_3         | LW             |  -
-  n642_3         | LW             |  -
-  tmp_3          | LW             |  -
-  tmp_3_0        | LW             |  -
-  nSetBANK3      | LW             |  -
+  n215_5         | LW             |  -
+  n776_7         | LW             |  -
+  n178_7         | LW             |  -
+  n185_6         | LW             |  -
+  NBMMU/nSetBANK3| LW             |  -
+  NBMMU/nSetBANK2| LW             |  -
   ===========================================
 
 
